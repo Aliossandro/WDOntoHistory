@@ -35,7 +35,7 @@ def create_tables():
     bigQuery = """
     BEGIN;
 WITH revTemp AS (SELECT itemid, revid, timestamp, username FROM revisionData_201710 WHERE username NOT IN (SELECT bot_name FROM bot_list) AND username !~ '([0-9]{1,3}[.]){3}[0-9]{1,3}|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))')
-SELECT username, COUNT(*) AS noEdits, COUNT(DISTINCT itemid) AS itemDiv, EXTRACT(EPOCH FROM ('2017-10-01 00:00:00'::timestamp - MIN(tS))) AS oldEdit, (COUNT(*)/COUNT(DISTINCT itemid)::float) AS editRatio
+SELECT username, COUNT(*) AS noEdits, COUNT(DISTINCT itemid) AS itemDiv, EXTRACT(EPOCH FROM ('2017-10-01 00:00:00'::timestamp - MIN(timestamp))) AS oldEdit, (COUNT(*)/COUNT(DISTINCT itemid)::float) AS editRatio
 INTO tempUserStats
 FROM revTemp
 GROUP BY username;
@@ -103,6 +103,7 @@ COMMIT;
     try:
         conn = get_db_params()
         cur = conn.cursor()
+        print("I execute the big query!")
         cur.execute(bigQuery)
         cur.close()
         conn.commit()
