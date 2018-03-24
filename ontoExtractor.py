@@ -53,8 +53,8 @@ def create_table():
 (SELECT itemId, revId, timestamp FROM revisionData_201710) p, (SELECT revId, statementId, statProperty, statvalue FROM statementsData_201710 WHERE statProperty = 'P279' OR statProperty = 'P31') t
 WHERE p.revId = t.revId)"""
 
-    queryStatData = """CREATE TABLE IF NOT EXISTS statementDated AS (SELECT p.itemid, p.statproperty, p.statvalue, p.statementid, p.revid, t.timestamp
-    FROM statementsData_201710 p LEFT JOIN revisionData_201710 t ON p.revid = t.revid);"""
+    queryStatData = """CREATE TABLE IF NOT EXISTS statementDated AS (SELECT p.itemid, p.statproperty, p.statvalue, p.statementid, p.revid, t.timestamp, t.username
+    FROM statementsData_201710 p LEFT JOIN revisionData_201710 t ON p.revid::int = t.revid::int);"""
 
 
     conn = None
@@ -202,8 +202,8 @@ def queryexecutor():
                 ### Relationship richness
                 try:
                     queryRich = """
-                                        SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date + """ 00:00:00' 
-                                        AND ((itemid IN (SELECT DISTINCT itemId FROM tempData WHERE statproperty != 'P31' WHERE  timestamp < '""" + date + """ 00:00:00')) 
+                                        SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date + """ 00:00:00'
+                                        AND ((itemid IN (SELECT DISTINCT itemId FROM tempData WHERE statproperty != 'P31' WHERE  timestamp < '""" + date + """ 00:00:00'))
                                         OR (itemid IN (SELECT DISTINCT statvalue FROM tempData WHERE  timestamp < '""" + date + """ 00:00:00')));
                                     """
                     # print(query)
@@ -376,8 +376,8 @@ def queryexecutor():
                 ### Relationship richness
                 try:
                     queryRich = """
-                                                        SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date + """ 00:00:00' 
-                                                        AND ((itemid IN (SELECT DISTINCT itemId FROM tempData WHERE statproperty != 'P31' WHERE  timestamp < '""" + date + """ 00:00:00')) 
+                                                        SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date + """ 00:00:00'
+                                                        AND ((itemid IN (SELECT DISTINCT itemId FROM tempData WHERE statproperty != 'P31' WHERE  timestamp < '""" + date + """ 00:00:00'))
                                                         OR (itemid IN (SELECT DISTINCT statvalue FROM tempData WHERE  timestamp < '""" + date + """ 00:00:00')));
                                                     """
                     # print(query)
