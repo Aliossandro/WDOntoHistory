@@ -45,13 +45,13 @@ FROM (SELECT * FROM revision_history_201710 WHERE user_name NOT IN (SELECT bot_n
 LEFT JOIN revision_tags t ON p.rev_id::int = t.rev_id::int);
 
 CREATE TEMP TABLE batchEdits AS (
-SELECT username, COUNT(*) AS noBatchedit
+SELECT user_name, COUNT(*) AS noBatchedit
 FROM (SELECT * FROM revision_history_tagged WHERE automated_tool = 't') AS pippo
 GROUP BY username);
 
 CREATE TEMP TABLE ontousers AS (
 SELECT username, COUNT(*) AS noOntoedit
-FROM tempData
+FROM (SELECT * FROM revisionData_201710 WHERE itemId IN (SELECT DISTINCT statvalue FROM tempData) OR itemId IN (SELECT DISTINCT itemId FROM tempData WHERE statproperty != 'P31')) poopi
 GROUP BY username);
 
 CREATE TEMP TABLE propertyusers AS (
