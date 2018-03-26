@@ -219,8 +219,8 @@ def queryexecutor():
                 except:
                     dictStats[date]['relRichness'] = 'NA'
 
-            except:
-                print("no df available")
+            except Exception as e:
+                print(e, "no df available")
 
             try:
                 query2 = """ SELECT DISTINCT itemId FROM (SELECT itemId, (timestamp::timestamp) FROM revisionData_201710 WHERE timestamp < '""" + date + """ 00:00:00' AND itemId !~* 'P[0-9]{1,}') AS fs;"""
@@ -231,8 +231,8 @@ def queryexecutor():
 
                 fileName = "WDIndiv-" + date + ".csv"
                 dfIndiv.to_csv(fileName, index=False)
-            except:
-                print("no df available")
+            except Exception as e:
+                print(e, "no df available")
 
             try:
                 query3 = """ SELECT DISTINCT itemId FROM (SELECT itemId, (timestamp::timestamp) FROM revisionData_201710 WHERE timestamp < '""" + date + """ 00:00:00' AND itemId ~* 'P[0-9]{1,}') AS fs;"""
@@ -264,11 +264,11 @@ def queryexecutor():
                     dictStats[date]['noPropUseMin'] = min(propUseCount)
                     dictStats[date]['noPropUseQuant'] = (np.percentile(propUseCount, 25), np.percentile(propUseCount, 50),
                      np.percentile(propUseCount, 75))
-                except:
+                except Exception as e:
                     print("propuse not available")
 
-            except:
-                print("no df available")
+            except Exception as e:
+                print(e, "no df available")
 
 
         for j in range(10, 13):
@@ -393,8 +393,8 @@ def queryexecutor():
                 except:
                     dictStats[date]['relRichness'] = 'NA'
 
-            except:
-                print("no df available")
+            except Exception as e:
+                print(e, "no df available")
 
             try:
                 query2 = """ SELECT DISTINCT itemId FROM (SELECT itemId, (timestamp::timestamp) FROM revisionData_201710 WHERE timestamp < '""" + date + """ 00:00:00' AND itemId !~* 'P[0-9]{1,}') AS fs;"""
@@ -405,8 +405,8 @@ def queryexecutor():
 
                 fileName = "WDIndiv-" + date + ".csv"
                 dfIndiv.to_csv(fileName, index=False)
-            except:
-                print("no df available")
+            except Exception as e:
+                print(e, "no df available")
 
             try:
                 query3 = """ SELECT DISTINCT itemId FROM (SELECT itemId, (timestamp::timestamp) FROM revisionData_201710 WHERE timestamp < '""" + date + """ 00:00:00' AND itemId ~* 'P[0-9]{1,}') AS fs;"""
@@ -438,11 +438,11 @@ def queryexecutor():
                     dictStats[date]['noPropUseQuant'] = (
                     np.percentile(propUseCount, 25), np.percentile(propUseCount, 50),
                     np.percentile(propUseCount, 75))
-                except:
+                except Exception as e:
                     print("propuse not available")
 
-            except:
-                print("no df available")
+            except Exception as e:
+                print(e, "no df available")
 
 
 
