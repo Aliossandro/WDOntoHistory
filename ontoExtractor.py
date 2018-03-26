@@ -155,7 +155,7 @@ def queryexecutor():
                     if cl not in classCountNew.keys():
                         classCountNew[cl] = 0
 
-                dictStats[date]['cRichness'] = classesWInstances/noClasses
+                dictStats[date]['cRichness'] = len(classCountNew)/noClasses
                 instanceList = [classCountNew[k] for k in classCountNew.keys()]
                 dictStats[date]['avgPop'] = np.mean(instanceList)
                 dictStats[date]['medianPop'] = np.median(instanceList)
@@ -326,7 +326,7 @@ def queryexecutor():
                     if cl not in classCountNew.keys():
                         classCountNew[cl] = 0
 
-                dictStats[date]['cRichness'] = classesWInstances / noClasses
+                dictStats[date]['cRichness'] = len(classCountNew) / noClasses
                 instanceList = [classCountNew[k] for k in classCountNew.keys()]
                 dictStats[date]['avgPop'] = np.mean(instanceList)
                 dictStats[date]['medianPop'] = np.median(instanceList)
