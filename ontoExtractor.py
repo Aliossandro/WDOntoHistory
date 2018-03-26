@@ -97,6 +97,7 @@ def queryexecutor():
     for i in range(13, 18):
         for j in range(1, 10):
             date = "20" + str(i) + "-0" + str(j) + "-01"
+            print(date)
 
             try:
                 dictStats[date] = {}
@@ -126,13 +127,13 @@ def queryexecutor():
 
 
                 ### No. classes
-                dfClean['statvalue'] = dfClean['statvalue'].apply(lambda x: str(x))
-                dfClean['itemid'] = dfClean['itemid'].apply(lambda x: str(x))
+                dfClean['statvalue'] = dfClean['statvalue'].apply(lambda ni: str(ni))
+                dfClean['itemid'] = dfClean['itemid'].apply(lambda nu: str(nu))
                 subClasses = list(dfClean['itemid'][dfClean['statproperty'] == "P279"].unique())
                 classesList = list(dfClean['statvalue'].unique())
-                rootClasses = [i for i in classesList if i not in subClasses]
+                rootClasses = [x for x in classesList if x not in subClasses]
                 instanceOf = list(dfClean['statvalue'][dfClean['statproperty'] == 'P31'].unique())
-                instanceOf = [j for j in instanceOf if j not in rootClasses]
+                instanceOf = [k for k in instanceOf if k not in rootClasses]
                 leafClasses = list(dfClean['itemid'][(dfClean['statproperty'] == 'P279') & (~dfClean['itemid'].isin(dfClean['statvalue']))].unique())
                 # leafClasses = set(leafClasses + instanceOf)
                 classesList += subClasses
@@ -156,7 +157,7 @@ def queryexecutor():
                         classCountNew[cl] = 0
 
                 dictStats[date]['cRichness'] = len(classCountNew)/len(set(classesList))
-                instanceList = [classCountNew[k] for k in classCountNew.keys()]
+                instanceList = [classCountNew[l] for l in classCountNew.keys()]
                 dictStats[date]['avgPop'] = np.mean(instanceList)
                 dictStats[date]['medianPop'] = np.median(instanceList)
                 dictStats[date]['quantilePop'] = (np.percentile(instanceList, 25), np.percentile(instanceList, 50), np.percentile(instanceList, 75))
@@ -174,9 +175,9 @@ def queryexecutor():
                 dictStats[date]['quantileInheritance'] = (np.percentile(inheritanceList, 25), np.percentile(inheritanceList, 50), np.percentile(inheritanceList, 75))
 
                 ### Explicit depth
-                x = dfClean.groupby(['itemid', 'statproperty'])['statvalue'].unique()
+                bibi = dfClean.groupby(['itemid', 'statproperty'])['statvalue'].unique()
 
-                uniquePerClass = x.to_frame()
+                uniquePerClass = bibi.to_frame()
                 uniquePerClass.reset_index(inplace=True)
                 uniqueSuperClasses = uniquePerClass[uniquePerClass['statproperty'] == 'P279']
                 uniqueSuperClasses.drop('statproperty', axis=1, inplace=True)
@@ -187,12 +188,12 @@ def queryexecutor():
                     uniqueDict[key] = uniqueDict[key][0]
 
                 allPaths = []
-                for i in leafClasses:
-                    for j in rootClasses:
-                        pathLength = find_all_paths(uniqueDict, i, j)
+                for cla in leafClasses:
+                    for clo in rootClasses:
+                        pathLength = find_all_paths(uniqueDict, cla, clo)
                         allPaths += pathLength
 
-                allPaths = [len(i) for i in allPaths]
+                allPaths = [len(path) for path in allPaths]
                 dictStats[date]['maxDepth'] = max(allPaths)
                 dictStats[date]['avgDepth'] = np.mean(allPaths)
                 dictStats[date]['medianDepth'] = np.median(allPaths)
@@ -273,6 +274,7 @@ def queryexecutor():
 
         for j in range(10, 13):
             date = "20" + str(i) + "-" + str(j) + "-01"
+            print(date)
             try:
                 dictStats[date] = {}
                 query = """
@@ -296,13 +298,13 @@ def queryexecutor():
                 dictStats[date]['P31'] = uniqueAll['P31']
 
                 ### No. classes
-                dfClean['statvalue'] = dfClean['statvalue'].apply(lambda x: str(x))
-                dfClean['itemid'] = dfClean['itemid'].apply(lambda x: str(x))
+                dfClean['statvalue'] = dfClean['statvalue'].apply(lambda ni: str(ni))
+                dfClean['itemid'] = dfClean['itemid'].apply(lambda nu: str(nu))
                 subClasses = list(dfClean['itemid'][dfClean['statproperty'] == "P279"].unique())
                 classesList = list(dfClean['statvalue'].unique())
-                rootClasses = [i for i in classesList if i not in subClasses]
+                rootClasses = [x for x in classesList if x not in subClasses]
                 instanceOf = list(dfClean['statvalue'][dfClean['statproperty'] == 'P31'].unique())
-                instanceOf = [j for j in instanceOf if j not in rootClasses]
+                instanceOf = [k for k in instanceOf if k not in rootClasses]
                 leafClasses = list(dfClean['itemid'][(dfClean['statproperty'] == 'P279') & (
                     ~dfClean['itemid'].isin(dfClean['statvalue']))].unique())
                 # leafClasses = set(leafClasses + instanceOf)
@@ -327,7 +329,7 @@ def queryexecutor():
                         classCountNew[cl] = 0
 
                 dictStats[date]['cRichness'] = len(classCountNew) / len(set(classesList))
-                instanceList = [classCountNew[k] for k in classCountNew.keys()]
+                instanceList = [classCountNew[l] for l in classCountNew.keys()]
                 dictStats[date]['avgPop'] = np.mean(instanceList)
                 dictStats[date]['medianPop'] = np.median(instanceList)
                 dictStats[date]['quantilePop'] = (
@@ -348,9 +350,9 @@ def queryexecutor():
                 np.percentile(inheritanceList, 75))
 
                 ### Explicit depth
-                x = dfClean.groupby(['itemid', 'statproperty'])['statvalue'].unique()
+                bibi = dfClean.groupby(['itemid', 'statproperty'])['statvalue'].unique()
 
-                uniquePerClass = x.to_frame()
+                uniquePerClass = bibi.to_frame()
                 uniquePerClass.reset_index(inplace=True)
                 uniqueSuperClasses = uniquePerClass[uniquePerClass['statproperty'] == 'P279']
                 uniqueSuperClasses.drop('statproperty', axis=1, inplace=True)
@@ -361,12 +363,12 @@ def queryexecutor():
                     uniqueDict[key] = uniqueDict[key][0]
 
                 allPaths = []
-                for i in leafClasses:
-                    for j in rootClasses:
-                        pathLength = find_all_paths(uniqueDict, i, j)
+                for cla in leafClasses:
+                    for clo in rootClasses:
+                        pathLength = find_all_paths(uniqueDict, cla, clo)
                         allPaths += pathLength
 
-                allPaths = [len(i) for i in allPaths]
+                allPaths = [len(path) for path in allPaths]
                 dictStats[date]['maxDepth'] = max(allPaths)
                 dictStats[date]['avgDepth'] = np.mean(allPaths)
                 dictStats[date]['medianDepth'] = np.median(allPaths)
