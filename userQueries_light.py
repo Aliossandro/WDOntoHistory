@@ -35,10 +35,6 @@ def create_tables():
     bigQuery = """
     BEGIN;
 
-CREATE TEMP TABLE revision_history_tagged AS (SELECT p.comment_rev, p.item_id, p.parent_id, p.rev_id, p.time_stamp, p.user_name, t.automated_tool
-FROM (SELECT * FROM revision_history_201710 WHERE user_name NOT IN (SELECT bot_name FROM bot_list)) p
-LEFT JOIN revision_tags t ON p.rev_id::int = t.rev_id::int);
-
 CREATE TEMP TABLE batchEdits AS (
 SELECT user_name AS username, COUNT(*) AS noBatchedit
 FROM (SELECT * FROM revision_history_tagged WHERE automated_tool = 't') AS pippo
@@ -66,7 +62,7 @@ GROUP BY username);
 
 CREATE TEMP TABLE tempProp AS (SELECT p.username, p.noedits, p.itemDiv, p.oldedit, p.editratio,
 t.noPropEdits
-FROM tempUserStats p
+FROM tempUserStatsClean p
 LEFT JOIN propertyusers t ON p.username = t.username);
 
 CREATE TEMP TABLE tempUserData AS (SELECT p.username, p.noedits, p.itemDiv, p.oldedit, p.editratio,
