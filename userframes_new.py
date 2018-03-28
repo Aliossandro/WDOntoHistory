@@ -100,9 +100,9 @@ def queryexecutor():
                 conn.commit()
 
                 # print(query)
-                df = pd.DataFrame()
+                timetable_temp = pd.DataFrame()
                 for chunk in pd.read_sql(queryStart, con=conn, chunksize=10000):
-                    df = df.append(chunk)
+                    timetable_temp = timetable_temp.append(chunk)
                 #columns:  itemid      revid      parid           timestamp     username
 
 
@@ -214,11 +214,10 @@ def queryexecutor():
                 conn.commit()
 
                 # print(query)
-                df = pd.DataFrame()
+                timetable_temp = pd.DataFrame()
                 for chunk in pd.read_sql(queryStart, con=conn, chunksize=10000):
-                    df = df.append(chunk)
+                    timetable_temp = timetable_temp.append(chunk)
                 #columns:  itemid      revid      parid           timestamp     username
-                df['timeframe'] = date
 
                 noEdits = timetable_temp['username'].value_counts()
                 noEdits = noEdits.reset_index()
