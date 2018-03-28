@@ -73,7 +73,7 @@ WHERE p.revId = t.revId)"""
 
 def queryexecutor():
     # dictStats = {}
-    conn = get_db_params()
+    # conn = get_db_params()
     # cur = conn.cursor()
 
     for i in range(13, 18):
