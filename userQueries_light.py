@@ -35,17 +35,17 @@ def create_tables():
     bigQuery = """
     BEGIN;
 
-CREATE TEMP TABLE batchEdits AS (
+CREATE TEMP TABLE batchEdits_bis AS (
 SELECT user_name AS username, COUNT(*) AS noBatchedit
 FROM (SELECT * FROM revision_history_tagged WHERE automated_tool = 't') AS pippo
 GROUP BY user_name);
 
-CREATE TEMP TABLE ontousers AS (
+CREATE TEMP TABLE ontousers_bis AS (
 SELECT username, COUNT(*) AS noOntoedit
 FROM (SELECT * FROM revisionData_201710 WHERE itemId IN (SELECT DISTINCT statvalue FROM tempData) OR itemId IN (SELECT DISTINCT itemId FROM tempData WHERE statproperty != 'P31')) poopi
 GROUP BY username);
 
-CREATE TEMP TABLE propertyusers AS (
+CREATE TEMP TABLE propertyusers_bis AS (
 SELECT username, COUNT(*) AS noPropEdits
 FROM revisionData_201710 WHERE itemId ~* '[P][0-9]{1,}'
 GROUP BY username);
@@ -63,17 +63,17 @@ GROUP BY username);
 CREATE TEMP TABLE tempProp AS (SELECT p.username, p.noedits, p.itemDiv, p.oldedit, p.editratio,
 t.noPropEdits
 FROM tempUserStatsClean p
-LEFT JOIN propertyusers t ON p.username = t.username);
+LEFT JOIN propertyusers_bis t ON p.username = t.username);
 
 CREATE TEMP TABLE tempUserData AS (SELECT p.username, p.noedits, p.itemDiv, p.oldedit, p.editratio,
 p.noPropEdits, t.noOntoedit
 FROM tempProp p
-LEFT JOIN ontousers t ON p.username = t.username);
+LEFT JOIN ontousers_bis t ON p.username = t.username);
 
 CREATE TEMP TABLE tempUserData_bis AS (SELECT p.username, p.noedits, p.itemDiv, p.oldedit, p.editratio,
 p.noPropEdits, p.noOntoedit, t.noBatchedit
 FROM tempUserData p
-LEFT JOIN batchEdits t ON p.username = t.username);
+LEFT JOIN batchEdits_bis t ON p.username = t.username);
 
 CREATE TEMP TABLE tempUserData_ter AS (SELECT p.username, p.noedits, p.itemDiv, p.oldedit, p.editratio,
 p.noPropEdits, p.noOntoedit, p.noBatchedit, t.noCommEdits
