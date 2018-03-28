@@ -125,7 +125,7 @@ def queryexecutor():
                 dfClasses = list(set(dfClasses))
 
                 ###add ontoedits
-                noOntoEdits = timetable_temp.loc[timetable_temp['itemid'].isin(classesData)]['username'].value_counts()
+                noOntoEdits = timetable_temp.loc[timetable_temp['itemid'].isin(dfClasses)]['username'].value_counts()
                 noOntoEdits = noOntoEdits.reset_index()
                 noOntoEdits.columns = ['username', 'noOntoEdits']
 
@@ -238,7 +238,7 @@ def queryexecutor():
                 dfClasses = list(set(dfClasses))
 
                 ###add ontoedits
-                noOntoEdits = timetable_temp.loc[timetable_temp['itemid'].isin(classesData)]['username'].value_counts()
+                noOntoEdits = timetable_temp.loc[timetable_temp['itemid'].isin(dfClasses)]['username'].value_counts()
                 noOntoEdits = noOntoEdits.reset_index()
                 noOntoEdits.columns = ['username', 'noOntoEdits']
 
