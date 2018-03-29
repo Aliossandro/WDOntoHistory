@@ -167,7 +167,10 @@ def queryexecutor():
                     dictStats[date]['quantilePop'] = (np.asscalar(np.percentile(instanceList, 25)), np.asscalar(np.percentile(instanceList, 50)), np.asscalar(np.percentile(instanceList, 75)))
 
                     ### inheritance richness
-                    classCountSub = classCount['P279'].to_dict()
+                    try:
+                        classCountSub = classCount['P279'].to_dict()
+                    except:
+                        classCountSub = {}
 
                     for cl in classesList:
                         if cl not in classCountSub.keys():
@@ -184,25 +187,33 @@ def queryexecutor():
                     uniquePerClass = bibi.to_frame()
                     uniquePerClass.reset_index(inplace=True)
                     uniqueSuperClasses = uniquePerClass[uniquePerClass['statproperty'] == 'P279']
-                    uniqueSuperClasses.drop('statproperty', axis=1, inplace=True)
-                    uniqueSuperClasses['statvalue'] = uniqueSuperClasses['statvalue'].apply(lambda c: c.tolist())
-                    uniqueDict = uniqueSuperClasses.set_index('itemid').T.to_dict('list')
 
-                    for key in uniqueDict.keys():
-                        uniqueDict[key] = uniqueDict[key][0]
+                    if len(uniqueSuperClasses.index) != 0:
+                        uniqueSuperClasses.drop('statproperty', axis=1, inplace=True)
+                        uniqueSuperClasses['statvalue'] = uniqueSuperClasses['statvalue'].apply(lambda c: c.tolist())
+                        uniqueDict = uniqueSuperClasses.set_index('itemid').T.to_dict('list')
 
-                    allPaths = []
-                    for cla in leafClasses:
-                        for clo in rootClasses:
-                            pathLength = find_all_paths(uniqueDict, cla, clo)
-                            allPaths += pathLength
+                        for key in uniqueDict.keys():
+                            uniqueDict[key] = uniqueDict[key][0]
 
-                    allPaths = [len(path) for path in allPaths]
-                    dictStats[date]['maxDepth'] = max(allPaths)
-                    dictStats[date]['avgDepth'] = np.asscalar(np.mean(allPaths))
-                    dictStats[date]['medianDepth'] = np.asscalar(np.median(allPaths))
-                    dictStats[date]['quantileDepth'] = (np.asscalar(np.percentile(allPaths, 25)), np.asscalar(np.percentile(allPaths, 50)),
-                     np.asscalar(np.percentile(allPaths, 75)))
+                        allPaths = []
+                        for cla in leafClasses:
+                            for clo in rootClasses:
+                                pathLength = find_all_paths(uniqueDict, cla, clo)
+                                allPaths += pathLength
+
+                        allPaths = [len(path) for path in allPaths]
+                        dictStats[date]['maxDepth'] = max(allPaths)
+                        dictStats[date]['avgDepth'] = np.asscalar(np.mean(allPaths))
+                        dictStats[date]['medianDepth'] = np.asscalar(np.median(allPaths))
+                        dictStats[date]['quantileDepth'] = (np.asscalar(np.percentile(allPaths, 25)), np.asscalar(np.percentile(allPaths, 50)),
+                         np.asscalar(np.percentile(allPaths, 75)))
+                    else:
+                        dictStats[date]['maxDepth'] = 0
+                        dictStats[date]['avgDepth'] = 0
+                        dictStats[date]['medianDepth'] = 0
+                        dictStats[date]['quantileDepth'] = (0,0,0)
+
 
                     ### Relationship richness
                     try:
@@ -307,8 +318,13 @@ def queryexecutor():
             except Exception as e:
                 print(e, "no df available")
 
-            with open('WDataStats_1.txt', 'w') as myfile:
-                myfile.write(json.dumps(dictStats))
+            with open('WDataStats_2.txt', 'w') as myfile:
+                try:
+                    myfile.write(json.dumps(dictStats))
+                except:
+                    for key in dictStats.keys():
+                        print(key, dictStats[key], type(key))
+                    break
                 myfile.close()
 
 
@@ -396,25 +412,31 @@ def queryexecutor():
                     uniquePerClass = bibi.to_frame()
                     uniquePerClass.reset_index(inplace=True)
                     uniqueSuperClasses = uniquePerClass[uniquePerClass['statproperty'] == 'P279']
-                    uniqueSuperClasses.drop('statproperty', axis=1, inplace=True)
-                    uniqueSuperClasses['statvalue'] = uniqueSuperClasses['statvalue'].apply(lambda c: c.tolist())
-                    uniqueDict = uniqueSuperClasses.set_index('itemid').T.to_dict('list')
+                    if len(uniqueSuperClasses.index) != 0:
+                        uniqueSuperClasses.drop('statproperty', axis=1, inplace=True)
+                        uniqueSuperClasses['statvalue'] = uniqueSuperClasses['statvalue'].apply(lambda c: c.tolist())
+                        uniqueDict = uniqueSuperClasses.set_index('itemid').T.to_dict('list')
 
-                    for key in uniqueDict.keys():
-                        uniqueDict[key] = uniqueDict[key][0]
+                        for key in uniqueDict.keys():
+                            uniqueDict[key] = uniqueDict[key][0]
 
-                    allPaths = []
-                    for cla in leafClasses:
-                        for clo in rootClasses:
-                            pathLength = find_all_paths(uniqueDict, cla, clo)
-                            allPaths += pathLength
+                        allPaths = []
+                        for cla in leafClasses:
+                            for clo in rootClasses:
+                                pathLength = find_all_paths(uniqueDict, cla, clo)
+                                allPaths += pathLength
 
-                    allPaths = [len(path) for path in allPaths]
-                    dictStats[date]['maxDepth'] = max(allPaths)
-                    dictStats[date]['avgDepth'] = np.asscalar(np.mean(allPaths))
-                    dictStats[date]['medianDepth'] = np.asscalar(np.median(allPaths))
-                    dictStats[date]['quantileDepth'] = (np.asscalar(np.percentile(allPaths, 25)), np.asscalar(np.percentile(allPaths, 50)),
-                                                        np.asscalar(np.percentile(allPaths, 75)))
+                        allPaths = [len(path) for path in allPaths]
+                        dictStats[date]['maxDepth'] = max(allPaths)
+                        dictStats[date]['avgDepth'] = np.asscalar(np.mean(allPaths))
+                        dictStats[date]['medianDepth'] = np.asscalar(np.median(allPaths))
+                        dictStats[date]['quantileDepth'] = (np.asscalar(np.percentile(allPaths, 25)), np.asscalar(np.percentile(allPaths, 50)),
+                         np.asscalar(np.percentile(allPaths, 75)))
+                    else:
+                        dictStats[date]['maxDepth'] = 0
+                        dictStats[date]['avgDepth'] = 0
+                        dictStats[date]['medianDepth'] = 0
+                        dictStats[date]['quantileDepth'] = (0,0,0)
 
                     ### Relationship richness
                     try:
@@ -520,7 +542,12 @@ def queryexecutor():
                 print(e, "no df available")
 
             with open('WDataStats_2.txt', 'w') as myfile:
-                myfile.write(json.dumps(dictStats))
+                try:
+                    myfile.write(json.dumps(dictStats))
+                except:
+                    for key in dictStats.keys():
+                        print(key, dictStats[key], type(key))
+                    break
                 myfile.close()
 
 
