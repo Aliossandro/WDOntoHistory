@@ -128,6 +128,7 @@ def queryexecutor():
                     except:
                         dictStats[date]['P279'] = 0
                     dictStats[date]['P31'] = np.asscalar(uniqueAll['P31'])
+                    print('unique done')
 
 
                     ### No. classes
@@ -148,6 +149,7 @@ def queryexecutor():
 
                     ### No. leaf classes
                     dictStats[date]['noLeaf'] = len((leafClasses))
+                    print('no classes done')
 
                     ### Avg. population metric and class richness
                     # Mean, median, and 0.25-0.75 quantiles no. instances per class
@@ -165,6 +167,7 @@ def queryexecutor():
                     dictStats[date]['avgPop'] = np.asscalar(np.mean(instanceList))
                     dictStats[date]['medianPop'] = np.asscalar(np.median(instanceList))
                     dictStats[date]['quantilePop'] = (np.asscalar(np.percentile(instanceList, 25)), np.asscalar(np.percentile(instanceList, 50)), np.asscalar(np.percentile(instanceList, 75)))
+                    print('avg population done')
 
                     ### inheritance richness
                     try:
@@ -180,6 +183,7 @@ def queryexecutor():
                     dictStats[date]['iRichness'] = np.asscalar(np.mean(inheritanceList))
                     dictStats[date]['medianInheritance'] = np.asscalar(np.median(inheritanceList))
                     dictStats[date]['quantileInheritance'] = (np.asscalar(np.percentile(inheritanceList, 25)), np.asscalar(np.percentile(inheritanceList, 50)), np.asscalar(np.percentile(inheritanceList, 75)))
+                    print('inheritance done')
 
                     ### Explicit depth
                     bibi = dfClean.groupby(['itemid', 'statproperty'])['statvalue'].unique()
@@ -213,6 +217,7 @@ def queryexecutor():
                         dictStats[date]['avgDepth'] = 0
                         dictStats[date]['medianDepth'] = 0
                         dictStats[date]['quantileDepth'] = (0,0,0)
+                    print('depth done')
 
 
                     ### Relationship richness
@@ -228,7 +233,7 @@ def queryexecutor():
                             dfRich = dfRich.append(chunk)
 
                         dfRich = dfRich[dfRich['statvalue'] != 'deleted']
-                        idx = dfRich.groupby(['statementid'])['revid'].transform(max) == df['revid']
+                        idx = dfRich.groupby(['statementid'])['revid'].transform(max) == dfRich['revid']
                         dfRichClean = dfRich[idx]
                         richAll = dfRichClean.groupby('statproperty')['statvalue'].nunique()
                         dictStats[date]['relRichness'] = (richAll.sum() - richAll['P279'])/richAll.sum()

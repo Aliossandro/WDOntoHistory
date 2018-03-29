@@ -454,7 +454,7 @@ def queryexecutor():
                             dfRich = dfRich.append(chunk)
 
                         dfRich = dfRich[dfRich['statvalue'] != 'deleted']
-                        idx = dfRich.groupby(['statementid'])['revid'].transform(max) == df['revid']
+                        idx = dfRich.groupby(['statementid'])['revid'].transform(max) == dfRich['revid']
                         dfRichClean = dfRich[idx]
                         richAll = dfRichClean.groupby('statproperty')['statvalue'].nunique()
                         dictStats[date]['relRichness'] = (richAll.sum() - richAll['P279']) / richAll.sum()
