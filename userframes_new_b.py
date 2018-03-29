@@ -77,12 +77,10 @@ def queryexecutor():
     # cur = conn.cursor()
 
     for i in range(13, 18):
-
-
         for j in range(10, 13):
             date = "20" + str(i) + "-" + str(j) + "-01"
             if j == 10:
-                mt = '09'
+                mt = "09"
                 datePrev = "20" + str(i) + "-" + mt + "-01"
             else:
                 date = "20" + str(i) + "-" + str(j-1) + "-01"
@@ -128,7 +126,7 @@ def queryexecutor():
                 noOntoEdits = noOntoEdits.reset_index()
                 noOntoEdits.columns = ['username', 'noOntoEdits']
 
-                noEdits = noEdits.merge(noOntoedits, how='left')
+                noEdits = noEdits.merge(noOntoEdits, how='left')
 
                 ###add property edits
                 noPropEdits = timetable_temp.loc[timetable_temp['itemid'].str.match('[pP][0-9]{1,}')]['username'].value_counts()
