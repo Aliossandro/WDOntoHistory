@@ -129,7 +129,7 @@ def queryexecutor():
                 noOntoEdits = noOntoEdits.reset_index()
                 noOntoEdits.columns = ['username', 'noOntoEdits']
 
-                noEdits = noEdits.merge(noOntoedits, how='left')
+                noEdits = noEdits.merge(noOntoEdits, how='left')
 
                 ###add property edits
                 noPropEdits = timetable_temp.loc[timetable_temp['itemid'].str.match('[pP][0-9]{1,}')]['username'].value_counts()
