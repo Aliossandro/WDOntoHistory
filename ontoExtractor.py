@@ -445,8 +445,8 @@ def queryexecutor():
                     try:
                         queryRich = """
                                                             SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date + """ 00:00:00'
-                                                            AND ((itemid IN (SELECT DISTINCT itemId FROM tempData WHERE statproperty != 'P31' WHERE  timestamp < '""" + date + """ 00:00:00'))
-                                                            OR (itemid IN (SELECT DISTINCT statvalue FROM tempData WHERE  timestamp < '""" + date + """ 00:00:00')));
+                                                            AND ((itemid IN (SELECT itemId FROM tempData WHERE statproperty != 'P31' AND  timestamp < '""" + date + """ 00:00:00'))
+                                                            OR (itemid IN (SELECT statvalue FROM tempData WHERE  timestamp < '""" + date + """ 00:00:00')));
                                                         """
                         # print(query)
                         dfRich = pd.DataFrame()
