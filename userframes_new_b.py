@@ -87,7 +87,7 @@ def queryexecutor():
             else:
                 date = "20" + str(i) + "-" + str(j-1) + "-01"
             print(date)
-            
+
             try:
                 queryStart = """
                 SELECT * FROM revisionData_201710 WHERE (timestamp > '"""+ datePrev + """ 00:00:00' AND  timestamp < '"""+ date + """ 00:00:00');
@@ -142,38 +142,42 @@ def queryexecutor():
                 commQuery = """SELECT * FROM revision_pages_201710 WHERE (time_stamp > '"""+ datePrev + """ 00:00:00' AND  time_stamp < '"""+ date + """ 00:00:00') AND item_id !~* 'Property:P*';"""
 
                 dfComm = pd.read_sql(commQuery, con=conn)
-                noCommEdits = dfComm['user_name'].value_counts()
-                noCommEdits  = noCommEdits.reset_index()
-                noCommEdits.columns = ['username', 'noCommEdits']
+                if len(dfComm.index) != 0:
+                    noCommEdits = dfComm['user_name'].value_counts()
+                    noCommEdits  = noCommEdits.reset_index()
+                    noCommEdits.columns = ['username', 'noCommEdits']
+                    noEdits = noEdits.merge(noCommEdits, how='left')
+                else:
+                    noEdits['noCommEdits'] = 0
 
-                noEdits = noEdits.merge(noCommEdits, how='left')
                 print('comms added')
 
                 taxoQuery = """SELECT username, statproperty, timestamp FROM statementDated WHERE (timestamp > '"""+ datePrev + """ 00:00:00' AND  timestamp < '"""+ date + """ 00:00:00')
                 AND (statProperty = 'P31' or statProperty = 'P279');"""
 
-                dfTaxo = pd.DataFrame()
-                for chunk in pd.read_sql(taxoQuery, con=conn, chunksize=10000):
-                    dfTaxo = dfTaxo.append(chunk)
-                noTaxoEdits = dfTaxo['username'].value_counts()
-                noTaxoEdits = noTaxoEdits.reset_index()
-                noTaxoEdits.columns = ['username', 'noTaxoEdits']
-
-                noEdits = noEdits.merge(noTaxoEdits, how='left')
+                dfTaxo = pd.read_sql(taxoQuery, con=conn)
+                if len(dfTaxo.index) != 0:
+                    noTaxoEdits = dfTaxo['username'].value_counts()
+                    noTaxoEdits = noTaxoEdits.reset_index()
+                    noTaxoEdits.columns = ['username', 'noTaxoEdits']
+                    noEdits = noEdits.merge(noTaxoEdits, how='left')
+                else:
+                    noEdits['noTaxoEdits'] = 0
                 print('taxo added')
 
                 batchQuery = """SELECT * FROM revision_history_tagged WHERE automated_tool = 't'
                 AND (time_stamp > '"""+ datePrev + """ 00:00:00' AND  time_stamp < '"""+ date + """ 00:00:00');"""
 
-                dfBatch = pd.DataFrame()
-                for chunk in pd.read_sql(batchQuery, con=conn, chunksize=10000):
-                    dfBatch = dfBatch.append(chunk)
-                noBatchEdits = dfBatch['user_name'].value_counts()
-                noBatchEdits = noBatchEdits.reset_index()
-                noBatchEdits.columns = ['username', 'noBatchEdits']
+                dfBatch = pd.read_sql(batchQuery, con=conn)
+                if len(dfBatch.index) != 0:
+                    noBatchEdits = dfBatch['user_name'].value_counts()
+                    noBatchEdits = noBatchEdits.reset_index()
+                    noBatchEdits.columns = ['username', 'noBatchEdits']
+                    noEdits = noEdits.merge(noBatchEdits, how='left')
+                else:
+                    noEdits['noBatchEdits'] = 0
 
-                noEdits = noEdits.merge(noBatchEdits, how='left')
-
+                print('batch edits')
 
                 ###age of user
                 ageQuery = """SELECT * FROM user_first_edit;"""

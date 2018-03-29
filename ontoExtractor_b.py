@@ -456,7 +456,7 @@ def queryexecutor():
         print("suca")
 
 def main():
-    create_table()
+    # create_table()
     queryexecutor()
 
 
