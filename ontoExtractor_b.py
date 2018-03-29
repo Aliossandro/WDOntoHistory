@@ -303,8 +303,8 @@ def queryexecutor():
             except Exception as e:
                 print(e, "no df available")
 
-            with open('WDataStats_1.txt', 'w') as myfile:
-                myfile.write(dictStats)
+            with open('WDataStats_2.txt', 'w') as myfile:
+                myfile.write(json.dumps(dictStats))
                 myfile.close()
 
 
@@ -515,8 +515,8 @@ def queryexecutor():
             except Exception as e:
                 print(e, "no df available")
 
-            with open('WDataStats_1.txt', 'w') as myfile:
-                myfile.write(dictStats)
+            with open('WDataStats_2.txt', 'w') as myfile:
+                myfile.write(json.dumps(dictStats))
                 myfile.close()
 
 

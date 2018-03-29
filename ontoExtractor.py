@@ -108,7 +108,7 @@ def queryexecutor():
 
                 # print(query)
                 df = pd.DataFrame()
-                for chunk in pd.read_sql(query, con=conn, chunksize=500000):
+                for chunk in pd.read_sql(query, con=conn, chunksize=100000):
                     df = df.append(chunk)
 
                 if len(df.index) != 0:
@@ -304,7 +304,7 @@ def queryexecutor():
                 print(e, "no df available")
 
             with open('WDataStats_1.txt', 'w') as myfile:
-                myfile.write(dictStats)
+                myfile.write(json.dumps(dictStats))
                 myfile.close()
 
 
@@ -516,7 +516,7 @@ def queryexecutor():
                 print(e, "no df available")
 
             with open('WDataStats_1.txt', 'w') as myfile:
-                myfile.write(dictStats)
+                myfile.write(json.dumps(dictStats))
                 myfile.close()
 
 
