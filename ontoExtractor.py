@@ -123,7 +123,10 @@ def queryexecutor():
                     uniqueClasses = dfClean['statvalue'].nunique()
                     dictStats[date]['uniqueClasses'] = uniqueClasses
                     uniqueAll = dfClean.groupby('statproperty')['statvalue'].nunique()
-                    dictStats[date]['P279'] = uniqueAll['P279']
+                    try:
+                        dictStats[date]['P279'] = uniqueAll['P279']
+                    except:
+                        dictStats[date]['P279'] = 0
                     dictStats[date]['P31'] = uniqueAll['P31']
 
 
@@ -159,9 +162,9 @@ def queryexecutor():
 
                     dictStats[date]['cRichness'] = len(classCountNew)/len(set(classesList))
                     instanceList = [classCountNew[l] for l in classCountNew.keys()]
-                    dictStats[date]['avgPop'] = np.mean(instanceList)
-                    dictStats[date]['medianPop'] = np.median(instanceList)
-                    dictStats[date]['quantilePop'] = (np.percentile(instanceList, 25), np.percentile(instanceList, 50), np.percentile(instanceList, 75))
+                    dictStats[date]['avgPop'] = np.asscalar(np.mean(instanceList))
+                    dictStats[date]['medianPop'] = np.asscalar(np.median(instanceList))
+                    dictStats[date]['quantilePop'] = (np.asscalar(np.percentile(instanceList, 25)), np.asscalar(np.percentile(instanceList, 50)), np.asscalar(np.percentile(instanceList, 75)))
 
                     ### inheritance richness
                     classCountSub = classCount['P279'].to_dict()
@@ -171,9 +174,9 @@ def queryexecutor():
                             classCountSub[cl] = 0
 
                     inheritanceList = [classCountSub[z] for z in classCountSub.keys()]
-                    dictStats[date]['iRichness'] = np.mean(inheritanceList)
-                    dictStats[date]['medianInheritance'] = np.median(inheritanceList)
-                    dictStats[date]['quantileInheritance'] = (np.percentile(inheritanceList, 25), np.percentile(inheritanceList, 50), np.percentile(inheritanceList, 75))
+                    dictStats[date]['iRichness'] = np.asscalar(np.mean(inheritanceList))
+                    dictStats[date]['medianInheritance'] = np.asscalar(np.median(inheritanceList))
+                    dictStats[date]['quantileInheritance'] = (np.asscalar(np.percentile(inheritanceList, 25)), np.asscalar(np.percentile(inheritanceList, 50)), np.asscalar(np.percentile(inheritanceList, 75)))
 
                     ### Explicit depth
                     bibi = dfClean.groupby(['itemid', 'statproperty'])['statvalue'].unique()
@@ -196,10 +199,10 @@ def queryexecutor():
 
                     allPaths = [len(path) for path in allPaths]
                     dictStats[date]['maxDepth'] = max(allPaths)
-                    dictStats[date]['avgDepth'] = np.mean(allPaths)
-                    dictStats[date]['medianDepth'] = np.median(allPaths)
-                    dictStats[date]['quantileDepth'] = (np.percentile(allPaths, 25), np.percentile(allPaths, 50),
-                     np.percentile(allPaths, 75))
+                    dictStats[date]['avgDepth'] = np.asscalar(np.mean(allPaths))
+                    dictStats[date]['medianDepth'] = np.asscalar(np.median(allPaths))
+                    dictStats[date]['quantileDepth'] = (np.asscalar(np.percentile(allPaths, 25)), np.asscalar(np.percentile(allPaths, 50)),
+                     np.asscalar(np.percentile(allPaths, 75)))
 
                     ### Relationship richness
                     try:
@@ -285,12 +288,12 @@ def queryexecutor():
 
                         propUseCount = list(dfPropUse['propuse'])
 
-                        dictStats[date]['noPropUseAvg'] = np.mean(propUseCount)
-                        dictStats[date]['noPropUseMedian'] = np.median(propUseCount)
+                        dictStats[date]['noPropUseAvg'] = np.asscalar(np.mean(propUseCount))
+                        dictStats[date]['noPropUseMedian'] = np.asscalar(np.median(propUseCount))
                         dictStats[date]['noPropUseMax'] = max(propUseCount)
                         dictStats[date]['noPropUseMin'] = min(propUseCount)
-                        dictStats[date]['noPropUseQuant'] = (np.percentile(propUseCount, 25), np.percentile(propUseCount, 50),
-                         np.percentile(propUseCount, 75))
+                        dictStats[date]['noPropUseQuant'] = (np.asscalar(np.percentile(propUseCount, 25)), np.asscalar(np.percentile(propUseCount, 50)),
+                         np.asscalar(np.percentile(propUseCount, 75)))
                     else:
                         dictStats[date]['noPropUseAvg'] = 0
                         dictStats[date]['noPropUseMedian'] = 0
@@ -368,10 +371,10 @@ def queryexecutor():
 
                     dictStats[date]['cRichness'] = len(classCountNew) / len(set(classesList))
                     instanceList = [classCountNew[l] for l in classCountNew.keys()]
-                    dictStats[date]['avgPop'] = np.mean(instanceList)
-                    dictStats[date]['medianPop'] = np.median(instanceList)
+                    dictStats[date]['avgPop'] = np.asscalar(np.mean(instanceList))
+                    dictStats[date]['medianPop'] = np.asscalar(np.median(instanceList))
                     dictStats[date]['quantilePop'] = (
-                    np.percentile(instanceList, 25), np.percentile(instanceList, 50), np.percentile(instanceList, 75))
+                    np.asscalar(np.percentile(instanceList, 25)), np.asscalar(np.percentile(instanceList, 50)), np.asscalar(np.percentile(instanceList, 75)))
 
                     ### inheritance richness
                     classCountSub = classCount['P279'].to_dict()
@@ -381,11 +384,11 @@ def queryexecutor():
                             classCountSub[cl] = 0
 
                     inheritanceList = [classCountSub[z] for z in classCountSub.keys()]
-                    dictStats[date]['iRichness'] = np.mean(inheritanceList)
-                    dictStats[date]['medianInheritance'] = np.median(inheritanceList)
+                    dictStats[date]['iRichness'] = np.asscalar(np.mean(inheritanceList))
+                    dictStats[date]['medianInheritance'] = np.asscalar(np.median(inheritanceList))
                     dictStats[date]['quantileInheritance'] = (
-                    np.percentile(inheritanceList, 25), np.percentile(inheritanceList, 50),
-                    np.percentile(inheritanceList, 75))
+                    np.asscalar(np.percentile(inheritanceList, 25)), np.asscalar(np.percentile(inheritanceList, 50)),
+                    np.asscalar(np.percentile(inheritanceList, 75)))
 
                     ### Explicit depth
                     bibi = dfClean.groupby(['itemid', 'statproperty'])['statvalue'].unique()
@@ -408,10 +411,10 @@ def queryexecutor():
 
                     allPaths = [len(path) for path in allPaths]
                     dictStats[date]['maxDepth'] = max(allPaths)
-                    dictStats[date]['avgDepth'] = np.mean(allPaths)
-                    dictStats[date]['medianDepth'] = np.median(allPaths)
-                    dictStats[date]['quantileDepth'] = (np.percentile(allPaths, 25), np.percentile(allPaths, 50),
-                                                        np.percentile(allPaths, 75))
+                    dictStats[date]['avgDepth'] = np.asscalar(np.mean(allPaths))
+                    dictStats[date]['medianDepth'] = np.asscalar(np.median(allPaths))
+                    dictStats[date]['quantileDepth'] = (np.asscalar(np.percentile(allPaths, 25)), np.asscalar(np.percentile(allPaths, 50)),
+                                                        np.asscalar(np.percentile(allPaths, 75)))
 
                     ### Relationship richness
                     try:
@@ -497,12 +500,12 @@ def queryexecutor():
 
                         propUseCount = list(dfPropUse['propuse'])
 
-                        dictStats[date]['noPropUseAvg'] = np.mean(propUseCount)
-                        dictStats[date]['noPropUseMedian'] = np.median(propUseCount)
+                        dictStats[date]['noPropUseAvg'] = np.asscalar(np.mean(propUseCount))
+                        dictStats[date]['noPropUseMedian'] = np.asscalar(np.median(propUseCount))
                         dictStats[date]['noPropUseMax'] = max(propUseCount)
                         dictStats[date]['noPropUseMin'] = min(propUseCount)
-                        dictStats[date]['noPropUseQuant'] = (np.percentile(propUseCount, 25), np.percentile(propUseCount, 50),
-                         np.percentile(propUseCount, 75))
+                        dictStats[date]['noPropUseQuant'] = (np.asscalar(np.percentile(propUseCount, 25)), np.asscalar(np.percentile(propUseCount, 50)),
+                         np.asscalar(np.percentile(propUseCount, 75)))
                     else:
                         dictStats[date]['noPropUseAvg'] = 0
                         dictStats[date]['noPropUseMedian'] = 0
