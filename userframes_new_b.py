@@ -77,15 +77,7 @@ def queryexecutor():
     # cur = conn.cursor()
 
     for i in range(13, 18):
-        for j in range(1, 10):
-            date = "20" + str(i) + "-0" + str(j) + "-01"
-            if j == 1:
-                yr = i-1
-                datePrev = "20" + str(yr) + "-12-01"
-            else:
-                datePrev = "20" + str(i) + "-0" + str(j-1) + "-01"
 
-            print(date)
 
         for j in range(10, 13):
             date = "20" + str(i) + "-" + str(j) + "-01"
@@ -95,6 +87,7 @@ def queryexecutor():
             else:
                 date = "20" + str(i) + "-" + str(j-1) + "-01"
             print(date)
+            
             try:
                 queryStart = """
                 SELECT * FROM revisionData_201710 WHERE (timestamp > '"""+ datePrev + """ 00:00:00' AND  timestamp < '"""+ date + """ 00:00:00');

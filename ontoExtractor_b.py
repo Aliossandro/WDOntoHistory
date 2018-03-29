@@ -94,7 +94,7 @@ def queryexecutor():
     conn = get_db_params()
     # cur = conn.cursor()
 
-    for i in range(13, 15):
+    for i in range(15, 18):
         for j in range(1, 10):
             date = "20" + str(i) + "-0" + str(j) + "-01"
             print(date)
@@ -449,7 +449,7 @@ def queryexecutor():
 
 
     try:
-        pickle_out = open("WDdata_1.pickle", "wb")
+        pickle_out = open("WDdata_2.pickle", "wb")
         pickle.dump(dictStats, pickle_out)
         pickle_out.close()
     except:
