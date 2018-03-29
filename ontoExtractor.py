@@ -323,7 +323,7 @@ def queryexecutor():
                     myfile.write(json.dumps(dictStats))
                 except:
                     for key in dictStats.keys():
-                        for jey in dictStats[key].keys()
+                        for jey in dictStats[key].keys():
                             print(jey, dictStats[key][jey], type(dictStats[key][jey]))
                 myfile.close()
 
