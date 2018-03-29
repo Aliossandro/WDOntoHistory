@@ -2,6 +2,7 @@ import pandas as pd
 import psycopg2
 import pickle
 import numpy as np
+import json
 # counterS = 0
 # global counterS
 # global valGlob
