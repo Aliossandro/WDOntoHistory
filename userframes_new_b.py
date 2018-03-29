@@ -87,8 +87,15 @@ def queryexecutor():
 
             print(date)
 
+        for j in range(10, 13):
+            date = "20" + str(i) + "-" + str(j) + "-01"
+            if j == 10:
+                mt = '09'
+                datePrev = "20" + str(i) + "-" + mt + "-01"
+            else:
+                date = "20" + str(i) + "-" + str(j-1) + "-01"
+            print(date)
             try:
-
                 queryStart = """
                 SELECT * FROM revisionData_201710 WHERE (timestamp > '"""+ datePrev + """ 00:00:00' AND  timestamp < '"""+ date + """ 00:00:00');
                 """
@@ -104,7 +111,6 @@ def queryexecutor():
                 for chunk in pd.read_sql(queryStart, con=conn, chunksize=10000):
                     timetable_temp = timetable_temp.append(chunk)
                 #columns:  itemid      revid      parid           timestamp     username
-
 
                 noEdits = timetable_temp['username'].value_counts()
                 noEdits = noEdits.reset_index()
@@ -129,7 +135,7 @@ def queryexecutor():
                 noOntoEdits = noOntoEdits.reset_index()
                 noOntoEdits.columns = ['username', 'noOntoEdits']
 
-                noEdits = noEdits.merge(noOntoEdits, how='left')
+                noEdits = noEdits.merge(noOntoedits, how='left')
 
                 ###add property edits
                 noPropEdits = timetable_temp.loc[timetable_temp['itemid'].str.match('[pP][0-9]{1,}')]['username'].value_counts()
@@ -175,6 +181,7 @@ def queryexecutor():
 
                 noEdits = noEdits.merge(noBatchEdits, how='left')
 
+
                 ###age of user
                 ageQuery = """SELECT * FROM user_first_edit;"""
                 dfAge = pd.read_sql(ageQuery, con=conn)
@@ -190,9 +197,9 @@ def queryexecutor():
                 fileName = "WDuserstats-" + date + ".csv"
                 noEdits.to_csv(fileName, index=False)
 
-
             except Exception as e:
                 print(e, "no df available")
+
 
 
     # try:
