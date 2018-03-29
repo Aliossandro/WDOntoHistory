@@ -153,7 +153,7 @@ def queryexecutor():
                 taxoQuery = """SELECT username, statproperty, timestamp FROM statementDated WHERE (timestamp > '"""+ datePrev + """ 00:00:00' AND  timestamp < '"""+ date + """ 00:00:00')
                 AND (statProperty = 'P31' or statProperty = 'P279');"""
 
-                dfTaxo = = pd.DataFrame()
+                dfTaxo = pd.DataFrame()
                 for chunk in pd.read_sql(taxoQuery, con=conn, chunksize=10000):
                     dfTaxo = dfTaxo.append(chunk)
                 noTaxoEdits = dfTaxo['username'].value_counts()
