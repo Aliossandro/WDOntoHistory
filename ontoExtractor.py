@@ -124,10 +124,10 @@ def queryexecutor():
                     dictStats[date]['uniqueClasses'] = uniqueClasses
                     uniqueAll = dfClean.groupby('statproperty')['statvalue'].nunique()
                     try:
-                        dictStats[date]['P279'] = uniqueAll['P279']
+                        dictStats[date]['P279'] = np.asscalar(uniqueAll['P279'])
                     except:
                         dictStats[date]['P279'] = 0
-                    dictStats[date]['P31'] = uniqueAll['P31']
+                    dictStats[date]['P31'] = np.asscalar(uniqueAll['P31'])
 
 
                     ### No. classes
@@ -325,7 +325,6 @@ def queryexecutor():
                     for key in dictStats.keys():
                         for jey in dictStats[key].keys()
                             print(jey, dictStats[key][jey], type(dictStats[key][jey]))
-                    break
                 myfile.close()
 
 
@@ -352,8 +351,11 @@ def queryexecutor():
                     uniqueClasses = dfClean['statvalue'].nunique()
                     dictStats[date]['uniqueClasses'] = uniqueClasses
                     uniqueAll = dfClean.groupby('statproperty')['statvalue'].nunique()
-                    dictStats[date]['P279'] = uniqueAll['P279']
-                    dictStats[date]['P31'] = uniqueAll['P31']
+                    try:
+                        dictStats[date]['P279'] = np.asscalar(uniqueAll['P279'])
+                    except:
+                        dictStats[date]['P279'] = 0
+                    dictStats[date]['P31'] = np.asscalar(uniqueAll['P31'])
 
                     ### No. classes
                     dfClean['statvalue'] = dfClean['statvalue'].apply(lambda ni: str(ni))
@@ -543,12 +545,7 @@ def queryexecutor():
                 print(e, "no df available")
 
             with open('WDataStats_1.txt', 'w') as myfile:
-                try:
-                    myfile.write(json.dumps(dictStats))
-                except:
-                    for key in dictStats.keys():
-                        print(key, dictStats[key], type(key))
-                    break
+                myfile.write(json.dumps(dictStats))
                 myfile.close()
 
 
