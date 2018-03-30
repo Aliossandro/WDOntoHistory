@@ -37,15 +37,20 @@ def fileLoader(path):
 
     frame = frame.loc[~frame['username'].isin(bot_list['bot_name']),]
     frame = frame.set_index('username')
-    frame['noEdits'] = frame['noEdits'].apply(lambda x: (x - x.mean()) / x.std())
-    frame = frame.drop(['minTime', 'timeframe'], axis=1)
+    frame = frame.drop(['minTime'], axis=1)
+    frame_grouped = frame.groupby('timeframe')
+    zscore = lambda x: (x - x.mean()) / x.std()
+    frame_norm = frame.groupby('timeframe').transform(zscore)
+    frame_clean = frame_norm[frame_norm.notnull()]
+    frame_clean = frame_clean.replace([np.inf, -np.inf], np.nan)
+    frame_clean = frame_clean.fillna(0)
 
-    frame = (frame - frame.mean()) / (frame.std())
-    frame = frame.set_index('username')
-    # frame_norm = (frame - frame.mean()) / (frame.std())
-    kmeans = KMeans(n_clusters=3, random_state=32).fit(frame_norm)
-    labels = kmeans.labels_
-    metrics.silhouette_score(frame_sample, labels, metric='euclidean')
+
+    for n in range(2,9):
+        kmeans = KMeans(n_clusters=n, random_state=32).fit(frame_sample)
+        labels = kmeans.labels_
+        sscore = metrics.silhouette_score(frame_sample, labels, metric='euclidean')
+        print(n, sscore)
 
 
 

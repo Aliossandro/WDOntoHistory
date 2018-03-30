@@ -3,6 +3,7 @@ import psycopg2
 import pickle
 import numpy as np
 import json
+from collections import defaultdict
 # counterS = 0
 # global counterS
 # global valGlob
