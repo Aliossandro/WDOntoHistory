@@ -15,18 +15,29 @@ import copy
 
 # fileName = '/Users/alessandro/Documents/PhD/OntoHistory/WDTaxo_October2014.csv'
 
-def find_all_paths(graph, start, end, path=[]):
-    path = path + [start]
-    if start == end:
-        return [path]
-    if start not in graph.keys():
-        return []
+# def find_all_paths(graph, start, end, path=[]):
+#     path = path + [start]
+#     if start == end:
+#         return [path]
+#     if start not in graph.keys():
+#         return []
+#     paths = []
+#     for node in graph[start]:
+#         if node not in path:
+#             newpaths = find_all_paths(graph, node, end, path)
+#             for newpath in newpaths:
+#                 paths.append(newpath)
+#     return paths
+def DFS(G,v,seen=None,path=None):
+    if seen is None: seen = []
+    if path is None: path = [v]
+    seen.append(v)
     paths = []
-    for node in graph[start]:
-        if node not in path:
-            newpaths = find_all_paths(graph, node, end, path)
-            for newpath in newpaths:
-                paths.append(newpath)
+    for t in G[v]:
+        if t not in seen:
+            t_path = path + [t]
+            paths.append(tuple(t_path))
+            paths.extend(DFS(G, t, seen[:], t_path))
     return paths
 
 # def get_max_rows(df):
@@ -114,6 +125,8 @@ def queryexecutor():
 
                 if len(df.index) != 0:
                     df = df[df['statvalue'] != 'deleted']
+                    df = df[df['statvalue'] != 'novalue']
+                    df = df[df['statvalue'] != 'somevalue']
                     idx = df.groupby(['statementid'])['revid'].transform(max) == df['revid']
                     dfClean = df[idx]
                     fileName = "WDHierarchy-" + date + ".csv"
@@ -128,28 +141,38 @@ def queryexecutor():
                     except:
                         dictStats[date]['P279'] = 0
                     dictStats[date]['P31'] = np.asscalar(uniqueAll['P31'])
+                    print('unique done')
 
 
                     ### No. classes
                     dfClean['statvalue'] = dfClean['statvalue'].apply(lambda ni: str(ni))
                     dfClean['itemid'] = dfClean['itemid'].apply(lambda nu: str(nu))
-                    subClasses = list(dfClean['itemid'][dfClean['statproperty'] == "P279"].unique())
+                    subClasses = list(dfClean['itemid'].loc[dfClean['statproperty'] == "P279",].unique())
                     classesList = list(dfClean['statvalue'].unique())
                     # rootClasses = [x for x in classesList if x not in subClasses]
                     rootClasses = list(set(classesList) - set(subClasses))
-                    instanceOf = list(dfClean['statvalue'][dfClean['statproperty'] == 'P31'].unique())
+                    instanceOf = list(dfClean['statvalue'].loc[dfClean['statproperty'] == 'P31',].unique())
                     # instanceOf = [k for k in instanceOf if k not in rootClasses]
                     instanceOf = list(set(instanceOf) - set(rootClasses))
-                    leafClasses = list(dfClean['itemid'][(dfClean['statproperty'] == 'P279') & (~dfClean['itemid'].isin(dfClean['statvalue']))].unique())
+                    leafClasses = list(dfClean['itemid'].loc[(dfClean['statproperty'] == 'P279') & (~dfClean['itemid'].isin(dfClean['statvalue'])),].unique())
+                    shallowClasses = list(dfClean['itemid'].loc[(dfClean['statproperty'] == 'P279') & (~dfClean['itemid'].isin(dfClean['statvalue'])) & (dfClean['statvalue'].isin(rootClasses)),].unique())
+                    firstSub = list(dfClean['itemid'].loc[(dfClean['statproperty'] == 'P279') & (dfClean['statvalue'].isin(rootClasses)),].unique())
+                    twoDepth = list(dfClean['itemid'].loc[(dfClean['statproperty'] == 'P279') & (~dfClean['itemid'].isin(dfClean['statvalue'])) & (~dfClean['statvalue'].isin(firstSub)),].unique())
+                    deepClasses = list(set(twoDepth) - set(shallowClasses))
                     # leafClasses = set(leafClasses + instanceOf)
                     classesList += subClasses
                     dictStats[date]['noClasses'] = len(set(classesList))
+                    # childless classes; reduces computation time for avgDepth
+                    superClasses = list(dfClean['statvalue'].loc[dfClean['statproperty'] == "P279",].unique())
+                    childLessClasses = list(set(rootClasses) - set(superClasses))
+                    dictStats[date]['childLessClasses'] = len(set(childLessClasses))
 
                     ### No. root classes
                     dictStats[date]['noRoot'] = len(set(rootClasses))
 
                     ### No. leaf classes
                     dictStats[date]['noLeaf'] = len((leafClasses))
+                    print('no classes done')
 
                     ### Avg. population metric and class richness
                     # Mean, median, and 0.25-0.75 quantiles no. instances per class
@@ -167,6 +190,7 @@ def queryexecutor():
                     dictStats[date]['avgPop'] = np.asscalar(np.mean(instanceList))
                     dictStats[date]['medianPop'] = np.asscalar(np.median(instanceList))
                     dictStats[date]['quantilePop'] = (np.asscalar(np.percentile(instanceList, 25)), np.asscalar(np.percentile(instanceList, 50)), np.asscalar(np.percentile(instanceList, 75)))
+                    print('avg population done')
 
                     ### inheritance richness
                     try:
@@ -182,39 +206,45 @@ def queryexecutor():
                     dictStats[date]['iRichness'] = np.asscalar(np.mean(inheritanceList))
                     dictStats[date]['medianInheritance'] = np.asscalar(np.median(inheritanceList))
                     dictStats[date]['quantileInheritance'] = (np.asscalar(np.percentile(inheritanceList, 25)), np.asscalar(np.percentile(inheritanceList, 50)), np.asscalar(np.percentile(inheritanceList, 75)))
+                    print('inheritance done')
 
                     ### Explicit depth
-                    bibi = dfClean.groupby(['itemid', 'statproperty'])['statvalue'].unique()
+                    # bibi = dfClean.groupby(['itemid', 'statproperty'])['statvalue'].unique()
+                    bibi = dfClean.loc[dfClean.statproperty == 'P279', ].groupby('itemid')['statvalue'].unique()
 
-                    uniquePerClass = bibi.to_frame()
-                    uniquePerClass.reset_index(inplace=True)
-                    uniqueSuperClasses = uniquePerClass[uniquePerClass['statproperty'] == 'P279']
+                    uniqueSuperClasses = bibi.to_frame()
+                    uniqueSuperClasses.reset_index(inplace=True)
+                    # uniqueSuperClasses = uniquePerClass.loc[uniquePerClass['statproperty'] == 'P279',]
 
                     if len(uniqueSuperClasses.index) != 0:
-                        uniqueSuperClasses.drop('statproperty', axis=1, inplace=True)
+                        # uniqueSuperClasses.drop('statproperty', axis=1, inplace=True)
                         uniqueSuperClasses['statvalue'] = uniqueSuperClasses['statvalue'].apply(lambda c: c.tolist())
                         uniqueDict = uniqueSuperClasses.set_index('itemid').T.to_dict('list')
 
                         for key in uniqueDict.keys():
                             uniqueDict[key] = uniqueDict[key][0]
 
-                        allPaths = []
-                        for cla in leafClasses:
-                            for clo in rootClasses:
-                                pathLength = find_all_paths(uniqueDict, cla, clo)
-                                allPaths += pathLength
+                        classesDefaultDict = defaultdict(str, uniqueDict)
+                        allPaths = [p for ps in [DFS(classesDefaultDict, n) for n in set(leafClasses)] for p in ps]
 
-                        allPaths = [len(path) for path in allPaths]
-                        dictStats[date]['maxDepth'] = max(allPaths)
-                        dictStats[date]['avgDepth'] = np.asscalar(np.mean(allPaths))
-                        dictStats[date]['medianDepth'] = np.asscalar(np.median(allPaths))
-                        dictStats[date]['quantileDepth'] = (np.asscalar(np.percentile(allPaths, 25)), np.asscalar(np.percentile(allPaths, 50)),
-                         np.asscalar(np.percentile(allPaths, 75)))
+                        # allPaths = []
+                        # for cla in deepClasses:
+                        #     for clo in list(set(rootClasses) - set(childLessClasses)):
+                        #         pathLength = find_all_paths(uniqueDict, cla, clo)
+                        #         allPaths += pathLength
+                        # allPaths = [len(path) for path in allPaths]
+
+                        dictStats[date]['maxDepth'] = max(len(p) for p in allPaths)
+                        dictStats[date]['avgDepth'] = np.asscalar(np.mean(len(p) for p in allPaths))
+                        dictStats[date]['medianDepth'] = np.asscalar(np.median(len(p) for p in allPaths))
+                        dictStats[date]['quantileDepth'] = (np.asscalar(np.percentile((len(p) for p in allPaths), 25)), np.asscalar(np.percentile((len(p) for p in allPaths), 50)),
+                         np.asscalar(np.percentile((len(p) for p in allPaths), 75)))
                     else:
                         dictStats[date]['maxDepth'] = 0
                         dictStats[date]['avgDepth'] = 0
                         dictStats[date]['medianDepth'] = 0
                         dictStats[date]['quantileDepth'] = (0,0,0)
+                    print('depth done')
 
 
                     ### Relationship richness
@@ -229,8 +259,8 @@ def queryexecutor():
                         for chunk in pd.read_sql(queryRich, con=conn, chunksize=10000):
                             dfRich = dfRich.append(chunk)
 
-                        dfRich = dfRich[dfRich['statvalue'] != 'deleted']
-                        idx = dfRich.groupby(['statementid'])['revid'].transform(max) == df['revid']
+                        dfRich = dfRich.loc[dfRich['statvalue'] != 'deleted',]
+                        idx = dfRich.groupby(['statementid'])['revid'].transform(max) == dfRich['revid']
                         dfRichClean = dfRich[idx]
                         richAll = dfRichClean.groupby('statproperty')['statvalue'].nunique()
                         dictStats[date]['relRichness'] = (richAll.sum() - richAll['P279'])/richAll.sum()
@@ -321,12 +351,8 @@ def queryexecutor():
                 print(e, "no df available")
 
             with open('WDataStats_1.txt', 'w') as myfile:
-                try:
-                    myfile.write(json.dumps(dictStats))
-                except:
-                    for key in dictStats.keys():
-                        for jey in dictStats[key].keys():
-                            print(jey, dictStats[key][jey], type(dictStats[key][jey]))
+                myfile.write(json.dumps(dictStats))
+
                 myfile.close()
 
 
@@ -362,13 +388,15 @@ def queryexecutor():
                     ### No. classes
                     dfClean['statvalue'] = dfClean['statvalue'].apply(lambda ni: str(ni))
                     dfClean['itemid'] = dfClean['itemid'].apply(lambda nu: str(nu))
-                    subClasses = list(dfClean['itemid'][dfClean['statproperty'] == "P279"].unique())
+                    subClasses = list(dfClean['itemid'].loc[dfClean['statproperty'] == "P279",].unique())
                     classesList = list(dfClean['statvalue'].unique())
-                    rootClasses = [x for x in classesList if x not in subClasses]
-                    instanceOf = list(dfClean['statvalue'][dfClean['statproperty'] == 'P31'].unique())
-                    instanceOf = [k for k in instanceOf if k not in rootClasses]
-                    leafClasses = list(dfClean['itemid'][(dfClean['statproperty'] == 'P279') & (
-                        ~dfClean['itemid'].isin(dfClean['statvalue']))].unique())
+                    # rootClasses = [x for x in classesList if x not in subClasses]
+                    rootClasses = list(set(classesList) - set(subClasses))
+                    instanceOf = list(dfClean['statvalue'].loc[dfClean['statproperty'] == 'P31',].unique())
+                    # instanceOf = [k for k in instanceOf if k not in rootClasses]
+                    instanceOf = list(set(instanceOf) - set(rootClasses))
+                    leafClasses = list(dfClean['itemid'].loc[(dfClean['statproperty'] == 'P279') & (
+                        ~dfClean['itemid'].isin(dfClean['statvalue'])),].unique())
                     # leafClasses = set(leafClasses + instanceOf)
                     classesList += subClasses
                     dictStats[date]['noClasses'] = len(set(classesList))
@@ -412,31 +440,36 @@ def queryexecutor():
                     np.asscalar(np.percentile(inheritanceList, 75)))
 
                     ### Explicit depth
-                    bibi = dfClean.groupby(['itemid', 'statproperty'])['statvalue'].unique()
+                    # bibi = dfClean.groupby(['itemid', 'statproperty'])['statvalue'].unique()
+                    bibi = dfClean.loc[dfClean.statproperty == 'P279', ].groupby('itemid')['statvalue'].unique()
 
-                    uniquePerClass = bibi.to_frame()
-                    uniquePerClass.reset_index(inplace=True)
-                    uniqueSuperClasses = uniquePerClass[uniquePerClass['statproperty'] == 'P279']
+                    uniqueSuperClasses = bibi.to_frame()
+                    uniqueSuperClasses.reset_index(inplace=True)
+                    # uniqueSuperClasses = uniquePerClass.loc[uniquePerClass['statproperty'] == 'P279',]
+
                     if len(uniqueSuperClasses.index) != 0:
-                        uniqueSuperClasses.drop('statproperty', axis=1, inplace=True)
+                        # uniqueSuperClasses.drop('statproperty', axis=1, inplace=True)
                         uniqueSuperClasses['statvalue'] = uniqueSuperClasses['statvalue'].apply(lambda c: c.tolist())
                         uniqueDict = uniqueSuperClasses.set_index('itemid').T.to_dict('list')
 
                         for key in uniqueDict.keys():
                             uniqueDict[key] = uniqueDict[key][0]
 
-                        allPaths = []
-                        for cla in leafClasses:
-                            for clo in rootClasses:
-                                pathLength = find_all_paths(uniqueDict, cla, clo)
-                                allPaths += pathLength
+                        classesDefaultDict = defaultdict(str, uniqueDict)
+                        allPaths = [p for ps in [DFS(classesDefaultDict, n) for n in set(leafClasses)] for p in ps]
 
-                        allPaths = [len(path) for path in allPaths]
-                        dictStats[date]['maxDepth'] = max(allPaths)
-                        dictStats[date]['avgDepth'] = np.asscalar(np.mean(allPaths))
-                        dictStats[date]['medianDepth'] = np.asscalar(np.median(allPaths))
-                        dictStats[date]['quantileDepth'] = (np.asscalar(np.percentile(allPaths, 25)), np.asscalar(np.percentile(allPaths, 50)),
-                         np.asscalar(np.percentile(allPaths, 75)))
+                        # allPaths = []
+                        # for cla in deepClasses:
+                        #     for clo in list(set(rootClasses) - set(childLessClasses)):
+                        #         pathLength = find_all_paths(uniqueDict, cla, clo)
+                        #         allPaths += pathLength
+                        # allPaths = [len(path) for path in allPaths]
+
+                        dictStats[date]['maxDepth'] = max(len(p) for p in allPaths)
+                        dictStats[date]['avgDepth'] = np.asscalar(np.mean(len(p) for p in allPaths))
+                        dictStats[date]['medianDepth'] = np.asscalar(np.median(len(p) for p in allPaths))
+                        dictStats[date]['quantileDepth'] = (np.asscalar(np.percentile((len(p) for p in allPaths), 25)), np.asscalar(np.percentile((len(p) for p in allPaths), 50)),
+                         np.asscalar(np.percentile((len(p) for p in allPaths), 75)))
                     else:
                         dictStats[date]['maxDepth'] = 0
                         dictStats[date]['avgDepth'] = 0
@@ -447,7 +480,7 @@ def queryexecutor():
                     try:
                         queryRich = """
                                                             SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date + """ 00:00:00'
-                                                            AND ((itemid IN (SELECT itemId FROM tempData WHERE statproperty != 'P31' AND  timestamp < '""" + date + """ 00:00:00'))
+                                                            AND ((itemid IN (SELECT itemId FROM tempData WHERE statproperty != 'P31' AND timestamp < '""" + date + """ 00:00:00'))
                                                             OR (itemid IN (SELECT statvalue FROM tempData WHERE  timestamp < '""" + date + """ 00:00:00')));
                                                         """
                         # print(query)

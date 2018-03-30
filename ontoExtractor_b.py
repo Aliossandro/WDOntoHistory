@@ -3,7 +3,7 @@ import psycopg2
 import pickle
 import numpy as np
 import json
-from collection import defaultdict
+from collections import defaultdict
 # counterS = 0
 # global counterS
 # global valGlob
@@ -16,21 +16,19 @@ import copy
 
 # fileName = '/Users/alessandro/Documents/PhD/OntoHistory/WDTaxo_October2014.csv'
 
-def find_all_paths(graph, start, end, path=[]):
-    path = path + [start]
-    if start == end:
-        return [path]
-    if start not in graph.keys():
-        return []
-    paths = []
-    for node in graph[start]:
-        if node not in set(path):
-            newpaths = find_all_paths(graph, node, end, path)
-            for newpath in newpaths:
-                paths.append(newpath)
-    return paths
-
-
+# def find_all_paths(graph, start, end, path=[]):
+#     path = path + [start]
+#     if start == end:
+#         return [path]
+#     if start not in graph.keys():
+#         return []
+#     paths = []
+#     for node in graph[start]:
+#         if node not in set(path):
+#             newpaths = find_all_paths(graph, node, end, path)
+#             for newpath in newpaths:
+#                 paths.append(newpath)
+#     return paths
 
 def DFS(G,v,seen=None,path=None):
     if seen is None: seen = []
