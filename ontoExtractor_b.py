@@ -235,12 +235,13 @@ def queryexecutor():
                         #         pathLength = find_all_paths(uniqueDict, cla, clo)
                         #         allPaths += pathLength
                         # allPaths = [len(path) for path in allPaths]
+                        lenList = [len(p) for p in allPaths]
 
-                        dictStats[date]['maxDepth'] = max(len(p) for p in allPaths)
-                        dictStats[date]['avgDepth'] = np.asscalar(np.mean(len(p) for p in allPaths))
-                        dictStats[date]['medianDepth'] = np.asscalar(np.median(len(p) for p in allPaths))
-                        dictStats[date]['quantileDepth'] = (np.asscalar(np.percentile((len(p) for p in allPaths), 25)), np.asscalar(np.percentile((len(p) for p in allPaths), 50)),
-                         np.asscalar(np.percentile((len(p) for p in allPaths), 75)))
+                        dictStats[date]['maxDepth'] = max(lenList)
+                        dictStats[date]['avgDepth'] = np.asscalar(np.mean(lenList))
+                        dictStats[date]['medianDepth'] = np.asscalar(np.median(lenList))
+                        dictStats[date]['quantileDepth'] = (np.asscalar(np.percentile(lenList, 25)), np.asscalar(np.percentile(lenList, 50)),
+                         np.asscalar(np.percentile(lenList, 75)))
                     else:
                         dictStats[date]['maxDepth'] = 0
                         dictStats[date]['avgDepth'] = 0
@@ -466,12 +467,12 @@ def queryexecutor():
                         #         pathLength = find_all_paths(uniqueDict, cla, clo)
                         #         allPaths += pathLength
                         # allPaths = [len(path) for path in allPaths]
-
-                        dictStats[date]['maxDepth'] = max(len(p) for p in allPaths)
-                        dictStats[date]['avgDepth'] = np.asscalar(np.mean(len(p) for p in allPaths))
-                        dictStats[date]['medianDepth'] = np.asscalar(np.median(len(p) for p in allPaths))
-                        dictStats[date]['quantileDepth'] = (np.asscalar(np.percentile((len(p) for p in allPaths), 25)), np.asscalar(np.percentile((len(p) for p in allPaths), 50)),
-                         np.asscalar(np.percentile((len(p) for p in allPaths), 75)))
+                        lenList = [len(p) for p in allPaths]
+                        dictStats[date]['maxDepth'] = max(lenList)
+                        dictStats[date]['avgDepth'] = np.asscalar(np.mean(lenList))
+                        dictStats[date]['medianDepth'] = np.asscalar(np.median(lenList))
+                        dictStats[date]['quantileDepth'] = (np.asscalar(np.percentile(lenList, 25)), np.asscalar(np.percentile(lenList, 50)),
+                         np.asscalar(np.percentile(lenList, 75)))
                     else:
                         dictStats[date]['maxDepth'] = 0
                         dictStats[date]['avgDepth'] = 0
