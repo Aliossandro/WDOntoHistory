@@ -135,9 +135,11 @@ def queryexecutor():
                     dfClean['itemid'] = dfClean['itemid'].apply(lambda nu: str(nu))
                     subClasses = list(dfClean['itemid'][dfClean['statproperty'] == "P279"].unique())
                     classesList = list(dfClean['statvalue'].unique())
-                    rootClasses = [x for x in classesList if x not in subClasses]
+                    # rootClasses = [x for x in classesList if x not in subClasses]
+                    rootClasses = list(set(classesList) - set(subClasses))
                     instanceOf = list(dfClean['statvalue'][dfClean['statproperty'] == 'P31'].unique())
-                    instanceOf = [k for k in instanceOf if k not in rootClasses]
+                    # instanceOf = [k for k in instanceOf if k not in rootClasses]
+                    instanceOf = list(set(instanceOf) - set(rootClasses))
                     leafClasses = list(dfClean['itemid'][(dfClean['statproperty'] == 'P279') & (~dfClean['itemid'].isin(dfClean['statvalue']))].unique())
                     # leafClasses = set(leafClasses + instanceOf)
                     classesList += subClasses
