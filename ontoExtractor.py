@@ -264,7 +264,7 @@ def queryexecutor():
                         idx = dfRich.groupby(['statementid'])['revid'].transform(max) == dfRich['revid']
                         dfRichClean = dfRich[idx]
                         richAll = dfRichClean.groupby('statproperty')['statvalue'].nunique()
-                        dictStats[date]['relRichness'] = (richAll.sum() - richAll['P279'])/richAll.sum()
+                        dictStats[date]['relRichness'] = (richAll.sum() - np.asscalar(richAll['P279']))/richAll.sum()
                     except:
                         dictStats[date]['relRichness'] = 'NA'
                 else:
@@ -493,7 +493,7 @@ def queryexecutor():
                         idx = dfRich.groupby(['statementid'])['revid'].transform(max) == dfRich['revid']
                         dfRichClean = dfRich[idx]
                         richAll = dfRichClean.groupby('statproperty')['statvalue'].nunique()
-                        dictStats[date]['relRichness'] = (richAll.sum() - richAll['P279']) / richAll.sum()
+                        dictStats[date]['relRichness'] = (richAll.sum() - np.asscalar(richAll['P279']))/richAll.sum()
                     except:
                         dictStats[date]['relRichness'] = 'NA'
                 else:
