@@ -157,10 +157,10 @@ def queryexecutor():
                     # instanceOf = [k for k in instanceOf if k not in rootClasses]
                     instanceOf = list(set(instanceOf) - set(rootClasses))
                     leafClasses = list(dfClean['itemid'].loc[(dfClean['statproperty'] == 'P279') & (~dfClean['itemid'].isin(dfClean['statvalue'])),].unique())
-                    shallowClasses = list(dfClean['itemid'].loc[(dfClean['statproperty'] == 'P279') & (~dfClean['itemid'].isin(dfClean['statvalue'])) & (dfClean['statvalue'].isin(rootClasses)),].unique())
-                    firstSub = list(dfClean['itemid'].loc[(dfClean['statproperty'] == 'P279') & (dfClean['statvalue'].isin(rootClasses)),].unique())
-                    twoDepth = list(dfClean['itemid'].loc[(dfClean['statproperty'] == 'P279') & (~dfClean['itemid'].isin(dfClean['statvalue'])) & (~dfClean['statvalue'].isin(firstSub)),].unique())
-                    deepClasses = list(set(twoDepth) - set(shallowClasses))
+                    # shallowClasses = list(dfClean['itemid'].loc[(dfClean['statproperty'] == 'P279') & (~dfClean['itemid'].isin(dfClean['statvalue'])) & (dfClean['statvalue'].isin(rootClasses)),].unique())
+                    # firstSub = list(dfClean['itemid'].loc[(dfClean['statproperty'] == 'P279') & (dfClean['statvalue'].isin(rootClasses)),].unique())
+                    # twoDepth = list(dfClean['itemid'].loc[(dfClean['statproperty'] == 'P279') & (~dfClean['itemid'].isin(dfClean['statvalue'])) & (~dfClean['statvalue'].isin(firstSub)),].unique())
+                    # deepClasses = list(set(twoDepth) - set(shallowClasses))
                     # leafClasses = set(leafClasses + instanceOf)
                     classesList += subClasses
                     dictStats[date]['noClasses'] = len(set(classesList))
@@ -286,6 +286,7 @@ def queryexecutor():
                     dictStats[date]['quantilePop'] = 0
                     dictStats[date]['classesWInstances'] = 0
                     dictStats[date]['noClasses'] = 0
+                    dictStats[date]['childLessClasses'] = 0
                     ### No. root classes
                     dictStats[date]['noRoot'] = 0
                     ### No. leaf classes
@@ -398,11 +399,18 @@ def queryexecutor():
                     instanceOf = list(dfClean['statvalue'].loc[dfClean['statproperty'] == 'P31',].unique())
                     # instanceOf = [k for k in instanceOf if k not in rootClasses]
                     instanceOf = list(set(instanceOf) - set(rootClasses))
-                    leafClasses = list(dfClean['itemid'].loc[(dfClean['statproperty'] == 'P279') & (
-                        ~dfClean['itemid'].isin(dfClean['statvalue'])),].unique())
+                    leafClasses = list(dfClean['itemid'].loc[(dfClean['statproperty'] == 'P279') & (~dfClean['itemid'].isin(dfClean['statvalue'])),].unique())
+                    # shallowClasses = list(dfClean['itemid'].loc[(dfClean['statproperty'] == 'P279') & (~dfClean['itemid'].isin(dfClean['statvalue'])) & (dfClean['statvalue'].isin(rootClasses)),].unique())
+                    # firstSub = list(dfClean['itemid'].loc[(dfClean['statproperty'] == 'P279') & (dfClean['statvalue'].isin(rootClasses)),].unique())
+                    # twoDepth = list(dfClean['itemid'].loc[(dfClean['statproperty'] == 'P279') & (~dfClean['itemid'].isin(dfClean['statvalue'])) & (~dfClean['statvalue'].isin(firstSub)),].unique())
+                    # deepClasses = list(set(twoDepth) - set(shallowClasses))
                     # leafClasses = set(leafClasses + instanceOf)
                     classesList += subClasses
                     dictStats[date]['noClasses'] = len(set(classesList))
+                    # childless classes; reduces computation time for avgDepth
+                    superClasses = list(dfClean['statvalue'].loc[dfClean['statproperty'] == "P279",].unique())
+                    childLessClasses = list(set(rootClasses) - set(superClasses))
+                    dictStats[date]['childLessClasses'] = len(set(childLessClasses))
 
                     ### No. root classes
                     dictStats[date]['noRoot'] = len(set(rootClasses))
@@ -515,6 +523,7 @@ def queryexecutor():
                     dictStats[date]['quantilePop'] = 0
                     dictStats[date]['classesWInstances'] = 0
                     dictStats[date]['noClasses'] = 0
+                    dictStats[date]['childLessClasses'] = 0
                     ### No. root classes
                     dictStats[date]['noRoot'] = 0
                     ### No. leaf classes
