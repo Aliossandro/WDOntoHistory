@@ -133,7 +133,7 @@ def queryexecutor():
                     fileName = "WDHierarchy-" + date + ".csv"
                     dfWrite = dfClean.drop(['statementid', 'ts', 'revid'], axis = 1)
                     dfWrite.to_csv(fileName, index=False)
-                    del defWrite
+                    del dfWrite
 
                     # unique P279 and P31
                     uniqueClasses = dfClean['statvalue'].nunique()
@@ -342,7 +342,7 @@ def queryexecutor():
                     fileName = "WDHierarchy-" + date + ".csv"
                     dfWrite = dfClean.drop(['statementid', 'ts', 'revid'], axis = 1)
                     dfWrite.to_csv(fileName, index=False)
-                    del defWrite
+                    del dfWrite
 
                     # unique P279 and P31
                     uniqueClasses = dfClean['statvalue'].nunique()
