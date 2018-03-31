@@ -131,7 +131,9 @@ def queryexecutor():
                     idx = df.groupby(['statementid'])['revid'].transform(max) == df['revid']
                     dfClean = df[idx]
                     fileName = "WDHierarchy-" + date + ".csv"
-                    dfClean.to_csv(fileName, index=False)
+                    dfWrite = dfClean.drop(['statementid', 'ts', 'revid'], axis = 1)
+                    dfWrite.to_csv(fileName, index=False)
+                    del defWrite
 
                     # unique P279 and P31
                     uniqueClasses = dfClean['statvalue'].nunique()
@@ -209,43 +211,6 @@ def queryexecutor():
                     dictStats[date]['quantileInheritance'] = (np.asscalar(np.percentile(inheritanceList, 25)), np.asscalar(np.percentile(inheritanceList, 50)), np.asscalar(np.percentile(inheritanceList, 75)))
                     print('inheritance done')
 
-                    ### Explicit depth
-                    # bibi = dfClean.groupby(['itemid', 'statproperty'])['statvalue'].unique()
-                    bibi = dfClean.loc[dfClean.statproperty == 'P279', ].groupby('itemid')['statvalue'].unique()
-
-                    uniqueSuperClasses = bibi.to_frame()
-                    uniqueSuperClasses.reset_index(inplace=True)
-                    # uniqueSuperClasses = uniquePerClass.loc[uniquePerClass['statproperty'] == 'P279',]
-
-                    if len(uniqueSuperClasses.index) != 0:
-                        # uniqueSuperClasses.drop('statproperty', axis=1, inplace=True)
-                        uniqueSuperClasses['statvalue'] = uniqueSuperClasses['statvalue'].apply(lambda c: c.tolist())
-                        uniqueDict = uniqueSuperClasses.set_index('itemid').T.to_dict('list')
-
-                        for key in uniqueDict.keys():
-                            uniqueDict[key] = uniqueDict[key][0]
-
-                        classesDefaultDict = defaultdict(str, uniqueDict)
-                        allPaths = [p for ps in [DFS(classesDefaultDict, n) for n in set(leafClasses)] for p in ps]
-
-                        # allPaths = []
-                        # for cla in deepClasses:
-                        #     for clo in list(set(rootClasses) - set(childLessClasses)):
-                        #         pathLength = find_all_paths(uniqueDict, cla, clo)
-                        #         allPaths += pathLength
-                        # allPaths = [len(path) for path in allPaths]
-                        lenList = [len(p) for p in allPaths]
-                        dictStats[date]['maxDepth'] = max(lenList)
-                        dictStats[date]['avgDepth'] = np.asscalar(np.mean(lenList))
-                        dictStats[date]['medianDepth'] = np.asscalar(np.median(lenList))
-                        dictStats[date]['quantileDepth'] = (np.asscalar(np.percentile(lenList, 25)), np.asscalar(np.percentile(lenList, 50)),
-                         np.asscalar(np.percentile(lenList, 75)))
-                    else:
-                        dictStats[date]['maxDepth'] = 0
-                        dictStats[date]['avgDepth'] = 0
-                        dictStats[date]['medianDepth'] = 0
-                        dictStats[date]['quantileDepth'] = (0,0,0)
-                    print('depth done')
 
 
                     ### Relationship richness
@@ -375,7 +340,9 @@ def queryexecutor():
                     idx = df.groupby(['statementid'])['revid'].transform(max) == df['revid']
                     dfClean = df[idx]
                     fileName = "WDHierarchy-" + date + ".csv"
-                    dfClean.to_csv(fileName, index=False)
+                    dfWrite = dfClean.drop(['statementid', 'ts', 'revid'], axis = 1)
+                    dfWrite.to_csv(fileName, index=False)
+                    del defWrite
 
                     # unique P279 and P31
                     uniqueClasses = dfClean['statvalue'].nunique()
@@ -447,43 +414,6 @@ def queryexecutor():
                     dictStats[date]['quantileInheritance'] = (
                     np.asscalar(np.percentile(inheritanceList, 25)), np.asscalar(np.percentile(inheritanceList, 50)),
                     np.asscalar(np.percentile(inheritanceList, 75)))
-
-                    ### Explicit depth
-                    # bibi = dfClean.groupby(['itemid', 'statproperty'])['statvalue'].unique()
-                    bibi = dfClean.loc[dfClean.statproperty == 'P279', ].groupby('itemid')['statvalue'].unique()
-
-                    uniqueSuperClasses = bibi.to_frame()
-                    uniqueSuperClasses.reset_index(inplace=True)
-                    # uniqueSuperClasses = uniquePerClass.loc[uniquePerClass['statproperty'] == 'P279',]
-
-                    if len(uniqueSuperClasses.index) != 0:
-                        # uniqueSuperClasses.drop('statproperty', axis=1, inplace=True)
-                        uniqueSuperClasses['statvalue'] = uniqueSuperClasses['statvalue'].apply(lambda c: c.tolist())
-                        uniqueDict = uniqueSuperClasses.set_index('itemid').T.to_dict('list')
-
-                        for key in uniqueDict.keys():
-                            uniqueDict[key] = uniqueDict[key][0]
-
-                        classesDefaultDict = defaultdict(str, uniqueDict)
-                        allPaths = [p for ps in [DFS(classesDefaultDict, n) for n in set(leafClasses)] for p in ps]
-
-                        # allPaths = []
-                        # for cla in deepClasses:
-                        #     for clo in list(set(rootClasses) - set(childLessClasses)):
-                        #         pathLength = find_all_paths(uniqueDict, cla, clo)
-                        #         allPaths += pathLength
-                        # allPaths = [len(path) for path in allPaths]
-                        lenList = [len(p) for p in allPaths]
-                        dictStats[date]['maxDepth'] = max(lenList)
-                        dictStats[date]['avgDepth'] = np.asscalar(np.mean(lenList))
-                        dictStats[date]['medianDepth'] = np.asscalar(np.median(lenList))
-                        dictStats[date]['quantileDepth'] = (np.asscalar(np.percentile(lenList, 25)), np.asscalar(np.percentile(lenList, 50)),
-                         np.asscalar(np.percentile(lenList, 75)))
-                    else:
-                        dictStats[date]['maxDepth'] = 0
-                        dictStats[date]['avgDepth'] = 0
-                        dictStats[date]['medianDepth'] = 0
-                        dictStats[date]['quantileDepth'] = (0,0,0)
 
                     ### Relationship richness
                     try:
