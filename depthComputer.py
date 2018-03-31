@@ -32,6 +32,7 @@ def depthCalculator(fileName):
     date = fileName.replace('WDHierarchy-', '').replace('.csv', '')
 
     dfClean.drop(['statementid', 'ts', 'revid'], axis = 1, inplace=True)
+    print('file loaded')
 
     dfClean['statvalue'] = dfClean['statvalue'].apply(lambda ni: str(ni))
     dfClean['itemid'] = dfClean['itemid'].apply(lambda nu: str(nu))
@@ -58,6 +59,7 @@ def depthCalculator(fileName):
 
     ### Explicit depth
     # bibi = dfClean.groupby(['itemid', 'statproperty'])['statvalue'].unique()
+    print('start computing depth')
     bibi = dfClean.loc[dfClean.statproperty == 'P279', ].groupby('itemid')['statvalue'].unique()
 
     #compute depth only for leaf classes whose hierarchy is deeper than 1
@@ -81,6 +83,7 @@ def depthCalculator(fileName):
 
         classesDefaultDict = defaultdict(str, uniqueDict)
         allPaths = [p for ps in [DFS(classesDefaultDict, n) for n in set(deepClasses)] for p in ps]
+        print('all depths computed, now cleaning')
         tupleList = [(len(p), p[len(p)-1]) for p in allPaths]
         colLabels = ['length', 'rootItem']
         tupleDf = pd.DataFrame.from_records(tupleList, columns=colLabels)
@@ -92,13 +95,14 @@ def depthCalculator(fileName):
         addedDf = pd.concat([addedSeries, itemSeries], axis=1)
         addedDf.columns = ['length', 'rootItem']
         tupleDf = pd.concat([tupleDf, addedDf], axis=0)
-
+        print('now we get all stats)
         dictStats[date]['maxDepth'] = np.asscalar(tupleDf['length'].max())
         dictStats[date]['avgDepth'] = np.asscalar(tupleDf['length'].mean())
         dictStats[date]['medianDepth'] = np.asscalar(tupleDf['length'].median())
         dictStats[date]['quantileDepth'] = [np.asscalar(qua) for qua in list(tupleDf['length'].quantile([.25, .5, .75]))]
 
     else:
+        print('failed')
         dictStats[date]['maxDepth'] = 0
         dictStats[date]['avgDepth'] = 0
         dictStats[date]['medianDepth'] = 0
