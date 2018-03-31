@@ -89,7 +89,7 @@ def queryexecutor():
 
             try:
 
-                queryStart = """SELECT * FROM revision_history_tagged WHERE (time_stamp > '"""+ datePrev + """ 00:00:00' AND  time_stamp < '"""+ date + """ 00:00:00');"""
+                queryStart = """SELECT item_id AS itemid, rev_id AS revid, time_stamp AS timestamp, user_name AS username, automated_tool FROM revision_history_tagged WHERE (time_stamp > '"""+ datePrev + """ 00:00:00' AND  time_stamp < '"""+ date + """ 00:00:00');"""
 
                 conn = get_db_params()
                 cur = conn.cursor()
