@@ -110,7 +110,7 @@ def depthCalculator(fileName):
         dictStats[date]['quantileDepth'] = [0,0,0]
     print('depth done')
 
-    with open('WDepth.txt', 'w') as myfile:
+    with open('WDepth.txt', 'a') as myfile:
         myfile.write(json.dumps(dictStats))
         myfile.close()
 
