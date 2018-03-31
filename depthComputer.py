@@ -32,7 +32,7 @@ def depthCalculator(fileName):
     date = fileName.replace('WDHierarchy-', '').replace('.csv', '')
     dictStats[date] = {}
 
-    dfClean.drop(['statementid', 'ts', 'revid'], axis = 1, inplace=True)
+    # dfClean.drop(['statementid', 'ts', 'revid'], axis = 1, inplace=True)
     print(fileName + ' loaded')
 
     dfClean['statvalue'] = dfClean['statvalue'].apply(lambda ni: str(ni))
