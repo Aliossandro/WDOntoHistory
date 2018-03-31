@@ -27,7 +27,10 @@ def DFS(G,v,seen=None,path=None):
     return paths
 
 def depthCalculator(fileName):
+    dictStats = {}
     dfClean = pd.read_csv(fileName)
+    date = fileName.replace('WDHierarchy-', '').replace('.csv', '')
+
     dfClean.drop(['statementid', 'ts', 'revid'], axis = 1, inplace=True)
 
     dfClean['statvalue'] = dfClean['statvalue'].apply(lambda ni: str(ni))
@@ -50,7 +53,7 @@ def depthCalculator(fileName):
     superClasses = list(dfClean['statvalue'].loc[dfClean['statproperty'] == "P279",].unique())
     childLessClasses = list(set(rootClasses) - set(superClasses))
 
-    ###remember to add childLessClasses and shallowClasses
+    ###remember to add childLessClasses and shallowClasses!
 
 
     ### Explicit depth
@@ -78,33 +81,40 @@ def depthCalculator(fileName):
 
         classesDefaultDict = defaultdict(str, uniqueDict)
         allPaths = [p for ps in [DFS(classesDefaultDict, n) for n in set(deepClasses)] for p in ps]
-        allPaths = [p for p in allPaths if p[len(p)-1] not in set(fertileRoots)]
+        tupleList = [(len(p), p[len(p)-1]) for p in allPaths]
+        colLabels = ['length', 'rootItem']
+        tupleDf = pd.DataFrame.from_records(tupleList, columns=colLabels)
+        tupleDf = tupleDf.loc[tupleDf['rootItem'].isin(fertileRoots),]
+        tupleDf['length'] = tupleDf['length'] - 1
 
-        # allPaths = []
-        # for cla in deepClasses:
-        #     for clo in list(set(rootClasses) - set(childLessClasses)):
-        #         pathLength = find_all_paths(uniqueDict, cla, clo)
-        #         allPaths += pathLength
-        # allPaths = [len(path) for path in allPaths]
-        lenList = [len(p) for p in allPaths if p[len(p)-1] not in set(fertileRoots)]
+        addedSeries = pd.Series(shallowDepth+childlessDepth)
+        itemSeries = pd.Series(['item']*len(shallowDepth+childlessDepth))
+        addedDf = pd.concat([addedSeries, itemSeries], axis=1)
+        addedDf.columns = ['length', 'rootItem']
+        tupleDf = pd.concat([tupleDf, addedDf], axis=0)
 
-        dictStats[date]['maxDepth'] = max(lenList)
-        dictStats[date]['avgDepth'] = np.asscalar(np.mean(lenList))
-        dictStats[date]['medianDepth'] = np.asscalar(np.median(lenList))
-        dictStats[date]['quantileDepth'] = (np.asscalar(np.percentile(lenList, 25)), np.asscalar(np.percentile(lenList, 50)),
-         np.asscalar(np.percentile(lenList, 75)))
+        dictStats[date]['maxDepth'] = np.asscalar(tupleDf['length'].max())
+        dictStats[date]['avgDepth'] = np.asscalar(tupleDf['length'].mean())
+        dictStats[date]['medianDepth'] = np.asscalar(tupleDf['length'].median())
+        dictStats[date]['quantileDepth'] = [np.asscalar(qua) for qua in list(tupleDf['length'].quantile([.25, .5, .75]))]
+
     else:
         dictStats[date]['maxDepth'] = 0
         dictStats[date]['avgDepth'] = 0
         dictStats[date]['medianDepth'] = 0
-        dictStats[date]['quantileDepth'] = (0,0,0)
+        dictStats[date]['quantileDepth'] = [0,0,0]
     print('depth done')
+
+    with open('WDepth.txt', 'w') as myfile:
+        myfile.write(json.dumps(dictStats))
+        myfile.close()
 
 
 
 def main():
     # create_table()
-    queryexecutor()
+    fillo = sys.argv[1]
+    depthCalculator(fillo)
 
 
 if __name__ == "__main__":
