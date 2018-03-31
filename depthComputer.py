@@ -30,6 +30,7 @@ def depthCalculator(fileName):
     dictStats = {}
     dfClean = pd.read_csv(fileName)
     date = fileName.replace('WDHierarchy-', '').replace('.csv', '')
+    dictStats[date] = {}
 
     dfClean.drop(['statementid', 'ts', 'revid'], axis = 1, inplace=True)
     print('file loaded')
