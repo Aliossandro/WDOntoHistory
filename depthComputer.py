@@ -95,7 +95,7 @@ def depthCalculator(fileName):
         addedDf = pd.concat([addedSeries, itemSeries], axis=1)
         addedDf.columns = ['length', 'rootItem']
         tupleDf = pd.concat([tupleDf, addedDf], axis=0)
-        print('now we get all stats)
+        print('now we get all stats')
         dictStats[date]['maxDepth'] = np.asscalar(tupleDf['length'].max())
         dictStats[date]['avgDepth'] = np.asscalar(tupleDf['length'].mean())
         dictStats[date]['medianDepth'] = np.asscalar(tupleDf['length'].median())
