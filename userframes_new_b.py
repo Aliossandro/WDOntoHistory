@@ -77,7 +77,7 @@ def queryexecutor():
     # cur = conn.cursor()
 
     for i in range(13, 18):
-        for j in range(10, 13):
+        for j in range(7, 13):
             date = "20" + str(i) + "-" + str(j) + "-01"
             if j == 10:
                 mt = "09"
@@ -87,9 +87,7 @@ def queryexecutor():
             print(date)
 
             try:
-                queryStart = """
-                SELECT * FROM revisionData_201710 WHERE (timestamp > '"""+ datePrev + """ 00:00:00' AND  timestamp < '"""+ date + """ 00:00:00');
-                """
+                queryStart = """SELECT * FROM revision_history_tagged WHERE (time_stamp > '"""+ datePrev + """ 00:00:00' AND  time_stamp < '"""+ date + """ 00:00:00');"""
 
                 conn = get_db_params()
                 cur = conn.cursor()
@@ -110,6 +108,16 @@ def queryexecutor():
                 noItems = noItems.reset_index()
                 noItems.columns = ['username', 'noItems']
                 noEdits = noEdits.merge(noItems, how='left')
+
+                noBatchEdits = timetable_temp['username'].loc[timetable_temp['automated_tool'] == 'TRUE', ].value_counts()
+                if ~noBatchEdits.empty:
+                    noBatchEdits = noBatchEdits.reset_index()
+                    noBatchEdits.columns = ['username', 'noBatchEdits']
+                    noEdits = noEdits.merge(noBatchEdits, how='left')
+                else:
+                    noEdits['noBatchEdits'] = 0
+
+                print('batch edits')
 
                 classesDataQuery = """SELECT statvalue FROM tempData WHERE ts < '"""+ date + """ 00:00:00';"""
 
@@ -163,20 +171,6 @@ def queryexecutor():
                     noEdits['noTaxoEdits'] = 0
                 print('taxo added')
 
-                batchQuery = """SELECT * FROM revision_history_tagged WHERE automated_tool = 't'
-                AND (time_stamp > '"""+ datePrev + """ 00:00:00' AND  time_stamp < '"""+ date + """ 00:00:00');"""
-
-                dfBatch = pd.read_sql(batchQuery, con=conn)
-                if len(dfBatch.index) != 0:
-                    noBatchEdits = dfBatch['user_name'].value_counts()
-                    noBatchEdits = noBatchEdits.reset_index()
-                    noBatchEdits.columns = ['username', 'noBatchEdits']
-                    noEdits = noEdits.merge(noBatchEdits, how='left')
-                else:
-                    noEdits['noBatchEdits'] = 0
-
-                print('batch edits')
-
                 ###age of user
                 ageQuery = """SELECT * FROM user_first_edit;"""
                 dfAge = pd.read_sql(ageQuery, con=conn)
@@ -189,7 +183,7 @@ def queryexecutor():
                 noEdits['userAge'] = (noEdits['timeframe']-noEdits['minTime']).astype('timedelta64[h]')
 
                 noEdits.fillna(0, inplace=True)
-                fileName = "WDuserstats-" + date + ".csv"
+                fileName = "WDuserstats_new-" + date + ".csv"
                 noEdits.to_csv(fileName, index=False)
 
             except Exception as e:
