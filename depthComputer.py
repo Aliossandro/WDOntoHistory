@@ -33,7 +33,7 @@ def depthCalculator(fileName):
     dictStats[date] = {}
 
     dfClean.drop(['statementid', 'ts', 'revid'], axis = 1, inplace=True)
-    print('file loaded')
+    print(fileName + ' loaded')
 
     dfClean['statvalue'] = dfClean['statvalue'].apply(lambda ni: str(ni))
     dfClean['itemid'] = dfClean['itemid'].apply(lambda nu: str(nu))
