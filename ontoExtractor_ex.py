@@ -107,7 +107,7 @@ def queryexecutor():
     conn = get_db_params()
     # cur = conn.cursor()
 
-    for i in range(13, 15):        
+    for i in range(13, 15):
 
         for j in range(10, 13):
             date = "20" + str(i) + "-" + str(j) + "-01"
@@ -220,6 +220,7 @@ def queryexecutor():
                         idx = dfRich.groupby(['statementid'])['revid'].transform(max) == dfRich['revid']
                         dfRichClean = dfRich[idx]
                         richAll = dfRichClean.groupby('statproperty')['statvalue'].nunique()
+                        print(type(richAll['P279']))
                         dictStats[date]['relRichness'] = (richAll.sum() - np.asscalar(richAll['P279']))/richAll.sum()
                     except:
                         dictStats[date]['relRichness'] = 'NA'
