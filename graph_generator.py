@@ -1,7 +1,9 @@
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
+
 import ujson
+import numpy as np
+import seaborn as sns
+import pandas as pd
+import matplotlib.pyplot as plt
 
 #load the data
 path = '/Users/alessandro/Documents/PhD/userstats'
@@ -15,12 +17,15 @@ file_3 = path + '/WDepth.json'
 wdStats_3 = pd.read_json(file_3, orient='index')
 
 wdStats = pd.concat([wdStats, wdStats_2], axis=0)
+wdStats.drop('avgDepth', axis = 1, inplace=True)
 
 
 wdStats = wdStats.fillna(0)
 wdStats.reset_index(inplace=True)
 wdStats['timeframe'] = pd.to_datetime(wdStats['index'])
 
+###create grid
+g = sns.FacetGrid(wdStats, col=['avgDepth', 'iRichness', 'cRichness'], hue=['avgDepth', 'iRichness', 'cRichness'], col_wrap=3, )
 
 
 

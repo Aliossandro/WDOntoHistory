@@ -15,15 +15,15 @@ import sys
 import copy
 
 def DFS(G,v,seen=None,path=None):
-    if seen is None: seen = []
+    if seen is None: seen = set()
     if path is None: path = [v]
-    seen.append(v)
+    seen.add(v)
     paths = []
     for t in G[v]:
         if t not in seen:
             t_path = path + [t]
             paths.append(tuple(t_path))
-            paths.extend(DFS(G, t, seen[:], t_path))
+            paths.extend(DFS(G, t, seen, t_path))
     return paths
 
 def depthCalculator(fileName):
