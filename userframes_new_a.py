@@ -79,9 +79,9 @@ def queryexecutor():
     for i in range(13, 18):
         for j in range(1, 7):
             date = "20" + str(i) + "-0" + str(j) + "-01"
-            if j == 10:
-                mt = "09"
-                datePrev = "20" + str(i) + "-" + mt + "-01"
+            if j == 1:
+                mt = "12"
+                datePrev = "20" + str(i-1) + "-" + mt + "-01"
             else:
                 datePrev = "20" + str(i) + "-0" + str(j-1) + "-01"
             print(date)
