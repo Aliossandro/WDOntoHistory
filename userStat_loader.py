@@ -38,13 +38,12 @@ def variation_of_information(X, Y):
 
 # VI = 3.322 (maximum VI is log(N) = log(10) = 3.322)
 
-path = '/Users/alessandro/Documents/PhD/userstats'
 
 
 
 def fileLoader(path):
-    allFiles = glob.glob(path + "/WDuserstats*")
-    frame = pd.DataFrame()
+    allFiles = glob.glob(path + "/WDuserstats_*")
+    # frame = pd.DataFrame()
     list_ = []
 
     #bots
@@ -64,32 +63,44 @@ def fileLoader(path):
     frame = pd.concat(list_)
     frame.columns = ['username', 'noEdits', 'noItems', 'noOntoEdits', 'noPropEdits', 'noCommEdits', 'noTaxoEdits',
                   'noBatchEdits', 'minTime', 'timeframe', 'userAge']
+
     frame = frame.loc[~frame['username'].str.match(r'([0-9]{1,3}[.]){3}[0-9]{1,3}|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))', case=False),]
 
     frame = frame.loc[~frame['username'].isin(bot_list['bot_name']),]
     frame = frame.set_index('username')
     frame = frame.drop(['minTime'], axis=1)
+    frame['noItems'] = frame['noEdits']/frame['noItems']
+    frame['noTaxoEdits'] = frame['noTaxoEdits']/frame['noEdits']
+    frame['noBatchEdits'] = frame['noBatchEdits'] / frame['noEdits']
+
     zscore = lambda x: (x - x.mean()) / x.std()
-    frame_norm = frame.groupby('timeframe').transform(zscore)
+    colZ = ['noEdits', 'noOntoEdits', 'noPropEdits', 'noCommEdits',  'timeframe']
+    frame_norm = frame[colZ].groupby('timeframe').transform(zscore)
     frame_norm.reset_index(inplace=True)
     frame_norm['admin'] = False
     frame_norm['admin'].loc[frame_norm['username'].isin(admin_list['user_name']),] = True
     frame_norm = frame_norm.set_index('username')
+    frame_norm.noitems = frame['noItems']
+    frame_norm.noTaxoEdits = frame['noTaxoEdits']
+    frame_norm.noBatchEdits = frame['noBatchEdits']
+    frame_norm.userAge = frame['userAge']
 
     frame_clean = frame_norm[frame_norm.notnull()]
     frame_clean = frame_clean.replace([np.inf, -np.inf], np.nan)
     frame_clean = frame_clean.fillna(0)
     frame_clean['serial'] = range(1, len(frame_clean) + 1)
     # frame_clean.index = frame_clean['serial']
+    print('dataset loaded')
 
     resultsKmeans = {}
+
     for n in range(2,9):
         label_array = []
         resultsAll = []
-        for num in range(1, 16):
+        for num in range(1, 10):
             labelSample = []
-            frame_sample = frame_clean.sample(frac=0.75)
-            kmeans = KMeans(n_clusters=n, n_init=25, n_jobs=-1).fit(frame_sample.drop('serial'))
+            frame_sample = frame_clean.sample(frac=0.8)
+            kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_sample.drop('serial'))
             labels = kmeans.labels_
             frame_sample['labels'] = labels
             for g in range(0, n):
@@ -106,19 +117,38 @@ def fileLoader(path):
     for key in resultsKmeans:
         listres = resultsKmeans[key]
         res = np.mean(listres)
-        kAvg[key] = res
+        rstd = np.std(listres)
+        kAvg[key] = (res, rstd)
 
+    print('VI computed')
 
+    with open('kmeansAvg.txt', 'w') as f:
+        f.write(str(kAvg))
+        f.close()
 
+    resultSscore ={}
+    for n in range(2, 9):
+        resultsAll = []
+        for num in range(1, 6):
+            labelSample = []
+            kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_clean.drop('serial'))
+            labels = kmeans.labels_
+            sscore = metrics.silhouette_score(frame_clean.drop('serial'), labels, sample_size= 40000, metric='euclidean')
+        # print(n, sscore)
+            resultsAll.append(sscore)
+        resultSscore[str(n)] = resultsAll
 
-        # sscore = metrics.silhouette_score(frame_sample, labels, metric='euclidean')
-        print(n, sscore)
+    with open('kmeansscore.txt', 'w') as f:
+        f.write(str(resultSscore))
+        f.close()
 
+    print('all done')
 
 
 def main():
     # create_table()
-    fileLoader()
+    path = '/Users/alessandro/Documents/PhD/userstats'
+    fileLoader(path)
 
 
 if __name__ == "__main__":

@@ -116,7 +116,7 @@ def queryexecutor():
                 dictStats[date] = {}
 
                 query = """
-                    SELECT * FROM tempData WHERE tS < '""" + date + """ 00:00:00';
+                    SELECT * FROM tempData WHERE tS < '""" + date + """ 00:00:00'::timestamp;
                 """
 
                 # print(query)
@@ -215,17 +215,16 @@ def queryexecutor():
 
                     ### Relationship richness
                     try:
-                        queryRich = """
-                                            SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date + """ 00:00:00'
-                                            AND ((itemid IN (SELECT DISTINCT itemId FROM tempData WHERE statproperty != 'P31' WHERE  timestamp < '""" + date + """ 00:00:00'))
-                                            OR (itemid IN (SELECT DISTINCT statvalue FROM tempData WHERE  timestamp < '""" + date + """ 00:00:00')));
-                                        """
+                        queryRich = """SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date + """ 00:00:00'::timestamp;"""
                         # print(query)
                         dfRich = pd.DataFrame()
-                        for chunk in pd.read_sql(queryRich, con=conn, chunksize=10000):
+                        for chunk in pd.read_sql(queryRich, con=conn, chunksize=25000):
                             dfRich = dfRich.append(chunk)
 
+                        dfRich = dfRich.loc[(dfRich['itemid'],isin(classesList))]
                         dfRich = dfRich.loc[dfRich['statvalue'] != 'deleted',]
+                        dfRich = dfRich.loc[dfRich['statvalue'] != 'novalue',]
+                        dfRich = dfRich.loc[dfRich['statvalue'] != 'somevalue',]
                         idx = dfRich.groupby(['statementid'])['revid'].transform(max) == dfRich['revid']
                         dfRichClean = dfRich[idx]
                         richAll = dfRichClean.groupby('statproperty')['statvalue'].nunique()
@@ -289,7 +288,7 @@ def queryexecutor():
                 ### No. statements per property
                 try:
                     queryProps = """
-                    SELECT statproperty, COUNT(*) AS propuse FROM (SELECT * FROM statementDated WHERE  timestamp < '""" + date + """ 00:00:00') AS moo GROUP BY statproperty;
+                    SELECT statproperty, COUNT(*) AS propuse FROM (SELECT * FROM statementDated WHERE  timestamp < '""" + date + """ 00:00:00'::timestamp) AS moo GROUP BY statproperty;
                     """
                     dfPropUse = pd.read_sql(queryProps, con=conn)
                     if len(dfPropUse.index) != 0:
@@ -353,6 +352,7 @@ def queryexecutor():
                     except:
                         dictStats[date]['P279'] = 0
                     dictStats[date]['P31'] = np.asscalar(uniqueAll['P31'])
+                    print('unique P31, P279')
 
                     ### No. classes
                     dfClean['statvalue'] = dfClean['statvalue'].apply(lambda ni: str(ni))
@@ -382,6 +382,7 @@ def queryexecutor():
 
                     ### No. leaf classes
                     dictStats[date]['noLeaf'] = len((leafClasses))
+                    print('no Classes done')
 
                     ### Avg. population metric and class richness
                     # Mean, median, and 0.25-0.75 quantiles no. instances per class
@@ -400,6 +401,7 @@ def queryexecutor():
                     dictStats[date]['medianPop'] = np.asscalar(np.median(instanceList))
                     dictStats[date]['quantilePop'] = (
                     np.asscalar(np.percentile(instanceList, 25)), np.asscalar(np.percentile(instanceList, 50)), np.asscalar(np.percentile(instanceList, 75)))
+                    print('class Richness done')
 
                     ### inheritance richness
                     classCountSub = classCount['P279'].to_dict()
@@ -414,26 +416,28 @@ def queryexecutor():
                     dictStats[date]['quantileInheritance'] = (
                     np.asscalar(np.percentile(inheritanceList, 25)), np.asscalar(np.percentile(inheritanceList, 50)),
                     np.asscalar(np.percentile(inheritanceList, 75)))
+                    print('inheritance done')
 
                     ### Relationship richness
                     try:
-                        queryRich = """
-                                                            SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date + """ 00:00:00'
-                                                            AND ((itemid IN (SELECT itemId FROM tempData WHERE statproperty != 'P31' AND timestamp < '""" + date + """ 00:00:00'))
-                                                            OR (itemid IN (SELECT statvalue FROM tempData WHERE  timestamp < '""" + date + """ 00:00:00')));
-                                                        """
+                        queryRich = """SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date + """ 00:00:00'::timestamp;"""
                         # print(query)
                         dfRich = pd.DataFrame()
-                        for chunk in pd.read_sql(queryRich, con=conn, chunksize=10000):
+                        for chunk in pd.read_sql(queryRich, con=conn, chunksize=25000):
                             dfRich = dfRich.append(chunk)
 
-                        dfRich = dfRich[dfRich['statvalue'] != 'deleted']
+                        dfRich = dfRich.loc[(dfRich['itemid'],isin(classesList))]
+                        dfRich = dfRich.loc[dfRich['statvalue'] != 'deleted',]
+                        dfRich = dfRich.loc[dfRich['statvalue'] != 'novalue',]
+                        dfRich = dfRich.loc[dfRich['statvalue'] != 'somevalue',]
                         idx = dfRich.groupby(['statementid'])['revid'].transform(max) == dfRich['revid']
                         dfRichClean = dfRich[idx]
                         richAll = dfRichClean.groupby('statproperty')['statvalue'].nunique()
                         dictStats[date]['relRichness'] = (richAll.sum() - np.asscalar(richAll['P279']))/richAll.sum()
                     except:
                         dictStats[date]['relRichness'] = 'NA'
+
+                    print('RR done')
                 else:
                     dictStats[date]['P279'] = 0
                     dictStats[date]['P31'] = 0

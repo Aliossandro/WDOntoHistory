@@ -11,11 +11,17 @@ wdStats = pd.read_json(file_1, orient='index')
 file_2 = path + '/WDataStats_2.json'
 wdStats_2 = pd.read_json(file_2, orient='index')
 
+file_3 = path + '/WDepth.json'
+wdStats_3 = pd.read_json(file_3, orient='index')
+
 wdStats = pd.concat([wdStats, wdStats_2], axis=0)
+
 
 wdStats = wdStats.fillna(0)
 wdStats.reset_index(inplace=True)
 wdStats['timeframe'] = pd.to_datetime(wdStats['index'])
+
+
 
 
 ###generate the graphs
