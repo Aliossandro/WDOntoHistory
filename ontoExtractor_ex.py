@@ -206,24 +206,24 @@ def queryexecutor():
                     print('inheritance done')
 
                     ### Relationship richness
-                    try:
-                        queryRich = """SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date + """ 00:00:00'::timestamp;"""
-                        # print(query)
-                        dfRich = pd.DataFrame()
-                        for chunk in pd.read_sql(queryRich, con=conn, chunksize=25000):
-                            dfRich = dfRich.append(chunk)
-
-                        dfRich = dfRich.loc[(dfRich['itemid'],isin(classesList))]
-                        dfRich = dfRich.loc[dfRich['statvalue'] != 'deleted',]
-                        dfRich = dfRich.loc[dfRich['statvalue'] != 'novalue',]
-                        dfRich = dfRich.loc[dfRich['statvalue'] != 'somevalue',]
-                        idx = dfRich.groupby(['statementid'])['revid'].transform(max) == dfRich['revid']
-                        dfRichClean = dfRich[idx]
-                        richAll = dfRichClean.groupby('statproperty')['statvalue'].nunique()
-                        print(type(richAll['P279']))
-                        dictStats[date]['relRichness'] = (richAll.sum() - np.asscalar(richAll['P279']))/richAll.sum()
-                    except:
-                        dictStats[date]['relRichness'] = 'NA'
+                    # try:
+                    #     queryRich = """SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date + """ 00:00:00'::timestamp;"""
+                    #     # print(query)
+                    #     dfRich = pd.DataFrame()
+                    #     for chunk in pd.read_sql(queryRich, con=conn, chunksize=25000):
+                    #         dfRich = dfRich.append(chunk)
+                    #
+                    #     dfRich = dfRich.loc[(dfRich['itemid'],isin(classesList))]
+                    #     dfRich = dfRich.loc[dfRich['statvalue'] != 'deleted',]
+                    #     dfRich = dfRich.loc[dfRich['statvalue'] != 'novalue',]
+                    #     dfRich = dfRich.loc[dfRich['statvalue'] != 'somevalue',]
+                    #     idx = dfRich.groupby(['statementid'])['revid'].transform(max) == dfRich['revid']
+                    #     dfRichClean = dfRich[idx]
+                    #     richAll = dfRichClean.groupby('statproperty')['statvalue'].nunique()
+                    #     print(type(richAll['P279']))
+                    #     dictStats[date]['relRichness'] = (richAll.sum() - np.asscalar(richAll['P279']))/richAll.sum()
+                    # except:
+                    #     dictStats[date]['relRichness'] = 'NA'
 
                     print('RR done')
                 else:
