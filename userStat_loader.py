@@ -111,7 +111,7 @@ def fileLoader(path):
             # F, p = stats.f_oneway(frame_sample.loc[frame_sample['labels'] == 0,]['noBatchEdits'],
             #                       frame_sample.loc[frame_sample['labels'] == 1,]['noBatchEdits'], frame_sample.loc[frame_sample['labels'] == 2,]['noBatchEdits'],
             #                       frame_sample.loc[frame_sample['labels'] == 3,]['noBatchEdits'])
-            for g in range(0, n)
+            for g in range(0, n):
                 listSerials= frame_sample['serial'].loc[frame_sample['labels'] == g]
                 labelSample.append(list(listSerials))
             label_array.append(labelSample)
