@@ -5,6 +5,7 @@ import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
 
+
 #load the data
 path = '/Users/alessandro/Documents/PhD/userstats'
 file_1 = path + '/WDataStats_1.json'

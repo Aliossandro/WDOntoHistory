@@ -7,6 +7,9 @@ from sklearn import metrics
 from sklearn.metrics import pairwise_distances
 from sklearn import datasets
 import glob
+from scipy import stats
+
+
 
 # -*- coding: utf-8 -*-
 import os
@@ -74,16 +77,16 @@ def fileLoader(path):
     frame['noBatchEdits'] = frame['noBatchEdits'] / frame['noEdits']
 
     zscore = lambda x: (x - x.mean()) / x.std()
-    colZ = ['noEdits', 'noOntoEdits', 'noPropEdits', 'noCommEdits',  'timeframe']
+    colZ = ['noEdits', 'noOntoEdits', 'noPropEdits', 'noCommEdits', 'userAge',  'timeframe']
     frame_norm = frame[colZ].groupby('timeframe').transform(zscore)
     frame_norm.reset_index(inplace=True)
     frame_norm['admin'] = False
     frame_norm['admin'].loc[frame_norm['username'].isin(admin_list['user_name']),] = True
     frame_norm = frame_norm.set_index('username')
-    frame_norm.noitems = frame['noItems']
-    frame_norm.noTaxoEdits = frame['noTaxoEdits']
-    frame_norm.noBatchEdits = frame['noBatchEdits']
-    frame_norm.userAge = frame['userAge']
+    frame_norm['noItems'] = frame['noItems']
+    frame_norm['noTaxoEdits'] = frame['noTaxoEdits']
+    frame_norm['noBatchEdits'] = frame['noBatchEdits']
+
 
     frame_clean = frame_norm[frame_norm.notnull()]
     frame_clean = frame_clean.replace([np.inf, -np.inf], np.nan)
@@ -103,7 +106,12 @@ def fileLoader(path):
             kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_sample.drop('serial'))
             labels = kmeans.labels_
             frame_sample['labels'] = labels
-            for g in range(0, n):
+            # frameTest = np.array(frame_sample.loc[frame_sample['labels'] == 0,]['noEdits'],
+            #                       frame_sample.loc[frame_sample['labels'] == 1,]['noEdits'])
+            # F, p = stats.f_oneway(frame_sample.loc[frame_sample['labels'] == 0,]['noBatchEdits'],
+            #                       frame_sample.loc[frame_sample['labels'] == 1,]['noBatchEdits'], frame_sample.loc[frame_sample['labels'] == 2,]['noBatchEdits'],
+            #                       frame_sample.loc[frame_sample['labels'] == 3,]['noBatchEdits'])
+            for g in range(0, n)
                 listSerials= frame_sample['serial'].loc[frame_sample['labels'] == g]
                 labelSample.append(list(listSerials))
             label_array.append(labelSample)
@@ -133,7 +141,7 @@ def fileLoader(path):
             labelSample = []
             kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_clean.drop('serial'))
             labels = kmeans.labels_
-            sscore = metrics.silhouette_score(frame_clean.drop('serial'), labels, sample_size= 40000, metric='euclidean')
+            sscore = metrics.silhouette_score(frame_clean.drop('serial'), labels, sample_size= 100000, metric='euclidean')
         # print(n, sscore)
             resultsAll.append(sscore)
         resultSscore[str(n)] = resultsAll
@@ -147,7 +155,8 @@ def fileLoader(path):
 
 def main():
     # create_table()
-    path = '/Users/alessandro/Documents/PhD/userstats'
+    # path = '/Users/alessandro/Documents/PhD/userstats'
+    path = sys.argv[1]
     fileLoader(path)
 
 
