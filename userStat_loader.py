@@ -8,7 +8,7 @@ from sklearn.metrics import pairwise_distances
 from sklearn import datasets
 import glob
 from scipy import stats
-
+from sklearn.decomposition import PCA
 
 
 # -*- coding: utf-8 -*-
@@ -141,7 +141,7 @@ def fileLoader(path):
             labelSample = []
             kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_clean.drop('serial'))
             labels = kmeans.labels_
-            sscore = metrics.silhouette_score(frame_clean.drop('serial'), labels, sample_size= 100000, metric='euclidean')
+            sscore = metrics.silhouette_score(frame_clean.drop('serial'), labels, sample_size= 50000, metric='euclidean')
         # print(n, sscore)
             resultsAll.append(sscore)
         resultSscore[str(n)] = resultsAll
@@ -152,6 +152,13 @@ def fileLoader(path):
 
     print('all done')
 
+
+
+pca = PCA(n_components=2)
+pca.fit(frame_clean.drop('serial'))
+frame_pca = pca.fit_transform(frame_clean.drop('serial'))
+kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_pca)
+print(pca.explained_variance_ratio_)
 
 def main():
     # create_table()
