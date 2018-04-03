@@ -45,14 +45,17 @@ def queryexecutor():
             for chunk in pd.read_sql(queryRich, con=conn, chunksize=10000):
                 dfRich = dfRich.append(chunk)
 
-            dfRich = dfRich.loc[dfRich['statvalue'] != 'deleted',]
-            dfRich = dfRich.loc[dfRich['statvalue'] != 'novalue',]
-            dfRich = dfRich.loc[dfRich['statvalue'] != 'somevalue',]
-            idx = dfRich.groupby(['statementid'])['revid'].transform(max) == dfRich['revid']
-            dfRichClean = dfRich[idx]
-            richAll = dfRichClean.groupby('statproperty')['statvalue'].nunique()
+            if not dfRich.empty:
+                dfRich = dfRich.loc[dfRich['statvalue'] != 'deleted',]
+                dfRich = dfRich.loc[dfRich['statvalue'] != 'novalue',]
+                dfRich = dfRich.loc[dfRich['statvalue'] != 'somevalue',]
+                idx = dfRich.groupby(['statementid'])['revid'].transform(max) == dfRich['revid']
+                dfRichClean = dfRich[idx]
+                richAll = dfRichClean.groupby('statproperty')['statvalue'].nunique()
 
-            dictStats[date]['relRichness'] = (richAll.sum() - np.asscalar(richAll['P279']))/richAll.sum()
+                dictStats[date]['relRichness'] = (richAll.sum() - np.asscalar(richAll['P279']))/richAll.sum()
+            else:
+                dictStats[date]['relRichness'] = 0
 
             with open('WDataStats_RR.txt', 'w') as myfile:
                 myfile.write(json.dumps(dictStats))
@@ -74,14 +77,17 @@ def queryexecutor():
             for chunk in pd.read_sql(queryRich, con=conn, chunksize=10000):
                 dfRich = dfRich.append(chunk)
 
-            dfRich = dfRich.loc[dfRich['statvalue'] != 'deleted',]
-            dfRich = dfRich.loc[dfRich['statvalue'] != 'novalue',]
-            dfRich = dfRich.loc[dfRich['statvalue'] != 'somevalue',]
-            idx = dfRich.groupby(['statementid'])['revid'].transform(max) == dfRich['revid']
-            dfRichClean = dfRich[idx]
-            richAll = dfRichClean.groupby('statproperty')['statvalue'].nunique()
+            if not dfRich.empty:
+                dfRich = dfRich.loc[dfRich['statvalue'] != 'deleted',]
+                dfRich = dfRich.loc[dfRich['statvalue'] != 'novalue',]
+                dfRich = dfRich.loc[dfRich['statvalue'] != 'somevalue',]
+                idx = dfRich.groupby(['statementid'])['revid'].transform(max) == dfRich['revid']
+                dfRichClean = dfRich[idx]
+                richAll = dfRichClean.groupby('statproperty')['statvalue'].nunique()
 
-            dictStats[date]['relRichness'] = (richAll.sum() - np.asscalar(richAll['P279']))/richAll.sum()
+                dictStats[date]['relRichness'] = (richAll.sum() - np.asscalar(richAll['P279']))/richAll.sum()
+            else:
+                dictStats[date]['relRichness'] = 0
 
             with open('WDataStats_RR.txt', 'w') as myfile:
                 myfile.write(json.dumps(dictStats))
