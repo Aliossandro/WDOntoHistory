@@ -54,11 +54,23 @@ def queryexecutor():
                 richAll = dfRichClean.groupby('statproperty')['statvalue'].nunique()
                 try:
                     dictStats[date]['relRichness'] = (richAll.sum() - np.asscalar(richAll['P279']))/richAll.sum()
+                    dictStats[date]['maxRichness'] = np.asscalar(richAll.max())
+                    dictStats[date]['avgRichness'] = richAll.mean()
+                    dictStats[date]['medianRichness'] = richAll.median()
+                    dictStats[date]['quantileRichness'] = [qua for qua in list(richAll.quantile([.25, .5, .75]))]
                 except KeyError:
                     print('no P279')
                     dictStats[date]['relRichness'] = 1
+                    dictStats[date]['maxRichness'] = np.asscalar(richAll.max())
+                    dictStats[date]['avgRichness'] = richAll.mean()
+                    dictStats[date]['medianRichness'] = richAll.median()
+                    dictStats[date]['quantileRichness'] = [qua for qua in list(richAll.quantile([.25, .5, .75]))]
             else:
                 dictStats[date]['relRichness'] = 0
+                dictStats[date]['maxRichness'] = 0
+                dictStats[date]['avgRichness'] = 0
+                dictStats[date]['medianRichness'] = 0
+                dictStats[date]['quantileRichness'] = 0
 
             with open('WDataStats_RR.txt', 'w') as myfile:
                 myfile.write(json.dumps(dictStats))
@@ -90,11 +102,23 @@ def queryexecutor():
 
                 try:
                     dictStats[date]['relRichness'] = (richAll.sum() - np.asscalar(richAll['P279']))/richAll.sum()
+                    dictStats[date]['maxRichness'] = np.asscalar(richAll.max())
+                    dictStats[date]['avgRichness'] = richAll.mean()
+                    dictStats[date]['medianRichness'] = richAll.median()
+                    dictStats[date]['quantileRichness'] = [qua for qua in list(richAll.quantile([.25, .5, .75]))]
                 except KeyError:
                     print('no P279')
                     dictStats[date]['relRichness'] = 1
+                    dictStats[date]['maxRichness'] = np.asscalar(richAll.max())
+                    dictStats[date]['avgRichness'] = richAll.mean()
+                    dictStats[date]['medianRichness'] = richAll.median()
+                    dictStats[date]['quantileRichness'] = [qua for qua in list(richAll.quantile([.25, .5, .75]))]
             else:
                 dictStats[date]['relRichness'] = 0
+                dictStats[date]['maxRichness'] = 0
+                dictStats[date]['avgRichness'] = 0
+                dictStats[date]['medianRichness'] = 0
+                dictStats[date]['quantileRichness'] = 0
 
             with open('WDataStats_RR.txt', 'w') as myfile:
                 myfile.write(json.dumps(dictStats))
