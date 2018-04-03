@@ -154,11 +154,11 @@ def fileLoader(path):
 
 
 
-pca = PCA(n_components=2)
-pca.fit(frame_clean.drop('serial'))
-frame_pca = pca.fit_transform(frame_clean.drop('serial'))
-kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_pca)
-print(pca.explained_variance_ratio_)
+# pca = PCA(n_components=2)
+# pca.fit(frame_clean.drop('serial'))
+# frame_pca = pca.fit_transform(frame_clean.drop('serial'))
+# kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_pca)
+# print(pca.explained_variance_ratio_)
 
 def main():
     # create_table()
