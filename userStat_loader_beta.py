@@ -45,7 +45,7 @@ def variation_of_information(X, Y):
 
 
 def fileLoader(path):
-    allFiles = glob.glob(path + "/WDuserstats_*")
+    allFiles = glob.glob(path + "/WDuserstats-*")
     # frame = pd.DataFrame()
     list_ = []
 
@@ -69,7 +69,7 @@ def fileLoader(path):
     frame = frame.set_index('username')
     frame = frame.drop(['minTime'], axis=1)
     frame['editNorm'] = frame['noEdits']
-    colN = ['editNorm', 'noTaxoEdits', 'noPropEdits', 'noCommEdits', 'timeframe']
+    colN = ['editNorm', 'noTaxoEdits', 'noOntoEdits', 'noPropEdits', 'noCommEdits', 'timeframe']
     normaliser = lambda x: x / x.sum()
     frame_norm = frame[colN].groupby('timeframe').transform(normaliser)
     frame_norm['noItems'] = frame['noEdits'] / frame['noItems']
@@ -87,13 +87,10 @@ def fileLoader(path):
     frame_norm.drop('noEdits', axis=1, inplace=True)
     frame_norm = frame_norm.set_index('username')
 
-
-
     # zscore = lambda x: (x - x.mean()) / x.std()
 
     # colZ = ['noEdits', 'noOntoEdits', 'noPropEdits', 'noCommEdits', 'userAge',  'timeframe']
     # frame_norm = frame[colZ].groupby('timeframe').transform(zscore)
-
 
     frame_clean = frame_norm[frame_norm.notnull()]
     frame_clean = frame_clean.replace([np.inf, -np.inf], np.nan)
@@ -143,7 +140,7 @@ def fileLoader(path):
             labelSample = []
             kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_clean.drop('serial'))
             labels = kmeans.labels_
-            sscore = metrics.silhouette_score(frame_clean.drop('serial'), labels, sample_size= 50000, metric='euclidean')
+            sscore = metrics.silhouette_score(frame_clean.drop('serial'), labels, sample_size= 20000, metric='euclidean')
         # print(n, sscore)
             resultsAll.append(sscore)
         resultSscore[str(n)] = resultsAll
@@ -155,14 +152,13 @@ def fileLoader(path):
     print('all done')
 
 
-frameTest = np.array(frame_sample.loc[frame_sample['labels'] == 0,]['noEdits'],
-                     frame_sample.loc[frame_sample['labels'] == 1,]['noEdits'])
-
+# frameTest = np.array(frame_sample.loc[frame_sample['labels'] == 0,]['noEdits'],
+#                      frame_sample.loc[frame_sample['labels'] == 1,]['noEdits'])
+#
 anovaDict ={}
 for col in frame_sample.drop(['serial']).columns:
     F, p = stats.f_oneway(frame_sample.loc[frame_sample['labels'] == 0,][col],
-                      frame_sample.loc[frame_sample['labels'] == 1,][col], frame_sample.loc[frame_sample['labels'] == 2,][col],
-                          frame_sample.loc[frame_sample['labels'] == 3,][col])
+                      frame_sample.loc[frame_sample['labels'] == 1,][col], frame_sample.loc[frame_sample['labels'] == 2,][col])
     anovaDict[col] = {}
     anovaDict[col]['F'] = F
     anovaDict[col]['p'] = p
