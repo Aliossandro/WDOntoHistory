@@ -9,7 +9,11 @@ from sklearn import datasets
 import glob
 from scipy import stats
 from sklearn.decomposition import PCA
-
+from scipy.spatial.distance import cdist
+import matplotlib.pyplot as plt
+from gap_statistic import OptimalK
+from sklearn.datasets.samples_generator import make_blobs
+# import random
 
 # -*- coding: utf-8 -*-
 import os
@@ -152,6 +156,164 @@ def fileLoader(path):
     print('all done')
 
 
+# elbow method
+distortions = []
+K = range(1, 10)
+for k in K:
+    kmeanModel = KMeans(n_clusters=k).fit(frame_clean.drop('serial'))
+    kmeanModel.fit(frame_clean.drop('serial'))
+    distortions.append(sum(np.min(cdist(frame_clean.drop('serial'), kmeanModel.cluster_centers_, 'euclidean'), axis=1)) / frame_clean.drop('serial').shape[0])
+
+# Plot the elbow
+plt.plot(K, distortions, 'bx-')
+plt.xlabel('k')
+plt.ylabel('Distortion')
+plt.title('The Elbow Method showing the optimal k')
+plt.show()
+
+
+#gap statistic
+
+frame_clean['admin'] = frame_clean['admin']*1
+X = frame_clean.drop('serial').as_matrix()
+optimalK = OptimalK(parallel_backend='joblib')
+n_clusters = optimalK(X, cluster_array=np.arange(1, 10))
+print('Optimal clusters: ', n_clusters)
+
+optimalK.gap_df.head(10)
+
+gapDf = pd.DataFrame({'n_clusters':list(range(1,11)), 'gap_value':list(coso)})
+
+# plt.plot(optimalK.gap_df.n_clusters, optimalK.gap_df.gap_value, linewidth=3)
+plt.plot(range(1,11), coso, linewidth=3)
+
+plt.scatter(gapDf[gapDf.n_clusters == n_clusters].n_clusters,
+            gapDf[gapDf.n_clusters == n_clusters].gap_value, s=250, c='r')
+# plt.scatter(optimalK.gap_df[optimalK.gap_df.n_clusters == n_clusters].n_clusters,
+#             optimalK.gap_df[optimalK.gap_df.n_clusters == n_clusters].gap_value, s=250, c='r')
+plt.grid(True)
+plt.xlabel('Cluster Count')
+plt.ylabel('Gap Value')
+plt.title('Gap Values by Cluster Count')
+plt.show()
+
+
+
+import scipy
+import scipy.cluster.vq
+import scipy.spatial.distance
+
+dst = scipy.spatial.distance.euclidean
+
+
+def gap(data, refs=None, nrefs=20, ks=range(1, 11)):
+    """
+    Compute the Gap statistic for an nxm dataset in data.
+    Either give a precomputed set of reference distributions in refs as an (n,m,k) scipy array,
+    or state the number k of reference distributions in nrefs for automatic generation with a
+    uniformed distribution within the bounding box of data.
+    Give the list of k-values for which you want to compute the statistic in ks.
+    """
+    shape = data.shape
+    if refs == None:
+
+
+        tops = data.max(axis=0)
+        bots = data.min(axis=0)
+        dists = scipy.matrix(scipy.diag(tops - bots))
+
+        rands = scipy.random.random_sample(size=(shape[0], shape[1], nrefs))
+        for i in range(nrefs):
+            rands[:, :, i] = rands[:, :, i] * dists + bots
+    else:
+        rands = refs
+
+    gaps = scipy.zeros((len(ks),))
+    for (i, k) in enumerate(ks):
+        (kmc, kml) = scipy.cluster.vq.kmeans2(data, k)
+        disp = sum([dst(data[m, :], kmc[kml[m], :]) for m in range(shape[0])])
+
+        refdisps = scipy.zeros((rands.shape[2],))
+        for j in range(rands.shape[2]):
+            (kmc, kml) = scipy.cluster.vq.kmeans2(rands[:, :, j], k)
+            refdisps[j] = sum([dst(rands[m, :, j], kmc[kml[m], :]) for m in range(shape[0])])
+        # gaps[i] = scipy.log(scipy.mean(refdisps)) - scipy.log(disp)
+        gaps[i] = scipy.mean(scipy.log(refdisps)) - scipy.log(disp)
+    return gaps
+
+#
+# def cluster_points(X, mu):
+#     clusters = {}
+#     for x in X:
+#         bestmukey = min([(i[0], np.linalg.norm(x - mu[i[0]])) \
+#                          for i in enumerate(mu)], key=lambda t: t[1])[0]
+#         try:
+#             clusters[bestmukey].append(x)
+#         except KeyError:
+#             clusters[bestmukey] = [x]
+#     return clusters
+#
+#
+# def reevaluate_centers(mu, clusters):
+#     newmu = []
+#     keys = sorted(clusters.keys())
+#     for k in keys:
+#         newmu.append(np.mean(clusters[k], axis=0))
+#     return newmu
+#
+#
+# def has_converged(mu, oldmu):
+#     return (set([tuple(a) for a in mu]) == set([tuple(a) for a in oldmu]))
+#
+#
+# def find_centers(X, K):
+#     # Initialize to K random centers
+#     oldmu = random.sample(list(X), K)
+#     mu = random.sample(list(X), K)
+#     while not has_converged(mu, oldmu):
+#         oldmu = mu
+#         # Assign all points in X to clusters
+#         clusters = cluster_points(X, mu)
+#         # Reevaluate centers
+#         mu = reevaluate_centers(oldmu, clusters)
+#     return (mu, clusters)
+#
+# def bounding_box(X):
+#     xmin, xmax = min(X, key=lambda a: a[0])[0], max(X, key=lambda a: a[0])[0]
+#     ymin, ymax = min(X, key=lambda a: a[1])[1], max(X, key=lambda a: a[1])[1]
+#     return (xmin, xmax), (ymin, ymax)
+#
+#
+#
+# from numpy import zeros
+#
+# def gap_statistic(X):
+#     (xmin, xmax), (ymin, ymax) = bounding_box(X)
+#     # Dispersion for real distribution
+#     ks = range(1, 10)
+#     Wks = zeros(len(ks))
+#     Wkbs = zeros(len(ks))
+#     sk = zeros(len(ks))
+#     for indk, k in enumerate(ks):
+#         mu, clusters = find_centers(X, k)
+#         Wks[indk] = np.log(Wk(mu, clusters))
+#         # Create B reference datasets
+#         B = 10
+#         BWkbs = zeros(B)
+#         for i in range(B):
+#             Xb = []
+#             for n in range(len(X)):
+#                 Xb.append([random.uniform(xmin, xmax),
+#                            random.uniform(ymin, ymax)])
+#             Xb = np.array(Xb)
+#             mu, clusters = find_centers(Xb, k)
+#             BWkbs[i] = np.log(Wk(mu, clusters))
+#         Wkbs[indk] = sum(BWkbs) / B
+#         sk[indk] = np.sqrt(sum((BWkbs - Wkbs[indk]) ** 2) / B)
+#     sk = sk * np.sqrt(1 + 1 / B)
+#     return (ks, Wks, Wkbs, sk)
+#
+# ks, logWks, logWkbs, sk = gap_statistic(X)
 # frameTest = np.array(frame_sample.loc[frame_sample['labels'] == 0,]['noEdits'],
 #                      frame_sample.loc[frame_sample['labels'] == 1,]['noEdits'])
 #

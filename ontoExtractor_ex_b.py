@@ -113,7 +113,7 @@ def queryexecutor():
         for j in range(1, 10):
             date = "20" + str(i) + "-0" + str(j) + "-01"
             print(date)
-            if i == 15:
+            if i == 15 or i==16:
                 print('skipped')
                 pass
             else:
