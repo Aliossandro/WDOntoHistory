@@ -109,15 +109,16 @@ def queryexecutor():
     conn = get_db_params()
     # cur = conn.cursor()
 
-    for i in range(15, 18):
-        if i == 15 or i==16:
-            print('skipped')
-            pass
+    for i in range(17, 18):
+        # if i == 15 or i==16:
+        #     print('skipped')
+        #     pass
+        # else:
         for j in range(1, 10):
             date = "20" + str(i) + "-0" + str(j) + "-01"
             print(date)
 
-            else:
+
 
                 try:
                     dictStats[date] = {}
