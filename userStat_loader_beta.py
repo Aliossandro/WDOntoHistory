@@ -9,10 +9,10 @@ from sklearn import datasets
 import glob
 from scipy import stats
 from sklearn.decomposition import PCA
-from scipy.spatial.distance import cdist
-import matplotlib.pyplot as plt
-from gap_statistic import OptimalK
-from sklearn.datasets.samples_generator import make_blobs
+# from scipy.spatial.distance import cdist
+# import matplotlib.pyplot as plt
+# from gap_statistic import OptimalK
+# from sklearn.datasets.samples_generator import make_blobs
 # import random
 
 # -*- coding: utf-8 -*-
@@ -318,12 +318,23 @@ def gap(data, refs=None, nrefs=20, ks=range(1, 11)):
 #                      frame_sample.loc[frame_sample['labels'] == 1,]['noEdits'])
 #
 anovaDict ={}
-for col in frame_sample.drop(['serial']).columns:
-    F, p = stats.f_oneway(frame_sample.loc[frame_sample['labels'] == 0,][col],
-                      frame_sample.loc[frame_sample['labels'] == 1,][col], frame_sample.loc[frame_sample['labels'] == 2,][col])
+for col in frame_clean.drop(['serial']).columns:
+    F, p = stats.f_oneway(frame_clean.loc[frame_clean['labels'] == 0,][col],
+                      frame_clean.loc[frame_clean['labels'] == 1,][col], frame_clean.loc[frame_clean['labels'] == 2,][col])
     anovaDict[col] = {}
     anovaDict[col]['F'] = F
     anovaDict[col]['p'] = p
+
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+from statsmodels.stats.multicomp import MultiComparison
+
+tukeyDict ={}
+for col in frame_clean.drop(['serial']).columns:
+    mc = MultiComparison(frame_clean[col], frame_clean['labels'])
+    result = mc.tukeyhsd()
+    print(col)
+    print(result)
+    print(mc.groupsunique)
 
 # pca = PCA(n_components=2)
 # pca.fit(frame_clean.drop('serial'))
