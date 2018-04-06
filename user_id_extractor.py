@@ -26,19 +26,19 @@ def list_cleaner(rev_list):
 
 def userTranslator(fileName):
     print(fileName)
-    with bz2.BZ2File(fileName, 'r') as inputfile:
+    with bz2.BZ2File(fileName, "rb") as inputfile:
         dictUsers = {}
 
         prev_line = None
         for line in inputfile:
 
-            if '<id>' in line and '<username>' in prev_line:
-                userId = line_cleaner(line)
+            if '<id>' in str(line) and '<username>' in prev_line:
+                userId = line_cleaner(str(line))
                 userName = list_cleaner(prev_line)
                 if userName not in dictUsers.keys():
                     dictUsers[userName] = userId
 
-            prev_line = line
+            prev_line = str(line)
 
     userIDf = pd.DataFrame.from_dict(dictUsers, orient='index')
     userIDf.to_csv('userIDmatches.csv', mode='a')
