@@ -28,6 +28,48 @@ def get_db_params():
 
 
 
+# create table
+def create_table():
+    ###statement table query
+    query_table = """CREATE TABLE IF NOT EXISTS tempData AS (SELECT p.itemId, p.revId, (p.timestamp::timestamp) AS tS, t.statementId, t.statProperty, t.statvalue FROM
+(SELECT itemId, revId, timestamp FROM revisionData_201710) p, (SELECT revId, statementId, statProperty, statvalue FROM statementsData_201710 WHERE statProperty = 'P279' OR statProperty = 'P31') t
+WHERE p.revId = t.revId)"""
+
+    queryStatData = """CREATE TABLE IF NOT EXISTS statementDated AS (SELECT p.itemid, p.statproperty, p.statvalue, p.statementid, p.revid, t.timestamp, t.username
+    FROM statementsData_201710 p LEFT JOIN revisionData_201710 t ON p.revid::int = t.revid::int);"""
+
+
+    conn = None
+
+    try:
+        conn = get_db_params()
+        cur = conn.cursor()
+        cur.execute(query_table)
+        cur.close()
+        conn.commit()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+    conn = None
+
+    try:
+        conn = get_db_params()
+        cur = conn.cursor()
+        cur.execute(queryStatData)
+        cur.close()
+        conn.commit()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
 
 def queryexecutor():
     # dictStats = {}
@@ -37,17 +79,19 @@ def queryexecutor():
     setCoso = set(npCoso)
 
     for i in range(13, 18):
-        for j in range(7, 13):
-            date = "20" + str(i) + "-" + str(j) + "-01"
-            if j == 10:
-                mt = "09"
-                datePrev = "20" + str(i) + "-" + mt + "-01"
+        for j in range(1, 7):
+            date = "20" + str(i) + "-0" + str(j) + "-01"
+            if j == 1:
+                yr = i-1
+                datePrev = "20" + str(yr) + "-12-01"
             else:
-                datePrev = "20" + str(i) + "-" + str(j-1) + "-01"
+                datePrev = "20" + str(i) + "-0" + str(j-1) + "-01"
+
             print(date)
 
             try:
-                queryStart = """SELECT item_id AS itemid, rev_id AS revid, time_stamp AS timestamp, user_name AS username, automated_tool FROM revision_history_201710 WHERE (time_stamp > '"""+ datePrev + """ 00:00:00' AND  time_stamp < '"""+ date + """ 00:00:00');"""
+
+                queryStart = """SELECT item_id AS itemid, rev_id AS revid, time_stamp AS timestamp, user_name AS username, automated_tool FROM revision_history_tagged WHERE (time_stamp > '"""+ datePrev + """ 00:00:00' AND  time_stamp < '"""+ date + """ 00:00:00');"""
 
                 conn = get_db_params()
                 cur = conn.cursor()
@@ -60,6 +104,7 @@ def queryexecutor():
                 for chunk in pd.read_sql(queryStart, con=conn, chunksize=10000):
                     timetable_temp = timetable_temp.append(chunk)
                 #columns:  itemid      revid      parid           timestamp     username
+
 
                 noEdits = timetable_temp['username'].value_counts()
                 noEdits = noEdits.reset_index()
@@ -116,12 +161,14 @@ def queryexecutor():
                     noEdits = noEdits.merge(noCommEdits, how='left')
                 else:
                     noEdits['noCommEdits'] = 0
-
                 print('comms added')
 
                 taxoQuery = """SELECT username, statproperty, timestamp FROM statementDated WHERE (timestamp > '"""+ datePrev + """ 00:00:00' AND  timestamp < '"""+ date + """ 00:00:00')
                 AND (statProperty = 'P31' or statProperty = 'P279');"""
 
+                # dfTaxo = pd.DataFrame()
+                # for chunk in pd.read_sql(taxoQuery, con=conn, chunksize=10000):
+                #     dfTaxo = dfTaxo.append(chunk)
                 dfTaxo = pd.read_sql(taxoQuery, con=conn)
                 if len(dfTaxo.index) != 0:
                     noTaxoEdits = dfTaxo['username'].value_counts()
@@ -144,12 +191,11 @@ def queryexecutor():
                 noEdits['userAge'] = (noEdits['timeframe']-noEdits['minTime']).astype('timedelta64[h]')
 
                 noEdits.fillna(0, inplace=True)
-                fileName = "WDuserstats_last-" + date + ".csv"
+                fileName = "WDuserstats_new-" + date + ".csv"
                 noEdits.to_csv(fileName, index=False)
 
             except Exception as e:
                 print(e, "no df available")
-
 
 
     # try:
