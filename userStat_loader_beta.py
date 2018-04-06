@@ -80,7 +80,7 @@ def fileLoader(path):
     frame_norm['userAge'] = frame['userAge'] / 360
     frame_norm['noBatchEdits'] = frame['noBatchEdits'] / frame['noEdits']
     frame_norm['noEdits'] = frame['noEdits']
-    frame_norm = frame_norm.loc[frame_norm['noEdits'] >= 5,]
+    # frame_norm = frame_norm.loc[frame_norm['noEdits'] >= 5,]
     frame_norm.reset_index(inplace=True)
     frame_norm['admin'] = False
     frame_norm['admin'].loc[frame_norm['username'].isin(admin_list['user_name']),] = True
