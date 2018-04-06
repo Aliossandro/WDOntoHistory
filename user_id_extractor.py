@@ -25,6 +25,7 @@ def list_cleaner(rev_list):
 
 
 def userTranslator(fileName):
+    print(fileName)
     with bz2.BZ2File(fileName, 'rb') as inputfile:
         dictUsers = {}
 
