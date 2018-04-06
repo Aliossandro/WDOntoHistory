@@ -26,6 +26,15 @@ def DFS(G,v,seen=None,path=None):
             paths.extend(DFS(G, t, seen, t_path))
     return paths
 
+def chunkIt(seq, num):
+    avg = len(seq) / float(num)
+    out = []
+    last = 0.0
+    while last < len(seq):
+        out.append(seq[int(last):int(last + avg)])
+        last += avg
+    return out
+
 def depthCalculator(fileName):
     dictStats = {}
     dfClean = pd.read_csv(fileName)
@@ -67,9 +76,6 @@ def depthCalculator(fileName):
     deepClasses = list(set(leafClasses) - set(shallowClasses))
     fertileRoots = list(set(rootClasses) - set(childLessClasses))
 
-    shallowDepth = [1] * len(shallowClasses)
-    childlessDepth = [0] * len(childLessClasses)
-
     uniqueSuperClasses = bibi.to_frame()
     uniqueSuperClasses.reset_index(inplace=True)
     # uniqueSuperClasses = uniquePerClass.loc[uniquePerClass['statproperty'] == 'P279',]
@@ -83,15 +89,24 @@ def depthCalculator(fileName):
             uniqueDict[key] = uniqueDict[key][0]
 
         classesDefaultDict = defaultdict(str, uniqueDict)
-        allPaths = [p for ps in [DFS(classesDefaultDict, n) for n in set(deepClasses)] for p in ps]
-        print('all depths computed, now cleaning')
-        tupleList = [(len(p), p[len(p)-1]) for p in allPaths]
-        colLabels = ['length', 'rootItem']
-        print('I create the 1st df')
-        tupleDf = pd.DataFrame.from_records(tupleList, columns=colLabels)
-        tupleDf = tupleDf.loc[tupleDf['rootItem'].isin(fertileRoots),]
+        deepChunks = chunkIt(deepClasses, 5)
+        colLabels =['length', 'rootItem']
+        tupleDf = pd.DataFrame(columns=colLabels)
+
+        for chunk in deepChunks:
+            allPaths = [p for ps in [DFS(classesDefaultDict, n) for n in set(chunk)] for p in ps]
+            print('all depths computed, now cleaning')
+            tupleList = [(len(p), p[len(p)-1]) for p in allPaths]
+            tempDf = pd.DataFrame.from_records(tupleList, columns=colLabels)
+            tempDf = tempDf.loc[tempDf['rootItem'].isin(fertileRoots),]
+            tupleDf = pd.concat([tupleDf, tempDf], axis = 0)
+            allPaths = []
+            tupleList = []
+
         tupleDf['length'] = tupleDf['length'] - 1
 
+        shallowDepth = [1] * len(shallowClasses)
+        childlessDepth = [0] * len(childLessClasses)
         addedSeries = pd.Series(shallowDepth+childlessDepth)
         itemSeries = pd.Series(['item']*len(shallowDepth+childlessDepth))
         addedDf = pd.concat([addedSeries, itemSeries], axis=1)
