@@ -33,7 +33,7 @@ def userTranslator(fileName):
         for line in inputfile:
 
             if '<id>' in str(line) and '<username>' in prev_line:
-                userId = line_cleaner(str(line))
+                userId = list_cleaner(str(line))
                 userName = list_cleaner(prev_line)
                 if userName not in dictUsers.keys():
                     dictUsers[userName] = userId
