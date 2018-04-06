@@ -87,6 +87,7 @@ def depthCalculator(fileName):
         print('all depths computed, now cleaning')
         tupleList = [(len(p), p[len(p)-1]) for p in allPaths]
         colLabels = ['length', 'rootItem']
+        print('I create the 1st df')
         tupleDf = pd.DataFrame.from_records(tupleList, columns=colLabels)
         tupleDf = tupleDf.loc[tupleDf['rootItem'].isin(fertileRoots),]
         tupleDf['length'] = tupleDf['length'] - 1
@@ -95,6 +96,7 @@ def depthCalculator(fileName):
         itemSeries = pd.Series(['item']*len(shallowDepth+childlessDepth))
         addedDf = pd.concat([addedSeries, itemSeries], axis=1)
         addedDf.columns = ['length', 'rootItem']
+        print('Now the 2st df')
         tupleDf = pd.concat([tupleDf, addedDf], axis=0)
         print('now we get all stats')
         dictStats[date]['maxDepth'] = np.asscalar(tupleDf['length'].max())
