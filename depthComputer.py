@@ -114,7 +114,7 @@ def depthCalculator(fileName):
         print('Now the 2st df')
         tupleDf = pd.concat([tupleDf, addedDf], axis=0)
         print('now we get all stats')
-        dictStats[date]['maxDepth'] = np.asscalar(tupleDf['length'].max())
+        dictStats[date]['maxDepth'] = tupleDf['length'].max()
         dictStats[date]['avgDepth'] = tupleDf['length'].mean()
         dictStats[date]['medianDepth'] = tupleDf['length'].median()
         dictStats[date]['quantileDepth'] = [qua for qua in list(tupleDf['length'].quantile([.25, .5, .75]))]
