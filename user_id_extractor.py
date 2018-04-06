@@ -4,6 +4,7 @@ import sys
 #reload(sys)
 # sys.setdefaultencoding("utf8")
 
+import re
 import pandas as pd
 import io
 import bz2
