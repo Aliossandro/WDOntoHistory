@@ -72,7 +72,7 @@ def queryexecutor():
                 noItems.columns = ['username', 'noItems']
                 noEdits = noEdits.merge(noItems, how='left')
 
-                timetable_temp.loc[timetable_temp['rev_id'].isin(setCoso),] = 'TRUE'
+                timetable_temp.loc[timetable_temp['revid'].isin(setCoso),] = 'TRUE'
                 noBatchEdits = timetable_temp['username'].loc[timetable_temp['automated_tool'] == 'TRUE', ].value_counts()
                 if ~noBatchEdits.empty:
                     noBatchEdits = noBatchEdits.reset_index()
