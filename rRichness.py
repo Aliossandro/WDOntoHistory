@@ -42,10 +42,10 @@ def queryexecutor():
                 queryRich = """WITH selItems AS (SELECT DISTINCT itemId FROM tempData WHERE  tS::timestamp < '""" + date +""" 00:00:00'::timestamp AND statproperty != 'P31'),
                 selClasses AS (SELECT DISTINCT statvalue FROM tempData WHERE  tS::timestamp < '""" + date +""" 00:00:00'::timestamp)
                 SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date +""" 00:00:00'::timestamp
-                AND (itemid IN (SELECT itemId FROM selItems) OR itemid IN (SELECT statvalue FROM selClasses)) AND (itemId != 'Q4115189');"""
+                AND (itemid IN (SELECT itemId FROM selItems) OR itemid IN (SELECT statvalue FROM selClasses));"""
 
                 dfRich = pd.DataFrame()
-                for chunk in pd.read_sql(queryRich, con=conn, chunksize=10000):
+                for chunk in pd.read_sql(queryRich, con=conn, chunksize=25000):
                     dfRich = dfRich.append(chunk)
 
                 if not dfRich.empty:
@@ -89,10 +89,10 @@ def queryexecutor():
             queryRich = """WITH selItems AS (SELECT DISTINCT itemId FROM tempData WHERE  tS::timestamp < '""" + date +""" 00:00:00'::timestamp AND statproperty != 'P31'),
             selClasses AS (SELECT DISTINCT statvalue FROM tempData WHERE  tS::timestamp < '""" + date +""" 00:00:00'::timestamp)
             SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date +""" 00:00:00'::timestamp
-            AND (itemid IN (SELECT itemId FROM selItems) OR itemid IN (SELECT statvalue FROM selClasses)) AND (itemId != 'Q4115189');"""
+            AND (itemid IN (SELECT itemId FROM selItems) OR itemid IN (SELECT statvalue FROM selClasses));"""
 
             dfRich = pd.DataFrame()
-            for chunk in pd.read_sql(queryRich, con=conn, chunksize=10000):
+            for chunk in pd.read_sql(queryRich, con=conn, chunksize=25000):
                 dfRich = dfRich.append(chunk)
 
             if not dfRich.empty:
