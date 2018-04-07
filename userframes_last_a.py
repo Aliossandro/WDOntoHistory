@@ -45,7 +45,7 @@ def queryexecutor():
             print(date)
 
             try:
-                queryStart = """SELECT item_id AS itemid, rev_id AS revid, time_stamp AS timestamp, user_name AS username, automated_tool FROM revision_history_201710 WHERE (time_stamp > '"""+ datePrev + """ 00:00:00' AND  time_stamp < '"""+ date + """ 00:00:00');"""
+                queryStart = """SELECT item_id AS itemid, rev_id AS revid, time_stamp AS timestamp, user_name AS username, automated_tool FROM revision_history_201710 WHERE (time_stamp >= '"""+ datePrev + """ 00:00:00' AND  time_stamp < '"""+ date + """ 00:00:00');"""
 
                 conn = get_db_params()
                 cur = conn.cursor()
@@ -104,7 +104,7 @@ def queryexecutor():
                 print('propedits added')
 
                 ###add community edits
-                commQuery = """SELECT * FROM revision_pages_201710 WHERE (time_stamp > '"""+ datePrev + """ 00:00:00' AND  time_stamp < '"""+ date + """ 00:00:00') AND item_id !~* 'Property:P*';"""
+                commQuery = """SELECT * FROM revision_pages_201710 WHERE (time_stamp >= '"""+ datePrev + """ 00:00:00' AND  time_stamp < '"""+ date + """ 00:00:00') AND item_id !~* 'Property:P*';"""
 
                 dfComm = pd.read_sql(commQuery, con=conn)
                 if len(dfComm.index) != 0:
@@ -117,7 +117,7 @@ def queryexecutor():
 
                 print('comms added')
 
-                taxoQuery = """SELECT username, statproperty, timestamp FROM statementDated WHERE (timestamp > '"""+ datePrev + """ 00:00:00' AND  timestamp < '"""+ date + """ 00:00:00')
+                taxoQuery = """SELECT username, statproperty, timestamp FROM statementDated WHERE (timestamp >= '"""+ datePrev + """ 00:00:00' AND  timestamp < '"""+ date + """ 00:00:00')
                 AND (statProperty = 'P31' or statProperty = 'P279');"""
 
                 dfTaxo = pd.read_sql(taxoQuery, con=conn)
