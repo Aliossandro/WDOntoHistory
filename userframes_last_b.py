@@ -45,8 +45,10 @@ def queryexecutor():
                 if j == 10:
                     mt = "09"
                     datePrev = "20" + str(i) + "-" + mt + "-01"
+                    date = "20" + str(i) + "-" + str(j) + "-01"
                 else:
                     datePrev = "20" + str(i) + "-" + str(j-1) + "-01"
+                    date = "20" + str(i) + "-" + str(j) + "-01"
             print(date)
 
             try:
