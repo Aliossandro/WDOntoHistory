@@ -53,10 +53,10 @@ def queryexecutor():
                 queryStart = """SELECT item_id AS itemid, rev_id AS revid, time_stamp AS timestamp, user_name AS username, automated_tool FROM revision_history_201710 WHERE (time_stamp >= '"""+ datePrev + """ 00:00:00' AND  time_stamp < '"""+ date + """ 00:00:00');"""
 
                 conn = get_db_params()
-                cur = conn.cursor()
-                cur.execute(queryStart)
-                cur.close()
-                conn.commit()
+                # cur = conn.cursor()
+                # cur.execute(queryStart)
+                # cur.close()
+                # conn.commit()
 
                 # print(query)
                 timetable_temp = pd.DataFrame()
@@ -72,8 +72,9 @@ def queryexecutor():
                 noItems.columns = ['username', 'noItems']
                 noEdits = noEdits.merge(noItems, how='left')
 
-                timetable_temp.loc[timetable_temp['revid'].isin(setCoso),] = 'TRUE'
-                noBatchEdits = timetable_temp['username'].loc[timetable_temp['automated_tool'] == 'TRUE', ].value_counts()
+                timetable_temp['revid'] = timetable_temp['revid'].astype(int)
+                timetable_temp['automated_tool'].loc[timetable_temp['revid'].isin(setCoso),] = True
+                noBatchEdits = timetable_temp['username'].loc[timetable_temp['automated_tool'] == True, ].value_counts()
                 if ~noBatchEdits.empty:
                     noBatchEdits = noBatchEdits.reset_index()
                     noBatchEdits.columns = ['username', 'noBatchEdits']
