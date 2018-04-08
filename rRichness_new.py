@@ -44,7 +44,7 @@ def queryexecutor():
                 # SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date +""" 00:00:00'::timestamp
                 # AND (itemid IN (SELECT itemId FROM selItems) OR itemid IN (SELECT statvalue FROM selClasses));"""
                 queryFirst = """
-                BEGIN; CREATE TEMP TABLE selItems AS (SELECT DISTINCT itemId FROM tempData WHERE  tS::timestamp < '""" + date + """ 00:00:00'::timestamp AND statproperty != 'P31' ); CREATE TEMP TABLE selClasses AS (SELECT DISTINCT statvalue FROM tempData WHERE  tS::timestamp < '""" + date + """ 00:00:00'::timestamp); CREATE TABLE suconio AS SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date + """ 00:00:00'::timestamp AND (itemid IN (SELECT itemId FROM selItems) OR itemid IN (SELECT statvalue FROM selClasses)); DROP TABLE IF EXISTS selItems; DROP TABLE IF EXISTS selClasses; COMMIT;
+                BEGIN;  DROP TABLE IF EXISTS selItems; DROP TABLE IF EXISTS selClasses; CREATE TEMP TABLE selItems AS (SELECT DISTINCT itemId FROM tempData WHERE  tS::timestamp < '""" + date + """ 00:00:00'::timestamp AND statproperty != 'P31' ); CREATE TEMP TABLE selClasses AS (SELECT DISTINCT statvalue FROM tempData WHERE  tS::timestamp < '""" + date + """ 00:00:00'::timestamp); CREATE TABLE suconio AS SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date + """ 00:00:00'::timestamp AND (itemid IN (SELECT itemId FROM selItems) OR itemid IN (SELECT statvalue FROM selClasses)); COMMIT;
                 """
                 cur = conn.cursor()
                 cur.execute(queryFirst)
@@ -105,7 +105,7 @@ def queryexecutor():
             dictStats[date] = {}
 
             queryFirst = """
-            BEGIN; CREATE TEMP TABLE selItems AS (SELECT DISTINCT itemId FROM tempData WHERE  tS::timestamp < '""" + date + """ 00:00:00'::timestamp AND statproperty != 'P31' ); CREATE TEMP TABLE selClasses AS (SELECT DISTINCT statvalue FROM tempData WHERE  tS::timestamp < '""" + date + """ 00:00:00'::timestamp); CREATE TABLE suconio AS SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date + """ 00:00:00'::timestamp AND (itemid IN (SELECT itemId FROM selItems) OR itemid IN (SELECT statvalue FROM selClasses)); DROP TABLE IF EXISTS selItems; DROP TABLE IF EXISTS selClasses; COMMIT;
+            BEGIN;  DROP TABLE IF EXISTS selItems; DROP TABLE IF EXISTS selClasses; CREATE TEMP TABLE selItems AS (SELECT DISTINCT itemId FROM tempData WHERE  tS::timestamp < '""" + date + """ 00:00:00'::timestamp AND statproperty != 'P31' ); CREATE TEMP TABLE selClasses AS (SELECT DISTINCT statvalue FROM tempData WHERE  tS::timestamp < '""" + date + """ 00:00:00'::timestamp); CREATE TABLE suconio AS SELECT itemid, statproperty, statvalue, statementid, revid, timestamp FROM statementDated WHERE  timestamp < '""" + date + """ 00:00:00'::timestamp AND (itemid IN (SELECT itemId FROM selItems) OR itemid IN (SELECT statvalue FROM selClasses)); COMMIT;
             """
             cur = conn.cursor()
             cur.execute(queryFirst)
