@@ -250,9 +250,9 @@ for n in range(2,9):
 distortions = []
 K = range(1, 10)
 for k in K:
-    kmeanModel = KMeans(n_clusters=k).fit(frame_clean.drop('serial'))
+    kmeanModel = KMeans(n_clusters=k).fit(frame_clean.drop(colDropped, axis=1))
     kmeanModel.fit(frame_clean.drop('serial'))
-    distortions.append(sum(np.min(cdist(frame_clean.drop('serial'), kmeanModel.cluster_centers_, 'euclidean'), axis=1)) / frame_clean.drop('serial').shape[0])
+    distortions.append(sum(np.min(cdist(frame_clean.drop(colDropped, axis=1), kmeanModel.cluster_centers_, 'euclidean'), axis=1)) / frame_clean.drop(colDropped, axis=1).shape[0])
 
 # Plot the elbow
 plt.plot(K, distortions, 'bx-')
