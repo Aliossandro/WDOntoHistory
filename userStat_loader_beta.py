@@ -176,7 +176,7 @@ def fileLoader(path):
         for num in range(1, 15):
             labelSample = []
             frame_sample = frame_clean.sample(frac=0.8)
-            kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_sample.drop(colDropped))
+            kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_sample.drop(colDropped, axis = 1))
             labels = kmeans.labels_
             frame_sample['labels'] = labels
             for g in range(0, n):

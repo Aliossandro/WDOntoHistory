@@ -27,6 +27,9 @@ wdStats = pd.read_json(file_1, orient='index')
 #
 file_3 = path + '/WDepth_new.json'
 wdStats_3 = pd.read_json(file_3, orient='index')
+
+file_4 = path + '/WDataStats_RR-temp.json'
+wdStats_4 = pd.read_json(file_4, orient='index')
 #
 # wdStats = pd.concat([wdStats, wdStats_2], axis=0)
 # wdStats.drop('avgDepth', axis = 1, inplace=True)
@@ -44,10 +47,18 @@ wdStats_3['timeframe'] = pd.to_datetime(wdStats_3['index'])
 wdStats_3.sort_values(by='timeframe', inplace=True)
 wdStats_3['month'] = wdStats_3['timeframe'].apply(lambda x: x.strftime('%B %Y'))
 
+wdStats_4 = wdStats_4.fillna(0)
+wdStats_4.reset_index(inplace=True)
+wdStats_4['timeframe'] = pd.to_datetime(wdStats_4['index'])
+wdStats_4.sort_values(by='timeframe', inplace=True)
+wdStats_4['month'] = wdStats_4['timeframe'].apply(lambda x: x.strftime('%B %Y'))
+
 wdStats['noInstances'] = wdStats['avgPop'] * wdStats['noClasses']
 wdStats['trueRichness'] = wdStats['classesWInstances']/wdStats['noClasses']
 
 wdStats = wdStats.loc[wdStats['timeframe'] > '2013-02-01', ]
+wdStats_3 = wdStats_3.loc[wdStats_3['timeframe'] > '2013-02-01', ]
+wdStats_4 = wdStats_4.loc[wdStats_4['timeframe'] > '2013-02-01', ]
 
 # ###create grid
 # g = sns.FacetGrid(wdStats, col=['avgDepth', 'iRichness', 'cRichness'], hue=['avgDepth', 'iRichness', 'cRichness'], col_wrap=3, )
@@ -160,9 +171,11 @@ font = {'size': 12}
 matplotlib.rc('font', **font)
 
 ax1 = plt.subplot(221)
-ax1.plot(wdStats['timeframe'],wdStats['avgPop'])
+ax1.plot(wdStats['timeframe'],wdStats['avgPop'],  marker='.', markevery=0.05)
+ax1.plot(wdStats['timeframe'],wdStats['medianPop'], marker='x', markevery=0.05)
 ax1.grid(color='gray', linestyle='--', linewidth=.5)
-ax1.set_ylabel(r'Avg. population ($ap$)')
+ax1.legend([r'Avg. population ($ap$)', 'Median population'])
+ax1.set_ylabel('Population')
 # ax1.yaxis.set_label_position('top')
 
 ax2 = plt.subplot(222)
@@ -171,20 +184,22 @@ ax2.grid(color='gray', linestyle='--', linewidth=.5)
 ax2.set_ylabel(r'Class richness ($cr$)')
 
 ax3 = plt.subplot(223)
-ax3.plot(wdStats['timeframe'],wdStats['iRichness'])
+ax3.plot(wdStats['timeframe'],wdStats['iRichness'],  marker='.', markevery=0.05)
+ax3.plot(wdStats['timeframe'],wdStats['medianInheritance'],  marker='x', markevery=0.05)
 ax3.grid(color='gray', linestyle='--', linewidth=.5)
-ax3.set_ylabel(r'Inheritance richness ($ir$)')
+ax3.legend([r'Inheritance richness ($ir$)', 'Median inheritance'])
+ax3.set_ylabel('Inheritance values')
 
 ax4 = plt.subplot(224)
-ax4.plot(wdStats['timeframe'],wdStats['iRichness'])
+ax4.plot(wdStats_4['timeframe'],wdStats_4['relRichness'])
 ax4.grid(color='gray', linestyle='--', linewidth=.5)
 ax4.set_ylabel(r'Relationship richness ($rr$)')
 
 
-# ax1.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
-# ax1.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
-# ax2.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
-# ax2.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
+ax1.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
+ax1.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
+ax2.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
+ax2.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
 ax3.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
 ax3.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
 ax4.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes

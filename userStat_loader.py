@@ -49,7 +49,7 @@ def fileLoader(path):
     # frame = pd.DataFrame()
     list_ = []
 
-    #bots
+    # bots
     bot_list_file = path + '/bot_list.csv'
     bot_list = pd.read_csv(bot_list_file)
 
@@ -60,41 +60,58 @@ def fileLoader(path):
     admin_list.end_date = pd.to_datetime(admin_list.end_date)
 
     for file_ in allFiles:
-        df = pd.read_csv(file_,index_col=None, header=0)
+        df = pd.read_csv(file_, index_col=None, header=0)
 
         list_.append(df)
     frame = pd.concat(list_)
     frame.columns = ['username', 'noEdits', 'noItems', 'noOntoEdits', 'noPropEdits', 'noCommEdits', 'noTaxoEdits',
-                  'noBatchEdits', 'minTime', 'timeframe', 'userAge']
-
-    frame = frame.loc[~frame['username'].str.match(r'([0-9]{1,3}[.]){3}[0-9]{1,3}|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))', case=False),]
-
-    frame = frame.loc[~frame['username'].isin(bot_list['bot_name']),]
+                     'noBatchEdits', 'minTime', 'timeframe', 'userAge']
     frame = frame.set_index('username')
     frame = frame.drop(['minTime'], axis=1)
-    frame['noItems'] = frame['noEdits']/frame['noItems']
-    frame['noTaxoEdits'] = frame['noTaxoEdits']/frame['noEdits']
-    frame['noBatchEdits'] = frame['noBatchEdits'] / frame['noEdits']
-
-    zscore = lambda x: (x - x.mean()) / x.std()
-    colZ = ['noEdits', 'noOntoEdits', 'noPropEdits', 'noCommEdits', 'userAge',  'timeframe']
-    frame_norm = frame[colZ].groupby('timeframe').transform(zscore)
+    frame['editNorm'] = frame['noEdits']
+    colN = ['editNorm', 'noCommEdits', 'timeframe']
+    normaliser = lambda x: x / x.sum()
+    frame_norm = frame[colN].groupby('timeframe').transform(normaliser)
+    frame_norm['timeframe'] = frame['timeframe']
+    frame_norm['noItems'] = frame['noEdits'] / frame['noItems']
+    frame_norm['userAge'] = frame['userAge'] / 360
+    frame_norm['noBatchEdits'] = frame['noBatchEdits'] / frame['noEdits']
+    frame_norm['noTaxoEdits'] = frame['noTaxoEdits'] / frame['noEdits']
+    frame_norm['noOntoEdits'] = frame['noOntoEdits'] / frame['noEdits']
+    frame_norm['noPropEdits'] = frame['noPropEdits'] / frame['noEdits']
+    frame_norm['noEdits'] = frame['noEdits']
+    # frame_norm = frame_norm.loc[frame_norm['noEdits'] >= 5,]
     frame_norm.reset_index(inplace=True)
     frame_norm['admin'] = False
     frame_norm['admin'].loc[frame_norm['username'].isin(admin_list['user_name']),] = True
-    frame_norm = frame_norm.set_index('username')
-    frame_norm['noItems'] = frame['noItems']
-    frame_norm['noTaxoEdits'] = frame['noTaxoEdits']
-    frame_norm['noBatchEdits'] = frame['noBatchEdits']
-    frame_norm['timeframe'] = frame['timeframe']
+    frame_anon = frame_norm.loc[frame_norm['username'].str.match(
+        r'([0-9]{1,3}[.]){3}[0-9]{1,3}|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))',
+        case=False),]
+    frame_bots = frame_norm.loc[frame_norm['username'].isin(bot_list['bot_name']),]
 
+    frame_norm = frame_norm.loc[~frame_norm['username'].isin(bot_list['bot_name']),]
 
+    frame_norm = frame_norm.loc[~frame_norm['username'].str.match(
+        r'([0-9]{1,3}[.]){3}[0-9]{1,3}|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))',
+        case=False),]
+
+    frame_norm = frame_norm.loc[~frame_norm['username'].isin(bot_list['bot_name']),]
+    # frame_norm.drop('noEdits', axis=1, inplace=True)
+
+    # frame_norm = frame_norm.set_index('username')
+
+    # zscore = lambda x: (x - x.mean()) / x.std()
+
+    # colZ = ['noEdits', 'noOntoEdits', 'noPropEdits', 'noCommEdits', 'userAge',  'timeframe']
+    # frame_norm = frame[colZ].groupby('timeframe').transform(zscore)
+    frame_norm = frame_norm.loc[frame_norm['timeframe'] > '2013-02-01',]
     frame_clean = frame_norm[frame_norm.notnull()]
     frame_clean = frame_clean.replace([np.inf, -np.inf], np.nan)
     frame_clean = frame_clean.fillna(0)
     frame_clean['serial'] = range(1, len(frame_clean) + 1)
-    frame_clean.set_index('timeframe', inplace=True)
+    # frame_clean.set_index('timeframe', inplace=True)
     # frame_clean.index = frame_clean['serial']
+    colDropped = ['noEdits', 'serial', 'username', 'timeframe']
     print('dataset loaded')
 
     resultsKmeans = {}
@@ -105,7 +122,7 @@ def fileLoader(path):
         for num in range(1, 10):
             labelSample = []
             frame_sample = frame_clean.sample(frac=0.8)
-            kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_sample.drop('serial'))
+            kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_sample.drop(colDropped, axis=1))
             labels = kmeans.labels_
             frame_sample['labels'] = labels
             # frameTest = np.array(frame_sample.loc[frame_sample['labels'] == 0,]['noEdits'],
@@ -141,7 +158,7 @@ def fileLoader(path):
         resultsAll = []
         for num in range(1, 6):
             labelSample = []
-            kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_clean.drop('serial'))
+            kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
             labels = kmeans.labels_
             sscore = metrics.silhouette_score(frame_clean.drop('serial'), labels, sample_size= 10000, metric='euclidean')
         # print(n, sscore)
