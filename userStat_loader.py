@@ -45,7 +45,7 @@ def variation_of_information(X, Y):
 
 
 def fileLoader(path):
-    allFiles = glob.glob(path + "/WDuserstats_*")
+    allFiles = glob.glob(path + "/WDuserstats_last*")
     # frame = pd.DataFrame()
     list_ = []
 
@@ -86,12 +86,14 @@ def fileLoader(path):
     frame_norm['noItems'] = frame['noItems']
     frame_norm['noTaxoEdits'] = frame['noTaxoEdits']
     frame_norm['noBatchEdits'] = frame['noBatchEdits']
+    frame_norm['timeframe'] = frame['timeframe']
 
 
     frame_clean = frame_norm[frame_norm.notnull()]
     frame_clean = frame_clean.replace([np.inf, -np.inf], np.nan)
     frame_clean = frame_clean.fillna(0)
     frame_clean['serial'] = range(1, len(frame_clean) + 1)
+    frame_clean.set_index('timeframe', inplace=True)
     # frame_clean.index = frame_clean['serial']
     print('dataset loaded')
 
@@ -141,7 +143,7 @@ def fileLoader(path):
             labelSample = []
             kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_clean.drop('serial'))
             labels = kmeans.labels_
-            sscore = metrics.silhouette_score(frame_clean.drop('serial'), labels, sample_size= 50000, metric='euclidean')
+            sscore = metrics.silhouette_score(frame_clean.drop('serial'), labels, sample_size= 10000, metric='euclidean')
         # print(n, sscore)
             resultsAll.append(sscore)
         resultSscore[str(n)] = resultsAll

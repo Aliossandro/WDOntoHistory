@@ -47,6 +47,8 @@ wdStats_3['month'] = wdStats_3['timeframe'].apply(lambda x: x.strftime('%B %Y'))
 wdStats['noInstances'] = wdStats['avgPop'] * wdStats['noClasses']
 wdStats['trueRichness'] = wdStats['classesWInstances']/wdStats['noClasses']
 
+wdStats = wdStats.loc[wdStats['timeframe'] > '2013-02-01', ]
+
 # ###create grid
 # g = sns.FacetGrid(wdStats, col=['avgDepth', 'iRichness', 'cRichness'], hue=['avgDepth', 'iRichness', 'cRichness'], col_wrap=3, )
 #
@@ -104,28 +106,32 @@ def myticks_root(x, pos):
     return coeff
 
 ###no classes
-f2,((ax1,ax2, ax3)) = plt.subplots(1,3, sharex='col')
-
-font = {'size': 10}
+f2 = plt.figure(figsize=(26,4))
+font = {'size': 12}
 
 matplotlib.rc('font', **font)
 
-ax1.plot(wdStats['timeframe'],wdStats['noClasses'],  marker='.', markevery=0.05)
-ax1.plot(wdStats['timeframe'],wdStats['noRoot'], marker='x', markevery=0.05)
-ax1.plot(wdStats['timeframe'],wdStats['noLeaf'], marker='^', markevery=0.05)
+ax1 = plt.subplot(131)
+ax1.plot(wdStats['timeframe'],wdStats['noInstances'])
 ax1.grid(color='gray', linestyle='--', linewidth=.5)
-# forceAspect(ax1,aspect=1)
-ax1.set_ylabel('No. Classes')
+ax1.yaxis.set_major_formatter(ticker.FuncFormatter(myticks))
+ax1.set_ylabel(r'Instances ($noi*10^4$)')
 
-ax2.plot(wdStats['timeframe'],wdStats['noInstances'])
+ax2= plt.subplot(132)
+ax2.plot(wdStats['timeframe'],wdStats['noClasses'], '-')
+ax2.plot(wdStats['timeframe'],wdStats['noRoot'], '--')
+ax2.plot(wdStats['timeframe'],wdStats['noLeaf'], ':')
 ax2.grid(color='gray', linestyle='--', linewidth=.5)
+ax2.legend([r'$noc$', r'$norc$', r'$nolc$'])
+ax2.yaxis.set_major_formatter(ticker.FuncFormatter(myticks))
+ax2.set_ylabel(r'Classes ($n*10^4$)')
 
-ax2.set_ylabel('No. Instances')
 
+ax3 = plt.subplot(133)
 ax3.plot(wdStats['timeframe'],wdStats['noProps'])
 ax3.grid(color='gray', linestyle='--', linewidth=.5)
-
-ax3.set_ylabel('No. Properties')
+ax3.yaxis.set_major_formatter(ticker.FuncFormatter(myticks_prop))
+ax3.set_ylabel(r'Properties ($nop*10^2$)')
 
 ax1.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
 ax1.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
@@ -135,6 +141,9 @@ ax3.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick ev
 ax3.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
 
 f2.autofmt_xdate()
+plt.tight_layout()
+plt.show()
+plt.savefig('ontocounts.eps', format='eps', transparent=True)
 
 # ax.set_aspect('equal')
 # plt.axes().set_aspect('equal')
@@ -145,46 +154,77 @@ f2.autofmt_xdate()
 # plt.yticks(range(length), domains[0][0:length])
 
 # plt.tight_layout()
-plt.show()
-
-
-f,((ax1,ax2, ax3), (ax4,ax5, ax6)) = plt.subplots(2,3, sharex='col')
-
-font = {'size': 10}
+f1 = plt.figure(figsize=(20,8))
+font = {'size': 12}
 
 matplotlib.rc('font', **font)
 
-# matplotlib.rcdefaults()
-
-
-ax1.plot(wdStats['timeframe'],wdStats['avgPop'], marker='.', markevery=0.05)
+ax1 = plt.subplot(221)
+ax1.plot(wdStats['timeframe'],wdStats['avgPop'])
 ax1.grid(color='gray', linestyle='--', linewidth=.5)
-ax1.set_ylabel('Avg. population')
+ax1.set_ylabel(r'Avg. population ($ap$)')
 # ax1.yaxis.set_label_position('top')
+
+ax2 = plt.subplot(222)
 ax2.plot(wdStats['timeframe'], wdStats['trueRichness'])
 ax2.grid(color='gray', linestyle='--', linewidth=.5)
-ax2.set_ylabel('Class richness')
+ax2.set_ylabel(r'Class richness ($cr$)')
+
+ax3 = plt.subplot(223)
 ax3.plot(wdStats['timeframe'],wdStats['iRichness'])
 ax3.grid(color='gray', linestyle='--', linewidth=.5)
-ax3.set_ylabel('Inheritance richness')
+ax3.set_ylabel(r'Inheritance richness ($ir$)')
 
+ax4 = plt.subplot(224)
 ax4.plot(wdStats['timeframe'],wdStats['iRichness'])
 ax4.grid(color='gray', linestyle='--', linewidth=.5)
-ax4.set_ylabel('Relationship richness')
+ax4.set_ylabel(r'Relationship richness ($rr$)')
 
 
+# ax1.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
+# ax1.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
+# ax2.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
+# ax2.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
+ax3.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
+ax3.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
+ax4.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
+ax4.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
+
+
+f1.autofmt_xdate()
+plt.tight_layout()
+plt.show()
+plt.savefig('ontometrics.eps', format='eps', transparent=True)
+
+###depth graph
+f3 = plt.figure(figsize=(10,6))
+font = {'size': 12}
+
+matplotlib.rc('font', **font)
+
+ax5 = plt.subplot(111)
 ax5.plot(wdStats_3['timeframe'],wdStats_3['avgDepth'],  marker='.', markevery=0.05)
 ax5.plot(wdStats_3['timeframe'],wdStats_3['medianDepth'], marker='x', markevery=0.05)
 ax5.plot(wdStats_3['timeframe'],wdStats_3['maxDepth'], marker='^', markevery=0.05)
 ax5.grid(color='gray', linestyle='--', linewidth=.5)
-ax5.set_ylabel('Graph depth')
+ax5.legend(['Avg. depth', 'Median depth', r'Max depth ($dosh$)'])
+ax5.set_ylabel('Ontology depth')
 
 
+ax5.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
+ax5.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
 
-ax6.plot(wdStats['timeframe'],wdStats['noProps'])
-ax6.grid(color='gray', linestyle='--', linewidth=.5)
-ax6.set_ylabel(r'Properties ($n*10^2$)')
-ax6.yaxis.set_major_formatter(ticker.FuncFormatter(myticks_prop))
+f3.autofmt_xdate()
+plt.tight_layout()
+plt.show()
+plt.savefig('ontodepth.eps', format='eps', transparent=True)
+
+# ax6 = plt.subplot(233)
+# ax6.plot(wdStats['timeframe'],wdStats['noProps'])
+# ax6.grid(color='gray', linestyle='--', linewidth=.5)
+# ax6.set_ylabel(r'Properties ($n*10^2$)')
+# ax6.yaxis.set_major_formatter(ticker.FuncFormatter(myticks_prop))
+
 #
 # ax7.plot(wdStats['timeframe'],wdStats['noClasses'])
 # ax7.grid(color='gray', linestyle='--', linewidth=.5)

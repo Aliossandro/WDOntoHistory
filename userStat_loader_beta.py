@@ -1,5 +1,5 @@
 import pandas as pd
-import psycopg2
+# import psycopg2
 import pickle
 import numpy as np
 from sklearn.cluster import KMeans
@@ -8,7 +8,17 @@ from sklearn.metrics import pairwise_distances
 from sklearn import datasets
 import glob
 from scipy import stats
-from sklearn.decomposition import PCA
+# from sklearn.decomposition import PCA
+from pyitlib import discrete_random_variable as drv
+import string
+import matplotlib
+import matplotlib.ticker as ticker
+
+# matplotlib.use('WX')
+import matplotlib.pyplot as plt
+from matplotlib.font_manager import FontProperties
+import matplotlib.dates as mdates
+
 # from scipy.spatial.distance import cdist
 # import matplotlib.pyplot as plt
 # from gap_statistic import OptimalK
@@ -49,7 +59,7 @@ def variation_of_information(X, Y):
 
 
 def fileLoader(path):
-    allFiles = glob.glob(path + "/WDuserstats-*")
+    allFiles = glob.glob(path + "/WDuserstats_last*")
     # frame = pd.DataFrame()
     list_ = []
 
@@ -76,6 +86,7 @@ def fileLoader(path):
     colN = ['editNorm', 'noTaxoEdits', 'noOntoEdits', 'noPropEdits', 'noCommEdits', 'timeframe']
     normaliser = lambda x: x / x.sum()
     frame_norm = frame[colN].groupby('timeframe').transform(normaliser)
+    frame_norm['timeframe'] = frame['timeframe']
     frame_norm['noItems'] = frame['noEdits'] / frame['noItems']
     frame_norm['userAge'] = frame['userAge'] / 360
     frame_norm['noBatchEdits'] = frame['noBatchEdits'] / frame['noEdits']
@@ -84,40 +95,95 @@ def fileLoader(path):
     frame_norm.reset_index(inplace=True)
     frame_norm['admin'] = False
     frame_norm['admin'].loc[frame_norm['username'].isin(admin_list['user_name']),] = True
+    frame_anon = frame_norm.loc[frame_norm['username'].str.match(
+        r'([0-9]{1,3}[.]){3}[0-9]{1,3}|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))',
+        case=False),]
+    frame_bots = frame_norm.loc[frame_norm['username'].isin(bot_list['bot_name']),]
+
+    frame_norm = frame_norm.loc[~frame_norm['username'].isin(bot_list['bot_name']),]
 
     frame_norm = frame_norm.loc[~frame_norm['username'].str.match(r'([0-9]{1,3}[.]){3}[0-9]{1,3}|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))', case=False),]
 
     frame_norm = frame_norm.loc[~frame_norm['username'].isin(bot_list['bot_name']),]
-    frame_norm.drop('noEdits', axis=1, inplace=True)
-    frame_norm = frame_norm.set_index('username')
+    # frame_norm.drop('noEdits', axis=1, inplace=True)
+
+    # frame_norm = frame_norm.set_index('username')
 
     # zscore = lambda x: (x - x.mean()) / x.std()
 
     # colZ = ['noEdits', 'noOntoEdits', 'noPropEdits', 'noCommEdits', 'userAge',  'timeframe']
     # frame_norm = frame[colZ].groupby('timeframe').transform(zscore)
-
+    frame_norm = frame_norm.loc[frame_norm['timeframe'] > '2013-02-01',]
     frame_clean = frame_norm[frame_norm.notnull()]
     frame_clean = frame_clean.replace([np.inf, -np.inf], np.nan)
     frame_clean = frame_clean.fillna(0)
     frame_clean['serial'] = range(1, len(frame_clean) + 1)
+    # frame_clean.set_index('timeframe', inplace=True)
     # frame_clean.index = frame_clean['serial']
+    colDropped = ['noEdits', 'serial', 'username', 'timeframe']
     print('dataset loaded')
+
+    kmeans = KMeans(n_clusters=4, n_init=10, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
+    labels = kmeans.labels_
+    frame_clean['labels'] = labels
+    frame_all = pd.concat([frame_anon, frame_bots, frame_clean])
+    frame_all['labels'].loc[frame_all['username'].str.match(
+        r'([0-9]{1,3}[.]){3}[0-9]{1,3}|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))',
+        case=False),] = 4
+    frame_all['labels'].loc[frame_all['username'].isin(bot_list['bot_name']),] = 5
+    frame_patterns = frame_all[['timeframe', 'labels', 'noEdits']]
+    frame_patterns = frame_patterns.groupby(['timeframe', 'labels']).agg({'noEdits': 'sum'})
+    frame_pcts = frame_patterns.groupby(level=0).apply(lambda x: 100 * x / float(x.sum()))
+    frame_pcts.reset_index(inplace=True)
+    frame_pcts['timeframe'] = pd.to_datetime(frame_pcts['timeframe'])
+    frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] > '2013-02-01',]
+    print('all done')
+
+
+###graph
+    f3 = plt.figure(figsize=(10, 6))
+    font = {'size': 12}
+
+    matplotlib.rc('font', **font)
+
+    ax5 = plt.subplot(111)
+    ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 0,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 0,], '--')
+    ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 1,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 1,], '-.')
+    ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 2,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 2,], ':')
+    ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 3,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 3,], '-')
+    ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 4,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 4,], '-',  marker='x', markevery=0.05)
+    ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 5,],
+             frame_pcts['noEdits'].loc[frame_pcts['labels'] == 5,], '-', marker='^', markevery=0.05)
+    ax5.grid(color='gray', linestyle='--', linewidth=.5)
+    ax5.legend(['Cluster 1', 'Cluster 2', 'Cluster 3', 'Cluster 4', 'Anonymous users', 'Bots'], loc='center left')
+    ax5.set_ylabel('User activity along time (in%)')
+
+    ax5.xaxis.set_major_locator(mdates.MonthLocator(interval=3))  # to get a tick every 15 minutes
+    ax5.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))  # optional formatting
+
+    f3.autofmt_xdate()
+    plt.tight_layout()
+    plt.show()
+    plt.savefig('clusterUsers.eps', format='eps', transparent=True)
+    print('also the graph')
+
 
     resultsKmeans = {}
 
     for n in range(2,9):
         label_array = []
         resultsAll = []
-        for num in range(1, 10):
+        for num in range(1, 15):
             labelSample = []
             frame_sample = frame_clean.sample(frac=0.8)
-            kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_sample.drop('serial'))
+            kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_sample.drop(colDropped))
             labels = kmeans.labels_
             frame_sample['labels'] = labels
             for g in range(0, n):
                 listSerials= frame_sample['serial'].loc[frame_sample['labels'] == g]
                 labelSample.append(list(listSerials))
             label_array.append(labelSample)
+
         for i in label_array:
             for j in label_array:
                 IV = variation_of_information(i, j)
@@ -142,9 +208,9 @@ def fileLoader(path):
         resultsAll = []
         for num in range(1, 6):
             labelSample = []
-            kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_clean.drop('serial'))
+            kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
             labels = kmeans.labels_
-            sscore = metrics.silhouette_score(frame_clean.drop('serial'), labels, sample_size= 20000, metric='euclidean')
+            sscore = metrics.silhouette_score(frame_clean.drop('serial'), labels, sample_size=10000, metric='euclidean')
         # print(n, sscore)
             resultsAll.append(sscore)
         resultSscore[str(n)] = resultsAll
@@ -154,6 +220,30 @@ def fileLoader(path):
         f.close()
 
     print('all done')
+
+
+from sklearn.metrics.cluster import normalized_mutual_info_score
+from sklearn.metrics.cluster import adjusted_mutual_info_score
+
+resultsAmui = {}
+
+for n in range(2,9):
+    label_array = []
+    resultsAll = []
+    for num in range(1, 4):
+        labelSample = []
+        frame_sample = frame_clean.sample(frac=0.5)
+        kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_sample.drop('serial'))
+        labels = kmeans.labels_
+        for g in range(0, n):
+            labelSample.append(list(labels))
+        label_array.append(labelSample)
+    for i in label_array:
+        for j in label_array:
+            amui = adjusted_mutual_info_score(i, j)
+            resultsAll.append(amui)
+    resultsAmui[str(n)] = resultsAll
+
 
 
 # elbow method
@@ -320,7 +410,8 @@ def gap(data, refs=None, nrefs=20, ks=range(1, 11)):
 anovaDict ={}
 for col in frame_clean.drop(['serial']).columns:
     F, p = stats.f_oneway(frame_clean.loc[frame_clean['labels'] == 0,][col],
-                      frame_clean.loc[frame_clean['labels'] == 1,][col], frame_clean.loc[frame_clean['labels'] == 2,][col])
+                      frame_clean.loc[frame_clean['labels'] == 1,][col], frame_clean.loc[frame_clean['labels'] == 2,][col],
+                          frame_clean.loc[frame_clean['labels'] == 3,][col])
     anovaDict[col] = {}
     anovaDict[col]['F'] = F
     anovaDict[col]['p'] = p
@@ -344,8 +435,8 @@ for col in frame_clean.drop(['serial']).columns:
 
 def main():
     # create_table()
-    # path = '/Users/alessandro/Documents/PhD/userstats'
-    path = sys.argv[1]
+    path = '/Users/alessandro/Documents/PhD/userstats'
+    # path = sys.argv[1]
     fileLoader(path)
 
 

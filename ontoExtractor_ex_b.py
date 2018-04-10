@@ -132,8 +132,8 @@ def queryexecutor():
 
                         if len(df.index) != 0:
                             df = df[df['statvalue'] != 'deleted']
-                            df = df[df['statvalue'] != 'novalue']
-                            df = df[df['statvalue'] != 'somevalue']
+                            df = df.loc[df['statvalue'] != 'novalue',]
+                            df = df.loc[df['statvalue'] != 'somevalue',]
                             idx = df.groupby(['statementid'])['revid'].transform(max) == df['revid']
                             dfClean = df[idx]
                             fileName = "WDHierarchy-" + date + ".csv"
@@ -189,12 +189,13 @@ def queryexecutor():
                             classCountNew = classCount['P31'].to_dict()
 
                             dictStats[date]['classesWInstances'] = len(classCountNew)
+                            dictStats[date]['cRichness'] = len(classCountNew)/len(set(classesList))
 
                             for cl in classesList:
                                 if cl not in classCountNew.keys():
                                     classCountNew[cl] = 0
 
-                            dictStats[date]['cRichness'] = len(classCountNew)/len(set(classesList))
+
                             instanceList = [classCountNew[l] for l in classCountNew.keys()]
                             dictStats[date]['avgPop'] = np.asscalar(np.mean(instanceList))
                             dictStats[date]['medianPop'] = np.asscalar(np.median(instanceList))
