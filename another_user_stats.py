@@ -18,6 +18,7 @@ import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 import matplotlib.dates as mdates
+# from scipy.cluster.vq import vq, kmeans, whiten
 
 # from scipy.spatial.distance import cdist
 # import matplotlib.pyplot as plt
@@ -150,6 +151,7 @@ def fileLoader(path):
     frame_pcts.reset_index(inplace=True)
     frame_pcts['timeframe'] = pd.to_datetime(frame_pcts['timeframe'])
     frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] > '2013-02-01',]
+    frame_pcts.to_csv('framePcts.csv', index=False)
     frame_all.to_csv('frameAll.csv', index=False)
     print('all done')
 
