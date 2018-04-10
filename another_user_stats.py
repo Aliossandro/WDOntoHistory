@@ -9,7 +9,7 @@ from sklearn import datasets
 import glob
 from scipy import stats
 # from sklearn.decomposition import PCA
-from pyitlib import discrete_random_variable as drv
+# from pyitlib import discrete_random_variable as drv
 import string
 import matplotlib
 import matplotlib.ticker as ticker
