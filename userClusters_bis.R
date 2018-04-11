@@ -1,6 +1,7 @@
 library(clValid)
 library(diceR)
-# library(factoextra)
+library(cluster)
+library(factoextra)
 # library(NbClust)
 setwd('~/Documents/PhD/WD_ontology/')
 
@@ -16,6 +17,11 @@ userdata <- userdata[,-(11)]
 userdata <- userdata[,-c(1, 4)]
 
 # userdata <- subset(userdata, select = -noEdits)
+userdata_sample <- userdata[sample(nrow(userdata), 25000), ]
+gskmn2 <- clusGap(userdata, FUN = kmeans, nstart = 10, K.max = 8, B = 60, spaceH0="original")
+
+fviz_gap_stat(gskmn2, 
+              maxSE = list(method = "Tibs2001SEmax"))
 
 cosi <- kmeans(userdata, 2, iter.max = 10, nstart = 6, trace=FALSE)
 userdata$clusters <-  cosi$cluster

@@ -9,6 +9,7 @@ from sklearn import datasets
 import glob
 from scipy import stats
 from sklearn.decomposition import PCA
+import gapkmean
 
 
 # -*- coding: utf-8 -*-
@@ -158,11 +159,11 @@ def fileLoader(path):
     resultSscore ={}
     for n in range(2, 9):
         resultsAll = []
-        for num in range(1, 6):
+        for num in range(1, 15):
             labelSample = []
             kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
             labels = kmeans.labels_
-            sscore = metrics.silhouette_score(frame_clean.drop(colDropped, axis=1), labels, sample_size= 10000, metric='euclidean')
+            sscore = metrics.silhouette_score(frame_clean.drop(colDropped, axis=1), labels, sample_size=20000, metric='euclidean')
         # print(n, sscore)
             resultsAll.append(sscore)
         resultSscore[str(n)] = resultsAll
@@ -171,7 +172,19 @@ def fileLoader(path):
         f.write(str(resultSscore))
         f.close()
 
-    print('all done')
+    print('sscore done')
+
+    try:
+        gaps, s_k, K = gapkmean.gap_statistic(X, refs=None, B=100, K=range(1, 9), N_init=10)
+        bestKValue = gapkmean.find_optimal_k(gaps, s_k, K)
+        with open('gapsKmean.txt', 'w') as f:
+            f.write(str(gaps))
+            f.write('best K: ' + str(bestKValue))
+            f.close()
+    except:
+        print('no gaps')
+
+
 
 
 

@@ -11,7 +11,21 @@ import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 import matplotlib.dates as mdates
+
+from scipy import stats
 # import matplotlib.mlab as mlab
+
+def one_sample_tTest(X):
+    mean = np.mean(X)
+    std = np.std(X)
+    count = len(X)
+    stErr = std/np.sqrt(count)
+    tStat = mean/stErr
+    df = count - 1
+
+    # p-value after comparison with the t
+    p = 1 - stats.t.cdf(tStat, df=df)
+    return p
 
 
 #load the data
@@ -73,6 +87,54 @@ wdStats_4 = wdStats_4.loc[wdStats_4['timeframe'] > '2013-02-01', ]
 # plt.plot( 'timeframe', 'iRichness', data=wdStats, marker='', color='olive', linewidth=2, linestyle='-.', label="Inheritance Richness")
 # plt.legend()
 #
+###test statistical significance of trend
+colTested = [ 'avgPop',
+       'childLessClasses', 'classesWInstances', 'iRichness',
+       'maxPop', 'medianInheritance', 'medianPop', 'noClasses',
+       'noLeaf', 'noProps', 'noRoot',
+       'timeframe', 'noInstances', 'trueRichness']
+
+wdTrends = wdStats[colTested]
+wdTrends[['avgPop', 'childLessClasses', 'classesWInstances', 'iRichness',
+       'maxPop', 'medianInheritance', 'medianPop', 'noClasses', 'noLeaf',
+       'noProps', 'noRoot', 'noInstances', 'trueRichness']] = wdTrends[['avgPop', 'childLessClasses', 'classesWInstances', 'iRichness',
+       'maxPop', 'medianInheritance', 'medianPop', 'noClasses', 'noLeaf',
+       'noProps', 'noRoot',  'noInstances', 'trueRichness']] /wdTrends[['avgPop', 'childLessClasses', 'classesWInstances', 'iRichness',
+       'maxPop', 'medianInheritance', 'medianPop', 'noClasses', 'noLeaf',
+       'noProps', 'noRoot', 'noInstances', 'trueRichness']].shift(1)
+wdTrends[['avgPop', 'childLessClasses', 'classesWInstances', 'iRichness',
+       'maxPop', 'medianInheritance', 'medianPop', 'noClasses', 'noLeaf',
+       'noProps', 'noRoot', 'noInstances', 'trueRichness']] = wdTrends[['avgPop', 'childLessClasses', 'classesWInstances', 'iRichness',
+       'maxPop', 'medianInheritance', 'medianPop', 'noClasses', 'noLeaf',
+       'noProps', 'noRoot',  'noInstances', 'trueRichness']].apply(lambda x : np.log(x), axis =1)
+wdTrends = wdTrends[wdTrends.notnull()]
+wdTrends = wdTrends.replace([np.inf, -np.inf], np.nan)
+wdTrends = wdTrends.fillna(0)
+
+
+wdTrends_4 = wdStats_4[['avgRichness', 'maxRichness', 'medianRichness',
+       'quantileRichness', 'relRichness', 'timeframe']]
+wdTrends_4[['avgRichness', 'maxRichness', 'medianRichness',
+       'relRichness']] = wdTrends_4[['avgRichness', 'maxRichness', 'medianRichness',
+       'relRichness']]/wdTrends_4[['avgRichness', 'maxRichness', 'medianRichness',
+       'relRichness']].shift(1)
+wdTrends_4[['avgRichness', 'maxRichness', 'medianRichness',
+            'relRichness']]= wdTrends_4[['avgRichness', 'maxRichness', 'medianRichness',
+       'relRichness']].apply(lambda x : np.log(x), axis =1)
+wdTrends_4 = wdTrends_4[wdTrends_4.notnull()]
+wdTrends_4 = wdTrends_4.replace([np.inf, -np.inf], np.nan)
+wdTrends_4 = wdTrends_4.fillna(0)
+
+wdTrends_3 = wdStats_3[['avgDepth', 'maxDepth', 'medianDepth','timeframe']]
+wdTrends_3[['avgDepth', 'maxDepth', 'medianDepth']] = wdTrends_3[['avgDepth', 'maxDepth', 'medianDepth']]/wdTrends_3[['avgDepth', 'maxDepth', 'medianDepth']].shift(1)
+wdTrends_3[['avgDepth', 'maxDepth', 'medianDepth']] = wdTrends_3[['avgDepth', 'maxDepth', 'medianDepth']].apply(lambda x : np.log(x), axis =1)
+wdTrends_3 = wdTrends_3[wdTrends_3.notnull()]
+wdTrends_3 = wdTrends_3.replace([np.inf, -np.inf], np.nan)
+wdTrends_4 = wdTrends_3.fillna(0)
+
+
+    # .rolling(window=2, center=False).apply(lambda x: np.log(x/x.shift(1)))
+
 
 ###another one
 

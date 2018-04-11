@@ -273,6 +273,8 @@ print('Optimal clusters: ', n_clusters)
 
 optimalK.gap_df.head(10)
 
+import gap
+
 # gapDf = pd.DataFrame({'n_clusters':list(range(1,11)), 'gap_value':list(coso)})
 
 plt.plot(optimalK.gap_df.n_clusters, optimalK.gap_df.gap_value, linewidth=3)
