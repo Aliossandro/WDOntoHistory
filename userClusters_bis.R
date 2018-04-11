@@ -1,29 +1,52 @@
 library(clValid)
 library(diceR)
+# library(factoextra)
+# library(NbClust)
+setwd('~/Documents/PhD/WD_ontology/')
 
-setwd('~/Documents/PhD/WDOntoHistory/')
 
-userdata <- read.csv('userData.csv')
+userdata <- read.csv('userstacce.csv', stringsAsFactors = F)
+userdata$admin[which(userdata$admin == 'True')] = 0
+userdata$admin[which(userdata$admin == 'False')] = 1
+userdata$admin <- as.numeric(userdata$admin)
+# userdata <- userdata[which(userdata$labels < 4),]
+# userdata$admin <-  as.logical(userdata$admin)
+userdata <- userdata[,-(13)]
+userdata <- userdata[,-(11)]
+userdata <- userdata[,-c(1, 4)]
 
-userdata[is.na(userdata)] <-0
-userdata$oldedit <- userdata$oldedit/360
+# userdata <- subset(userdata, select = -noEdits)
 
-userdata <- userdata[which(userdata$bot_label == 0),]
-userdata <- userdata[which(userdata$anon_label == 0),]
-userdata <-  subset(userdata, select = - bot_label)
-userdata <-  subset(userdata, select = - anon_label)
-
-clusters <- kmeans(userdata[,2:7], 3, iter.max = 20, nstart = 16,
-       algorithm = c("Hartigan-Wong"), trace=FALSE)
-
-userdata$cluster <- clusters$cluster
-
+cosi <- kmeans(userdata, 2, iter.max = 10, nstart = 6, trace=FALSE)
+userdata$clusters <-  cosi$cluster
+userdata
 
 compactness(userdata[,2:9], userdata[,10])
 
+###validation
+result_intern <- vector("list", 5)
+result_stab <- vector("list", 5)
 
-intern <- clValid(userdata[,2:7], 2:8, clMethods="kmeans",
-                  validation="internal", maxitems=nrow(userdata))
+intern <- function(x) {
+  
+  userdata_sample <- x[sample(nrow(x), 10000), ]
+  y <- clValid(userdata_sample[,1:9], 2:9, clMethods="kmeans",
+               validation="internal", maxitems = nrow(userdata_sample))
+  
+  return(y)
+  # fviz_nbclust(nb)
+}
+stabo <- function(x) {
+  userdata_sample <- x[sample(nrow(x), 10000), ]
+  y <- clValid(userdata_sample[,1:9], 2:9, clMethods="kmeans",
+               validation="stability", maxitems = nrow(userdata_sample))
+  
+  return(y)
+  
+}
+
+coso <-  replicate(5, intern(userdata))
+coso2 <-  replicate(5, stabo(userdata))
 
 
 wilcox.test(userdata$oldedit[which(userdata$cluster == 4)], userdata$oldedit[which(userdata$cluster == 2)])

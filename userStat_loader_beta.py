@@ -263,19 +263,20 @@ plt.show()
 
 
 #gap statistic
-
+frame_clean = frame_norm.drop(colDropped, axis= 1)
 frame_clean['admin'] = frame_clean['admin']*1
-X = frame_clean.drop('serial').as_matrix()
+frame_clean['admin'] = frame_clean['admin'].astype(int)
+X = frame_clean.as_matrix()
 optimalK = OptimalK(parallel_backend='joblib')
-n_clusters = optimalK(X, cluster_array=np.arange(1, 10))
+n_clusters = optimalK(X, cluster_array=np.arange(1, 9))
 print('Optimal clusters: ', n_clusters)
 
 optimalK.gap_df.head(10)
 
-gapDf = pd.DataFrame({'n_clusters':list(range(1,11)), 'gap_value':list(coso)})
+# gapDf = pd.DataFrame({'n_clusters':list(range(1,11)), 'gap_value':list(coso)})
 
-# plt.plot(optimalK.gap_df.n_clusters, optimalK.gap_df.gap_value, linewidth=3)
-plt.plot(range(1,11), coso, linewidth=3)
+plt.plot(optimalK.gap_df.n_clusters, optimalK.gap_df.gap_value, linewidth=3)
+# plt.plot(range(1,11), coso, linewidth=3)
 
 plt.scatter(gapDf[gapDf.n_clusters == n_clusters].n_clusters,
             gapDf[gapDf.n_clusters == n_clusters].gap_value, s=250, c='r')
@@ -407,11 +408,11 @@ def gap(data, refs=None, nrefs=20, ks=range(1, 11)):
 # frameTest = np.array(frame_sample.loc[frame_sample['labels'] == 0,]['noEdits'],
 #                      frame_sample.loc[frame_sample['labels'] == 1,]['noEdits'])
 #
+
 anovaDict ={}
-for col in frame_clean.drop(['serial']).columns:
-    F, p = stats.f_oneway(frame_clean.loc[frame_clean['labels'] == 0,][col],
-                      frame_clean.loc[frame_clean['labels'] == 1,][col], frame_clean.loc[frame_clean['labels'] == 2,][col],
-                          frame_clean.loc[frame_clean['labels'] == 3,][col])
+for col in frame_norm.drop(['normAll', 'username', 'timeframe', 'serial'], axis= 1).columns:
+    F, p = stats.f_oneway(frame_norm.drop(['normAll', 'username', 'timeframe', 'serial'], axis= 1).loc[frame_norm['labels'] == 0,][col],
+                          frame_norm.drop(['normAll', 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == 1,][col])
     anovaDict[col] = {}
     anovaDict[col]['F'] = F
     anovaDict[col]['p'] = p
@@ -419,9 +420,12 @@ for col in frame_clean.drop(['serial']).columns:
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 from statsmodels.stats.multicomp import MultiComparison
 
+
+frame_norm['admin'] = frame_norm['admin']*1
+frame_norm['admin'] = frame_norm['admin'].astype(int)
 tukeyDict ={}
-for col in frame_clean.drop(['serial']).columns:
-    mc = MultiComparison(frame_clean[col], frame_clean['labels'])
+for col in frame_norm.drop(['normAll', 'username', 'timeframe', 'serial'], axis= 1).columns:
+    mc = MultiComparison(frame_norm.drop(['normAll', 'username', 'timeframe', 'serial'], axis= 1)[col], frame_norm['labels'])
     result = mc.tukeyhsd()
     print(col)
     print(result)

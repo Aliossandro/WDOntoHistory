@@ -60,7 +60,7 @@ def variation_of_information(X, Y):
 
 
 def fileLoader(path):
-    allFiles = glob.glob(path + "/WDuserstats-*")
+    allFiles = glob.glob(path + "/WDuserstats_last*")
     # frame = pd.DataFrame()
     list_ = []
 
@@ -151,6 +151,7 @@ def fileLoader(path):
     frame_pcts.reset_index(inplace=True)
     frame_pcts['timeframe'] = pd.to_datetime(frame_pcts['timeframe'])
     frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] > '2013-02-01',]
+    frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] <= '2017-11-01',]
     frame_pcts.to_csv('framePcts.csv', index=False)
     frame_all.to_csv('frameAll.csv', index=False)
     print('all done')
@@ -167,11 +168,11 @@ def fileLoader(path):
     # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 1,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 1,], '-.')
     # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 2,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 2,], ':')
     # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 3,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 3,], '-')
-    # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 4,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 4,], '-',  marker='x', markevery=0.05)
+    # # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 4,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 4,], '-',  marker='x', markevery=0.05)
     # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 5,],
     #          frame_pcts['noEdits'].loc[frame_pcts['labels'] == 5,], '-', marker='^', markevery=0.05)
     # ax5.grid(color='gray', linestyle='--', linewidth=.5)
-    # ax5.legend(['Cluster 1', 'Cluster 2', 'Cluster 3', 'Cluster 4', 'Anonymous users', 'Bots'], loc='center left')
+    # ax5.legend(['Core editors', 'Occasional editors', 'Anonymous users', 'Bots'], loc='center left')
     # ax5.set_ylabel('User activity along time (in%)')
     #
     # ax5.xaxis.set_major_locator(mdates.MonthLocator(interval=3))  # to get a tick every 15 minutes
