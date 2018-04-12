@@ -411,6 +411,18 @@ def gap(data, refs=None, nrefs=20, ks=range(1, 11)):
 #                      frame_sample.loc[frame_sample['labels'] == 1,]['noEdits'])
 #
 
+for cuoso in cuosi.keys():
+    print(np.mean(cuosi[cuoso]))
+
+resultiAvg = {'2': (0.46687702164403649, 0.16580981466412845), '3': (0.46868065914637475, 0.16589442798664572), '4': (0.47363095117710047, 0.16802980967324058), '5': (0.51391400034503432, 0.18531334933132793), '6': (0.6097370146233545, 0.25682670283810827), '7': (0.59243192116303156, 0.26287795986578932), '8': (0.55851514355336129, 0.23933766406133636)}
+prev = None
+for key in resultiAvg.keys():
+    if prev is not None:
+        print(str(key) + ' ' + str(resultiAvg[key][0] - prev))
+
+    prev = resultiAvg[key][0]
+
+
 anovaDict ={}
 for col in frame_norm.drop([ 'username', 'timeframe', 'serial'], axis= 1).columns:
     F, p = stats.f_oneway(frame_norm.drop(['username', 'timeframe', 'serial'], axis= 1).loc[frame_norm['labels'] == 0,][col],
