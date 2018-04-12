@@ -117,65 +117,65 @@ def fileLoader(path):
     colDropped = ['noEdits', 'serial', 'username', 'timeframe', 'userAge']
     print('dataset loaded')
 
-    # resultsKmeans = {}
-    #
-    # for n in range(2,9):
-    #     label_array = []
-    #     resultsAll = []
-    #     for num in range(1, 10):
-    #         labelSample = []
-    #         frame_sample = frame_clean.sample(frac=0.8)
-    #         kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_sample.drop(colDropped, axis=1))
-    #         labels = kmeans.labels_
-    #         frame_sample['labels'] = labels
-    #         # frameTest = np.array(frame_sample.loc[frame_sample['labels'] == 0,]['noEdits'],
-    #         #                       frame_sample.loc[frame_sample['labels'] == 1,]['noEdits'])
-    #         # F, p = stats.f_oneway(frame_sample.loc[frame_sample['labels'] == 0,]['noBatchEdits'],
-    #         #                       frame_sample.loc[frame_sample['labels'] == 1,]['noBatchEdits'], frame_sample.loc[frame_sample['labels'] == 2,]['noBatchEdits'],
-    #         #                       frame_sample.loc[frame_sample['labels'] == 3,]['noBatchEdits'])
-    #         for g in range(0, n):
-    #             listSerials= frame_sample['serial'].loc[frame_sample['labels'] == g]
-    #             labelSample.append(list(listSerials))
-    #         label_array.append(labelSample)
-    #     for i in label_array:
-    #         for j in label_array:
-    #             IV = variation_of_information(i, j)
-    #             resultsAll.append(IV)
-    #     resultsKmeans[str(n)] = resultsAll
-    #
-    # kAvg = {}
-    # for key in resultsKmeans:
-    #     listres = resultsKmeans[key]
-    #     res = np.mean(listres)
-    #     rstd = np.std(listres)
-    #     kAvg[key] = (res, rstd)
-    #
-    # print('VI computed')
-    #
-    # with open('kmeansAvg.txt', 'w') as f:
-    #     f.write(str(kAvg))
-    #     f.close()
-    #
-    # resultSscore ={}
-    # for n in range(2, 9):
-    #     resultsAll = []
-    #     for num in range(1, 15):
-    #         labelSample = []
-    #         kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
-    #         labels = kmeans.labels_
-    #         sscore = metrics.silhouette_score(frame_clean.drop(colDropped, axis=1), labels, sample_size=20000, metric='euclidean')
-    #     # print(n, sscore)
-    #         resultsAll.append(sscore)
-    #     resultSscore[str(n)] = resultsAll
-    #
-    # with open('kmeansscore.txt', 'w') as f:
-    #     f.write(str(resultSscore))
-    #     f.close()
-    #
-    # print('sscore done')
+    resultsKmeans = {}
+
+    for n in range(2,9):
+        label_array = []
+        resultsAll = []
+        for num in range(1, 10):
+            labelSample = []
+            frame_sample = frame_clean.sample(frac=0.8)
+            kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_sample.drop(colDropped, axis=1))
+            labels = kmeans.labels_
+            frame_sample['labels'] = labels
+            # frameTest = np.array(frame_sample.loc[frame_sample['labels'] == 0,]['noEdits'],
+            #                       frame_sample.loc[frame_sample['labels'] == 1,]['noEdits'])
+            # F, p = stats.f_oneway(frame_sample.loc[frame_sample['labels'] == 0,]['noBatchEdits'],
+            #                       frame_sample.loc[frame_sample['labels'] == 1,]['noBatchEdits'], frame_sample.loc[frame_sample['labels'] == 2,]['noBatchEdits'],
+            #                       frame_sample.loc[frame_sample['labels'] == 3,]['noBatchEdits'])
+            for g in range(0, n):
+                listSerials= frame_sample['serial'].loc[frame_sample['labels'] == g]
+                labelSample.append(list(listSerials))
+            label_array.append(labelSample)
+        for i in label_array:
+            for j in label_array:
+                IV = variation_of_information(i, j)
+                resultsAll.append(IV)
+        resultsKmeans[str(n)] = resultsAll
+
+    kAvg = {}
+    for key in resultsKmeans:
+        listres = resultsKmeans[key]
+        res = np.mean(listres)
+        rstd = np.std(listres)
+        kAvg[key] = (res, rstd)
+
+    print('VI computed')
+
+    with open('kmeansAvg.txt', 'w') as f:
+        f.write(str(kAvg))
+        f.close()
+
+    resultSscore ={}
+    for n in range(2, 9):
+        resultsAll = []
+        for num in range(1, 15):
+            labelSample = []
+            kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
+            labels = kmeans.labels_
+            sscore = metrics.silhouette_score(frame_clean.drop(colDropped, axis=1), labels, sample_size=20000, metric='euclidean')
+        # print(n, sscore)
+            resultsAll.append(sscore)
+        resultSscore[str(n)] = resultsAll
+
+    with open('kmeansscore.txt', 'w') as f:
+        f.write(str(resultSscore))
+        f.close()
+
+    print('sscore done')
 
     X = np.array(frame_clean.drop(colDropped, axis=1))
-    gaps, s_k, K = gapkmean.gap_statistic(X, refs=None, B=100, K=range(1, 9), N_init=10)
+    gaps, s_k, K = gapkmean.gap_statistic(X, refs=None, B=100, K=range(2, 9), N_init=10)
     bestKValue = gapkmean.find_optimal_k(gaps, s_k, K)
     with open('gapsKmean.txt', 'w') as f:
         f.write(str(gaps))
