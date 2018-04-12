@@ -412,12 +412,28 @@ def gap(data, refs=None, nrefs=20, ks=range(1, 11)):
 #
 
 anovaDict ={}
-for col in frame_norm.drop(['normAll', 'username', 'timeframe', 'serial'], axis= 1).columns:
-    F, p = stats.f_oneway(frame_norm.drop(['normAll', 'username', 'timeframe', 'serial'], axis= 1).loc[frame_norm['labels'] == 0,][col],
-                          frame_norm.drop(['normAll', 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == 1,][col])
+for col in frame_norm.drop([ 'username', 'timeframe', 'serial'], axis= 1).columns:
+    F, p = stats.f_oneway(frame_norm.drop(['username', 'timeframe', 'serial'], axis= 1).loc[frame_norm['labels'] == 0,][col],
+                          frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == 1,][col])
     anovaDict[col] = {}
     anovaDict[col]['F'] = F
     anovaDict[col]['p'] = p
+    for value in frame_norm['labels'].unique():
+        anovaDict[col][str(value)] = {}
+        anovaDict[col][str(value)]['mean'] = frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == value,][col].mean()
+        anovaDict[col][str(value)]['quantiles'] = \
+        frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == value,][
+            col].quantile([.25, .5, .75])
+
+        anovaDict[col][str(value)]['max'] = \
+        frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == value,][
+            col].max()
+        anovaDict[col][str(value)]['min'] = \
+        frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == value,][
+            col].min()
+
+
+
 
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 from statsmodels.stats.multicomp import MultiComparison

@@ -114,7 +114,7 @@ def fileLoader(path):
     frame_clean['serial'] = range(1, len(frame_clean) + 1)
     # frame_clean.set_index('timeframe', inplace=True)
     # frame_clean.index = frame_clean['serial']
-    colDropped = ['noEdits', 'serial', 'username', 'timeframe']
+    colDropped = ['noEdits', 'serial', 'username', 'timeframe', 'userAge']
     print('dataset loaded')
 
     resultsKmeans = {}
@@ -174,15 +174,14 @@ def fileLoader(path):
 
     print('sscore done')
 
-    try:
-        gaps, s_k, K = gapkmean.gap_statistic(X, refs=None, B=100, K=range(1, 9), N_init=10)
-        bestKValue = gapkmean.find_optimal_k(gaps, s_k, K)
-        with open('gapsKmean.txt', 'w') as f:
-            f.write(str(gaps))
-            f.write('best K: ' + str(bestKValue))
-            f.close()
-    except:
-        print('no gaps')
+
+    gaps, s_k, K = gapkmean.gap_statistic(X, refs=None, B=100, K=range(1, 9), N_init=10)
+    bestKValue = gapkmean.find_optimal_k(gaps, s_k, K)
+    with open('gapsKmean.txt', 'w') as f:
+        f.write(str(gaps))
+        f.write('best K: ' + str(bestKValue))
+        f.close()
+
 
 
 
