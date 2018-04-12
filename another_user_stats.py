@@ -60,7 +60,7 @@ def variation_of_information(X, Y):
 
 
 def fileLoader(path):
-    allFiles = glob.glob(path + "/WDuserstats_last*")
+    allFiles = glob.glob(path + "/WDuserstats-*")
     # frame = pd.DataFrame()
     list_ = []
 
