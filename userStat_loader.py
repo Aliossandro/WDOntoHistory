@@ -16,6 +16,7 @@ import gapkmean
 import os
 import sys
 import copy
+import time
 
 # Variation of information (VI)
 #
@@ -45,7 +46,8 @@ def variation_of_information(X, Y):
 
 
 
-def fileLoader(path):
+def fileLoader(path, wait):
+    time.sleep(int(wait))
     allFiles = glob.glob(path + "/WDuserstats_last*")
     # frame = pd.DataFrame()
     list_ = []
@@ -152,18 +154,18 @@ def fileLoader(path):
                 resultsAll.append(IV)
         resultsKmeans[str(n)] = resultsAll
 
-    kAvg = {}
-    for key in resultsKmeans:
-        listres = resultsKmeans[key]
-        res = np.mean(listres)
-        rstd = np.std(listres)
-        kAvg[key] = (res, rstd)
+    # kAvg = {}
+    # for key in resultsKmeans:
+    #     listres = resultsKmeans[key]
+    #     res = np.mean(listres)
+    #     rstd = np.std(listres)
+    #     kAvg[key] = (res, rstd)
 
     print('VI computed')
 
-    with open('kmeansAvg.txt', 'w') as f:
-        f.write(str(kAvg))
-        f.close()
+    # with open('kmeansAvg.txt', 'w') as f:
+    #     f.write(str(kAvg))
+    #     f.close()
 
     resultSscore ={}
     for n in range(2, 9):
@@ -173,7 +175,7 @@ def fileLoader(path):
             kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
             labels = kmeans.labels_
             try:
-                sscore = metrics.silhouette_score(frame_clean.drop(colDropped, axis=1), labels, sample_size=20000, metric='euclidean')
+                sscore = metrics.silhouette_score(frame_clean.drop(colDropped, axis=1), labels, sample_size=40000, metric='euclidean')
             except ValueError:
                 sscore = 'NA'
         # print(n, sscore)
@@ -189,8 +191,21 @@ def fileLoader(path):
     X = np.array(frame_clean.drop(colDropped, axis=1))
     gaps, s_k, K = gapkmean.gap_statistic(X, refs=None, B=100, K=range(2, 9), N_init=10)
     bestKValue, things = gapkmean.find_optimal_k(gaps, s_k, K)
-    with open('gapsKmean.txt', 'w') as f:
-        f.write(str(zip(gaps,s_k)))
+
+    with open('allResults.txt', 'w') as f:
+        f.write('VI scores')
+        f.write('\n')
+        for key in resultsKmeans:
+            listres = resultsKmeans[key]
+            f.write('{'+str(key) + ':'+str(listres)+'},')
+        f.write('\n')
+        f.write('silhouette scores')
+        f.write('\n')
+        f.write(str(resultSscore))
+        f.write('\n')
+        f.write('gaps: ' + str(gaps))
+        f.write('\n')
+        f.write(str(s_k))
         f.write('\n')
         f.write('best K: ' + str(bestKValue))
         f.write('\n')
@@ -210,7 +225,8 @@ def main():
     # create_table()
     # path = '/Users/alessandro/Documents/PhD/userstats'
     path = sys.argv[1]
-    fileLoader(path)
+    waitTime = sys.argv[2]
+    fileLoader(path, waitTime)
 
 
 if __name__ == "__main__":
