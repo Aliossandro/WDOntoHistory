@@ -83,6 +83,14 @@ def fileLoader(path):
                   'noBatchEdits', 'minTime', 'timeframe', 'userAge']
 
     frame = frame.drop(['minTime'], axis=1)
+    # read and prepare count of modifying edits
+    mod_file = path + '/modified_count.csv'
+    frame_mod = pd.read_csv(mod_file)
+    frame_mod['timeframe'] = frame_mod['monthinfo'].apply(lambda x: x.replace(' 00:00:00', ''))
+    # frame_mod.timeframe = pd.to_datetime(frame_mod['timeframe'])
+    frame_mod.drop('monthinfo', axis=1, inplace=True)
+
+    frame = frame.merge(frame_mod, how='left', on=['username', 'timeframe'])
     frame['editNorm'] = frame['noEdits']
     frame_anon = frame.loc[frame['username'].str.match(
         r'([0-9]{1,3}[.]){3}[0-9]{1,3}|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))',
@@ -158,31 +166,31 @@ def fileLoader(path):
 
 
 ###graph
-    f3 = plt.figure(figsize=(10, 6))
-    font = {'size': 12}
-
-    matplotlib.rc('font', **font)
-
-    ax5 = plt.subplot(111)
-    ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 0,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 0,], '--')
-    ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 1,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 1,], '-.')
-    ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 2,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 2,], ':')
-    ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 3,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 3,], '-')
-    # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 4,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 4,], '-',  marker='x', markevery=0.05)
-    ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 5,],
-             frame_pcts['noEdits'].loc[frame_pcts['labels'] == 5,], '-', marker='^', markevery=0.05)
-    ax5.grid(color='gray', linestyle='--', linewidth=.5)
-    ax5.legend(['Core editors', 'Occasional editors', 'Anonymous users', 'Bots'], loc='center left')
-    ax5.set_ylabel('User activity along time (in%)')
-
-    ax5.xaxis.set_major_locator(mdates.MonthLocator(interval=3))  # to get a tick every 15 minutes
-    ax5.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))  # optional formatting
-
-    f3.autofmt_xdate()
-    plt.tight_layout()
-    # plt.show()
-    plt.savefig('clusterUsers.eps', format='eps', transparent=True)
-    print('also the graph')
+    # f3 = plt.figure(figsize=(10, 6))
+    # font = {'size': 12}
+    #
+    # matplotlib.rc('font', **font)
+    #
+    # ax5 = plt.subplot(111)
+    # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 0,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 0,], '--')
+    # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 1,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 1,], '-.')
+    # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 2,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 2,], ':')
+    # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 3,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 3,], '-')
+    # # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 4,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 4,], '-',  marker='x', markevery=0.05)
+    # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 5,],
+    #          frame_pcts['noEdits'].loc[frame_pcts['labels'] == 5,], '-', marker='^', markevery=0.05)
+    # ax5.grid(color='gray', linestyle='--', linewidth=.5)
+    # ax5.legend(['Core editors', 'Occasional editors', 'Anonymous users', 'Bots'], loc='center left')
+    # ax5.set_ylabel('User activity along time (in%)')
+    #
+    # ax5.xaxis.set_major_locator(mdates.MonthLocator(interval=3))  # to get a tick every 15 minutes
+    # ax5.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))  # optional formatting
+    #
+    # f3.autofmt_xdate()
+    # plt.tight_layout()
+    # # plt.show()
+    # plt.savefig('clusterUsers.eps', format='eps', transparent=True)
+    # print('also the graph')
 
 
 def main():
