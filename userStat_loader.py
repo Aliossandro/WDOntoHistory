@@ -176,10 +176,13 @@ def fileLoader(path):
 
     X = np.array(frame_clean.drop(colDropped, axis=1))
     gaps, s_k, K = gapkmean.gap_statistic(X, refs=None, B=100, K=range(2, 9), N_init=10)
-    bestKValue = gapkmean.find_optimal_k(gaps, s_k, K)
+    bestKValue, things = gapkmean.find_optimal_k(gaps, s_k, K)
     with open('gapsKmean.txt', 'w') as f:
-        f.write(str(gaps))
+        f.write(str(zip(gaps,s_k)))
+        f.write('\n')
         f.write('best K: ' + str(bestKValue))
+        f.write('\n')
+        f.write(str(things))
         f.close()
     print('gap done')
 

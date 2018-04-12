@@ -167,7 +167,8 @@ def find_optimal_k(gaps, s_k, K):
     else:
         printLog('have NOT found the best k above the next k+1 threshold yet, use the last k instead')
         optimal_k = K[-1]
-    return optimal_k
+        below_or_above = []
+    return optimal_k, below_or_above
 
 def main():
     pass
