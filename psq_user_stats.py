@@ -228,6 +228,8 @@ def fileLoader(path):
     frame_norm['noOntoEdits'] = frame['noOntoEdits'] / frame['noEdits']
     frame_norm['noPropEdits'] = frame['noPropEdits'] / frame['noEdits']
     frame_norm['noEdits'] = frame['noEdits']
+    frame_norm['admin'] = frame['admin']
+    frame_norm['lowAdmin'] = frame['lowAdmin']
     # frame_norm = frame_norm.loc[frame_norm['noEdits'] >= 5,]
     frame_norm.reset_index(inplace=True)
 
@@ -249,30 +251,30 @@ def fileLoader(path):
     colDropped = ['noEdits', 'serial', 'username', 'timeframe']
     print('dataset loaded')
 
-    # kmeans = KMeans(n_clusters=2, n_init=10, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
-    # labels = kmeans.labels_
-    # frame_clean['labels'] = labels
-    # frame_all = pd.concat([frame_anon, frame_bots, frame_clean])
-    # frame_all['normAll'] = frame_all['noEdits']
-    # colZ = ['normAll', 'timeframe']
-    # frame_norm_all = frame_all[colZ].groupby('timeframe').transform(normaliser)
-    # frame_all['normAll'] = frame_norm_all['normAll']
-    #
-    #
-    # frame_all['labels'].loc[frame_all['username'].str.match(
-    #     r'([0-9]{1,3}[.]){3}[0-9]{1,3}|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))',
-    #     case=False),] = 2
-    # frame_all['labels'].loc[frame_all['username'].isin(bot_list['bot_name']),] = 3
-    # frame_patterns = frame_all[['timeframe', 'labels', 'noEdits']]
-    # frame_patterns = frame_patterns.groupby(['timeframe', 'labels']).agg({'noEdits': 'sum'})
-    # frame_pcts = frame_patterns.groupby(level=0).apply(lambda x: 100 * x / float(x.sum()))
-    # frame_pcts.reset_index(inplace=True)
-    # frame_pcts['timeframe'] = pd.to_datetime(frame_pcts['timeframe'])
-    # frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] > '2013-02-01',]
-    # frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] <= '2017-11-01',]
-    # frame_pcts.to_csv('framePcts.csv', index=False)
-    # frame_all.to_csv('frameAll.csv', index=False)
-    # print('all done')
+    kmeans = KMeans(n_clusters=2, n_init=10, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
+    labels = kmeans.labels_
+    frame_clean['labels'] = labels
+    frame_all = pd.concat([frame_anon, frame_bots, frame_clean])
+    frame_all['normAll'] = frame_all['noEdits']
+    colZ = ['normAll', 'timeframe']
+    frame_norm_all = frame_all[colZ].groupby('timeframe').transform(normaliser)
+    frame_all['normAll'] = frame_norm_all['normAll']
+
+
+    frame_all['labels'].loc[frame_all['username'].str.match(
+        r'([0-9]{1,3}[.]){3}[0-9]{1,3}|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))',
+        case=False),] = 2
+    frame_all['labels'].loc[frame_all['username'].isin(bot_list['bot_name']),] = 3
+    frame_patterns = frame_all[['timeframe', 'labels', 'noEdits']]
+    frame_patterns = frame_patterns.groupby(['timeframe', 'labels']).agg({'noEdits': 'sum'})
+    frame_pcts = frame_patterns.groupby(level=0).apply(lambda x: 100 * x / float(x.sum()))
+    frame_pcts.reset_index(inplace=True)
+    frame_pcts['timeframe'] = pd.to_datetime(frame_pcts['timeframe'])
+    frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] >= '2013-03-01',]
+    frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] <= '2017-11-01',]
+    frame_pcts.to_csv('framePcts_new.csv', index=False)
+    frame_all.to_csv('frameAll_new.csv', index=False)
+    print('all done')
 
 
 ###graph
