@@ -251,7 +251,7 @@ def fileLoader(path):
     colDropped = ['noEdits', 'serial', 'username', 'timeframe']
     print('dataset loaded')
 
-    kmeans = KMeans(n_clusters=2, n_init=50, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
+    kmeans = KMeans(n_clusters=3, n_init=50, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
     labels = kmeans.labels_
     frame_clean['labels'] = labels
     frame_all = pd.concat([frame_anon, frame_bots, frame_clean])
@@ -289,8 +289,8 @@ def fileLoader(path):
     # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 2,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 2,], ':')
     # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 3,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 3,], '-')
     # # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 4,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 4,], '-',  marker='x', markevery=0.05)
-    # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 5,],
-    #          frame_pcts['noEdits'].loc[frame_pcts['labels'] == 5,], '-', marker='^', markevery=0.05)
+    # # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 5,],
+    # #          frame_pcts['noEdits'].loc[frame_pcts['labels'] == 5,], '-', marker='^', markevery=0.05)
     # ax5.grid(color='gray', linestyle='--', linewidth=.5)
     # ax5.legend(['Core editors', 'Occasional editors', 'Anonymous users', 'Bots'], loc='center left')
     # ax5.set_ylabel('User activity along time (in%)')
