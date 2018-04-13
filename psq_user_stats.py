@@ -217,7 +217,7 @@ def fileLoader(path):
 
     frame = frame.loc[~frame['username'].isin(bot_list['bot_name']),]
     frame = frame.set_index('username')
-    colN = ['editNorm', 'noCommEdits', 'timeframe']
+    colN = ['editNorm', 'noeditsmonthly', 'noCommEdits', 'timeframe']
     normaliser = lambda x: x / x.sum()
     frame_norm = frame[colN].groupby('timeframe').transform(normaliser)
     frame_norm['timeframe'] = frame['timeframe']
