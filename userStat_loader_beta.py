@@ -426,7 +426,9 @@ for key in resultiAvg.keys():
 anovaDict ={}
 for col in frame_norm.drop([ 'username', 'timeframe', 'serial'], axis= 1).columns:
     F, p = stats.f_oneway(frame_norm.drop(['username', 'timeframe', 'serial'], axis= 1).loc[frame_norm['labels'] == 0,][col],
-                          frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == 1,][col])
+                          frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == 1,][col],
+                          frame_norm.drop(['username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == 2,][
+                              col], frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == 3,][col])
     anovaDict[col] = {}
     anovaDict[col]['F'] = F
     anovaDict[col]['p'] = p
