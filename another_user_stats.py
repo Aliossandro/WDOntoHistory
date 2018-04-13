@@ -139,7 +139,7 @@ def fileLoader(path):
     colDropped = ['noEdits', 'serial', 'username', 'timeframe']
     print('dataset loaded')
 
-    kmeans = KMeans(n_clusters=2, n_init=10, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
+    kmeans = KMeans(n_clusters=2, n_init=30, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
     labels = kmeans.labels_
     frame_clean['labels'] = labels
     frame_all = pd.concat([frame_anon, frame_bots, frame_clean])
