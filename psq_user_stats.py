@@ -263,8 +263,8 @@ def fileLoader(path):
 
     frame_all['labels'].loc[frame_all['username'].str.match(
         r'([0-9]{1,3}[.]){3}[0-9]{1,3}|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))',
-        case=False),] = 4
-    frame_all['labels'].loc[frame_all['username'].isin(bot_list['bot_name']), ] = 5
+        case=False),] = 3
+    frame_all['labels'].loc[frame_all['username'].isin(bot_list['bot_name']), ] = 4
     frame_patterns = frame_all[['timeframe', 'labels', 'noEdits']]
     frame_patterns = frame_patterns.groupby(['timeframe', 'labels']).agg({'noEdits': 'sum'})
     frame_pcts = frame_patterns.groupby(level=0).apply(lambda x: 100 * x / float(x.sum()))
@@ -278,6 +278,7 @@ def fileLoader(path):
 
 
 ###graph
+    plt.ioff()
     f3 = plt.figure(figsize=(10, 6))
     font = {'size': 12}
 
@@ -289,8 +290,8 @@ def fileLoader(path):
     ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 2,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 2,], ':')
     ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 3,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 3,], '-')
     ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 4,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 4,], '-',  marker='x', markevery=0.05)
-    ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 5,],
-             frame_pcts['noEdits'].loc[frame_pcts['labels'] == 5,], '-', marker='^', markevery=0.05)
+    # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 5,],
+    #          frame_pcts['noEdits'].loc[frame_pcts['labels'] == 5,], '-', marker='^', markevery=0.05)
     ax5.grid(color='gray', linestyle='--', linewidth=.5)
     ax5.legend(['Core editors', 'Occasional editors', 'Anonymous users', 'Bots'], loc='center left')
     ax5.set_ylabel('User activity along time (in%)')
@@ -301,8 +302,8 @@ def fileLoader(path):
     f3.autofmt_xdate()
     plt.tight_layout()
     # plt.show()
-    # plt.savefig('clusterUsers.eps', format='eps', transparent=True)
-    # print('also the graph')
+    plt.savefig('clusterUsers_3.eps', format='eps', transparent=True)
+    print('also the graph')
 
 
 def main():
