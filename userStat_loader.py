@@ -48,6 +48,7 @@ def variation_of_information(X, Y):
 
 def fileLoader(path, wait):
     time.sleep(int(wait))
+    print('now we start')
     allFiles = glob.glob(path + "/WDuserstats_last*")
     # frame = pd.DataFrame()
     list_ = []
@@ -175,7 +176,7 @@ def fileLoader(path, wait):
             kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
             labels = kmeans.labels_
             try:
-                sscore = metrics.silhouette_score(frame_clean.drop(colDropped, axis=1), labels, sample_size=40000, metric='euclidean')
+                sscore = metrics.silhouette_score(frame_clean.drop(colDropped, axis=1), labels, sample_size=30000, metric='euclidean')
             except ValueError:
                 sscore = 'NA'
         # print(n, sscore)
@@ -189,7 +190,7 @@ def fileLoader(path, wait):
     print('sscore done')
 
     X = np.array(frame_clean.drop(colDropped, axis=1))
-    gaps, s_k, K = gapkmean.gap_statistic(X, refs=None, B=100, K=range(2, 9), N_init=10)
+    gaps, s_k, K = gapkmean.gap_statistic(X, refs=None, B=150, K=range(2, 9), N_init=10)
     bestKValue, things = gapkmean.find_optimal_k(gaps, s_k, K)
 
     with open('allResults.txt', 'w') as f:
