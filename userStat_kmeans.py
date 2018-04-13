@@ -50,7 +50,7 @@ def fileLoader(path, wait):
     time.sleep(int(wait))
     print('now we start')
 
-    frame_clean = pd.read_csv(path, index_col=0)
+    frame_clean = pd.read_csv(path)
     colDropped = ['serial', 'username', 'timeframe', 'noEdits']
     print('dataset loaded')
 
