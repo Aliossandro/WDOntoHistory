@@ -251,7 +251,7 @@ def fileLoader(path):
     colDropped = ['noEdits', 'serial', 'username', 'timeframe']
     print('dataset loaded')
 
-    kmeans = KMeans(n_clusters=3, n_init=50, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
+    kmeans = KMeans(n_clusters=4, n_init=50, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
     labels = kmeans.labels_
     frame_clean['labels'] = labels
     frame_all = pd.concat([frame_anon, frame_bots, frame_clean])
@@ -263,8 +263,8 @@ def fileLoader(path):
 
     frame_all['labels'].loc[frame_all['username'].str.match(
         r'([0-9]{1,3}[.]){3}[0-9]{1,3}|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))',
-        case=False),] = 2
-    frame_all['labels'].loc[frame_all['username'].isin(bot_list['bot_name']),] = 3
+        case=False),] = 4
+    frame_all['labels'].loc[frame_all['username'].isin(bot_list['bot_name']), ] = 5
     frame_patterns = frame_all[['timeframe', 'labels', 'noEdits']]
     frame_patterns = frame_patterns.groupby(['timeframe', 'labels']).agg({'noEdits': 'sum'})
     frame_pcts = frame_patterns.groupby(level=0).apply(lambda x: 100 * x / float(x.sum()))
@@ -288,7 +288,7 @@ def fileLoader(path):
     # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 1,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 1,], '-.')
     # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 2,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 2,], ':')
     # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 3,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 3,], '-')
-    # # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 4,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 4,], '-',  marker='x', markevery=0.05)
+    # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 4,], frame_pcts['noEdits'].loc[frame_pcts['labels'] == 4,], '-',  marker='x', markevery=0.05)
     # # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 5,],
     # #          frame_pcts['noEdits'].loc[frame_pcts['labels'] == 5,], '-', marker='^', markevery=0.05)
     # ax5.grid(color='gray', linestyle='--', linewidth=.5)
