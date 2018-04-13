@@ -157,18 +157,18 @@ def fileLoader(path, wait):
                 resultsAll.append(IV)
         resultsKmeans[str(n)] = resultsAll
 
-    # kAvg = {}
-    # for key in resultsKmeans:
-    #     listres = resultsKmeans[key]
-    #     res = np.mean(listres)
-    #     rstd = np.std(listres)
-    #     kAvg[key] = (res, rstd)
+    kAvg = {}
+    for key in resultsKmeans:
+        listres = resultsKmeans[key]
+        res = np.mean(listres)
+        rstd = np.std(listres)
+        kAvg[key] = (res, rstd)
 
     print('VI computed')
 
-    # with open('kmeansAvg.txt', 'w') as f:
-    #     f.write(str(kAvg))
-    #     f.close()
+    with open('kmeansAvg.txt', 'w') as f:
+        f.write(str(kAvg))
+        f.close()
 
     resultSscore ={}
     for n in range(2, 9):

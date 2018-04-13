@@ -3,19 +3,46 @@ library(diceR)
 library(cluster)
 library(factoextra)
 # library(NbClust)
-setwd('~/Documents/PhD/WD_ontology/')
+setwd('~/Documents/PhD/userstats/')
 
 
-userdata <- read.csv('userstacce.csv', stringsAsFactors = F)
+userdata <- read.csv('frameClean.csv', stringsAsFactors = F)
+userdata <- userdata[,-1]
 userdata$admin[which(userdata$admin == 'True')] = 0
 userdata$admin[which(userdata$admin == 'False')] = 1
 userdata$admin <- as.numeric(userdata$admin)
-# userdata <- userdata[which(userdata$labels < 4),]
-# userdata$admin <-  as.logical(userdata$admin)
-userdata <- userdata[,-(13)]
-userdata <- userdata[,-(11)]
-userdata <- userdata[,-c(1, 4)]
 
+userdata$lowAdmin[which(userdata$lowAdmin == 'True')] = 0
+userdata$lowAdmin[which(userdata$lowAdmin == 'False')] = 1
+userdata$lowAdmin <- as.numeric(userdata$lowAdmin)
+
+# userdata <- userdata[which(userdata$labels < 1),]
+# userdata$admin <-  as.logical(userdata$admin)
+# userdata <- userdata[,-(11:14)]
+userdata <- subset(userdata, select = -noEdits)
+# userdata <- subset(userdata, select = -normAll)
+# userdata <- subset(userdata, select = -username)
+userdata <- subset(userdata, select = -timeframe)
+userdata <- subset(userdata, select = -serial)
+# userdata <- subset(userdata, select = -labels)
+
+userdata[is.na(userdata)] <-0
+
+
+
+# K-Means Clustering with 5 clusters
+fit <- kmeans(userdata, 2)
+
+# Cluster Plot against 1st 2 principal components
+
+# vary parameters for most readable graph
+library(cluster)
+clusplot(userdata, fit$cluster, color=TRUE, shade=TRUE,
+         labels=2, lines=0)
+
+# Centroid Plot against 1st 2 discriminant functions
+library(fpc)
+plotcluster(userdata, fit$cluster) 
 # userdata <- subset(userdata, select = -noEdits)
 userdata_sample <- userdata[sample(nrow(userdata), 25000), ]
 gskmn2 <- clusGap(userdata, FUN = kmeans, nstart = 10, K.max = 8, B = 60, spaceH0="original")
