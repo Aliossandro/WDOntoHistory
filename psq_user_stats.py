@@ -116,19 +116,13 @@ def fileLoader(path):
     bureauList.start_date = pd.to_datetime(bureauList.start_date)
     bureauList.end_date = pd.to_datetime(bureauList.end_date)
 
-    fileTrans = path + '/translators_2017.csv'
-    transList = pd.read_csv(fileTrans)
-    transList.start_date = pd.to_datetime(transList.start_date)
-    transList.end_date = pd.to_datetime(transList.end_date)
-
     higherRoles = admin_list.merge(stewardList, how='outer', left_on='username', right_on='username')
     higherRoles = higherRoles.merge(bureauList, how='outer', left_on='username', right_on='username')
-    higherRoles = higherRoles.merge(transList, how='outer', left_on='username', right_on='username')
 
-    higherRoles['start_date'] = higherRoles[['start_date_x', 'start_date_y', 'start_date_x', 'start_date_y']].min(axis=1)
-    higherRoles['end_date'] = higherRoles[['end_date_x', 'end_date_y', 'end_date_y', 'end_date_x']].max(axis=1)
-    higherRoles.drop(['start_date_x', 'start_date_y', 'start_date_x', 'start_date_y'], axis=1, inplace=True)
-    higherRoles.drop(['end_date_x', 'end_date_y', 'end_date_y', 'end_date_x'], axis=1, inplace=True)
+    higherRoles['start_date'] = higherRoles[['start_date_x', 'start_date_y', 'start_date']].min(axis=1)
+    higherRoles['end_date'] = higherRoles[['end_date_x', 'end_date_y', 'end_date']].max(axis=1)
+    higherRoles.drop(['start_date_x', 'start_date_y'], axis=1, inplace=True)
+    higherRoles.drop(['end_date_x', 'end_date_y', 'end_date'], axis=1, inplace=True)
 
     frame = frame.merge(higherRoles, how='left', on='username')
     frame['admin'] = False
@@ -140,6 +134,11 @@ def fileLoader(path):
     propList = pd.read_csv(filePropEditors)
     propList.start_date = pd.to_datetime(propList.start_date)
     propList.end_date = pd.to_datetime(propList.end_date)
+
+    fileTrans = path + '/translators_2017.csv'
+    transList = pd.read_csv(fileTrans)
+    transList.start_date = pd.to_datetime(transList.start_date)
+    transList.end_date = pd.to_datetime(transList.end_date)
 
     fileIPex = path +'/RfIPBE_list.csv'
     ipexList = pd.read_csv(fileIPex)
@@ -155,12 +154,13 @@ def fileLoader(path):
     patrolList.end_date = pd.to_datetime(patrolList.end_date)
 
     lowerRoles = propList.merge(ipexList, how='outer', left_on='username', right_on='username')
+    lowerRoles = lowerRoles.merge(transList, how='outer', left_on='username', right_on='username')
     lowerRoles = lowerRoles.merge(rollList, how='outer', left_on='username', right_on='username')
     lowerRoles = lowerRoles.merge(patrolList, how='outer', left_on='username', right_on='username')
 
-    lowerRoles['start_date'] = lowerRoles[['start_date_x', 'start_date_y', 'start_date_x', 'start_date_y']].min(
+    lowerRoles['start_date'] = lowerRoles[['start_date_x', 'start_date_y', 'start_date_x', 'start_date_y', 'start_date']].min(
         axis=1)
-    lowerRoles['end_date'] = lowerRoles[['end_date_x', 'end_date_y']].max(axis=1)
+    lowerRoles['end_date'] = lowerRoles[['end_date_x', 'end_date_y', 'end_date']].max(axis=1)
     lowerRoles.drop(['start_date_x', 'start_date_y', 'start_date_x', 'start_date_y'], axis=1, inplace=True)
     lowerRoles.drop(['end_date_x', 'end_date_y'], axis=1, inplace=True)
 
