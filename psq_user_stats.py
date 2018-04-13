@@ -122,7 +122,7 @@ def fileLoader(path):
     higherRoles['start_date'] = higherRoles[['start_date_x', 'start_date_y', 'start_date']].min(axis=1)
     higherRoles['end_date'] = higherRoles[['end_date_x', 'end_date_y', 'end_date']].max(axis=1)
     higherRoles.drop(['start_date_x', 'start_date_y'], axis=1, inplace=True)
-    higherRoles.drop(['end_date_x', 'end_date_y', 'end_date'], axis=1, inplace=True)
+    higherRoles.drop(['end_date_x', 'end_date_y'], axis=1, inplace=True)
 
     frame = frame.merge(higherRoles, how='left', on='username')
     frame['admin'] = False
