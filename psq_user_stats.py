@@ -12,10 +12,9 @@ from scipy import stats
 # from pyitlib import discrete_random_variable as drv
 import string
 import matplotlib
-import matplotlib.ticker as ticker
-
-# matplotlib.use('WX')
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 from matplotlib.font_manager import FontProperties
 import matplotlib.dates as mdates
 # from scipy.cluster.vq import vq, kmeans, whiten
