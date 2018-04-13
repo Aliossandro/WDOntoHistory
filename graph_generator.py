@@ -52,18 +52,23 @@ wdStats_4 = pd.read_json(file_4, orient='index')
 wdStats = wdStats.fillna(0)
 wdStats.reset_index(inplace=True)
 wdStats['timeframe'] = pd.to_datetime(wdStats['index'])
+wdStats.timeframe = wdStats.timeframe - pd.DateOffset(months=1)
 wdStats.sort_values(by='timeframe', inplace=True)
 wdStats['month'] = wdStats['timeframe'].apply(lambda x: x.strftime('%B %Y'))
+
+
 
 wdStats_3 = wdStats_3.fillna(0)
 wdStats_3.reset_index(inplace=True)
 wdStats_3['timeframe'] = pd.to_datetime(wdStats_3['index'])
+wdStats_3.timeframe = wdStats_3.timeframe - pd.DateOffset(months=1)
 wdStats_3.sort_values(by='timeframe', inplace=True)
 wdStats_3['month'] = wdStats_3['timeframe'].apply(lambda x: x.strftime('%B %Y'))
 
 wdStats_4 = wdStats_4.fillna(0)
 wdStats_4.reset_index(inplace=True)
 wdStats_4['timeframe'] = pd.to_datetime(wdStats_4['index'])
+wdStats_4.timeframe = wdStats_4.timeframe - pd.DateOffset(months=1)
 wdStats_4.sort_values(by='timeframe', inplace=True)
 wdStats_4['month'] = wdStats_4['timeframe'].apply(lambda x: x.strftime('%B %Y'))
 
