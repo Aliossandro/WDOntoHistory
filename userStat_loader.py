@@ -178,7 +178,7 @@ def fileLoader(path, wait):
             kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
             labels = kmeans.labels_
             try:
-                sscore = metrics.silhouette_score(frame_clean.drop(colDropped, axis=1), labels, sample_size=30000, metric='euclidean')
+                sscore = metrics.silhouette_score(frame_clean.drop(colDropped, axis=1), labels, sample_size=20000, metric='euclidean')
             except ValueError:
                 sscore = 'NA'
         # print(n, sscore)
