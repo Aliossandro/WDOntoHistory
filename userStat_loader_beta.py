@@ -426,9 +426,7 @@ for key in resultiAvg.keys():
 anovaDict ={}
 for col in frame_norm.drop([ 'username', 'timeframe', 'serial'], axis= 1).columns:
     F, p = stats.f_oneway(frame_norm.drop(['username', 'timeframe', 'serial'], axis= 1).loc[frame_norm['labels'] == 0,][col],
-                          frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == 1,][col],
-                          frame_norm.drop(['username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == 2,][
-                              col], frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == 3,][col])
+                          frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == 1,][col])
     anovaDict[col] = {}
     anovaDict[col]['F'] = F
     anovaDict[col]['p'] = p
@@ -445,6 +443,25 @@ for col in frame_norm.drop([ 'username', 'timeframe', 'serial'], axis= 1).column
         anovaDict[col][str(value)]['min'] = \
         frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == value,][
             col].min()
+
+
+###sscores avg
+sscoreAvg = {}
+for key in sscores:
+    sscoreAvg[key] = np.mean(sscores[key])
+
+sscoreStd = {}
+for key in sscores:
+    sscoreStd[key] = np.std(sscores[key])
+
+#vi scores
+viscoreAvg = {}
+for key,enum in viscores:
+    viscoreAvg[str(key)] = np.mean(key)
+
+sscoreStd = {}
+for key in sscores:
+    sscoreStd[key] = np.std(sscores[key])
 
 
 
