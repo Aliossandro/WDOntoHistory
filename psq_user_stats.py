@@ -193,7 +193,7 @@ def fileLoader(path):
     frame = frame.fillna(0)
 
     ####to be removed as soon as all results are in
-    frame = frame.loc[frame['timeframe'] <= '2017-08-01', ]
+    frame = frame.loc[frame['timeframe'] <= '2017-09-01', ]
     # frame["noOntoEdits"] = frame.groupby("username")['noOntoEdits'].transform(lambda x: x.fillna(x.mean()))
     # frame["noBatchEdits"] = frame.groupby("username")['noBatchEdits'].transform(lambda x: x.fillna(x.mean()))
 
@@ -250,7 +250,7 @@ def fileLoader(path):
     colDropped = ['noEdits', 'serial', 'username', 'timeframe']
     print('dataset loaded')
 
-    kmeans = KMeans(n_clusters=4, n_init=50, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
+    kmeans = KMeans(n_clusters=2, n_init=50, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
     labels = kmeans.labels_
     frame_clean['labels'] = labels
     frame_all = pd.concat([frame_anon, frame_bots, frame_clean])
