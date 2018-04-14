@@ -93,6 +93,7 @@ def fileLoader(path):
     mod_file = path + '/modified_count.csv'
     frame_mod = pd.read_csv(mod_file)
     frame_mod.columns = ['username', 'monthinfo', 'noeditsmonthly']
+    frame_mod.drop_duplicates(subset=['username', 'monthinfo'], keep='first', inplace=True)
 
     frame = frame.merge(frame_mod, how='left', on=['username', 'monthinfo'])
     frame['timeframe'] = frame['monthinfo'].apply(lambda x: x.replace(' 00:00:00', ''))

@@ -472,6 +472,8 @@ from statsmodels.stats.multicomp import MultiComparison
 
 frame_norm['admin'] = frame_norm['admin']*1
 frame_norm['admin'] = frame_norm['admin'].astype(int)
+frame_norm['lowAdmin'] = frame_norm['lowAdmin']*1
+frame_norm['lowAdmin'] = frame_norm['lowAdmin'].astype(int)
 tukeyDict ={}
 for col in frame_norm.drop(['normAll', 'username', 'timeframe', 'serial'], axis= 1).columns:
     mc = MultiComparison(frame_norm.drop(['normAll', 'username', 'timeframe', 'serial'], axis= 1)[col], frame_norm['labels'])
@@ -479,6 +481,70 @@ for col in frame_norm.drop(['normAll', 'username', 'timeframe', 'serial'], axis=
     print(col)
     print(result)
     print(mc.groupsunique)
+
+frame_all3['admin'] = frame_all3['admin']*1
+frame_all3['admin'] = frame_all3['admin'].astype(int)
+frame_all3['lowAdmin'] = frame_all3['lowAdmin']*1
+frame_all3['lowAdmin'] = frame_all3['lowAdmin'].astype(int)
+tukeyDict ={}
+for col in frame_all3.drop(['normAll', 'username', 'timeframe', 'serial'], axis= 1).columns:
+    mc = MultiComparison(frame_all3.drop(['normAll', 'username', 'timeframe', 'serial'], axis= 1)[col], frame_all3['labels'])
+    result = mc.tukeyhsd()
+    print(col)
+    print(result)
+    print(mc.groupsunique)
+
+
+####transitions
+dictTrans = {}
+frame_groups = frame_norm.groupby('username')
+for name, group in frame_groups:
+    userKey = group['username'].unique()[0]
+    dictTrans[userKey] = {}
+    listSeq = []
+    dictTrans[userKey]['frames'] = group.shape[0]
+    listLabels = list(group.sort_values('timeframe')['labels'])
+    for idx in range(1, len(listLabels)):
+        label1 = listLabels[idx -1 ]
+        label2 = listLabels[idx]
+        seqTuple = (label1, label2)
+        listSeq.append(seqTuple)
+
+    dictTrans[userKey]['sequences'] = listSeq
+
+
+for key in dictTrans:
+    if int(dictTrans[key]['frames']) > 50:
+        print(key, dictTrans[key]['frames'])
+
+
+allSeq = []
+for key in dictTrans:
+    allSeq+=dictTrans[key]['sequences']
+
+seqTypes = set(allSeq)
+seqCount = [(len([x for x in allSeq if x == j]), j) for j in seqTypes]
+
+seqLen = [dictTrans[userKey]['frames'] for userKey in dictTrans]
+
+
+seqLen.sort()
+hmean = np.mean(seqLen)
+hstd = np.std(seqLen)
+pdf = stats.norm.pdf(seqLen, hmean, hstd)
+plt.plot(seqLen, pdf)
+plt.show()
+
+seqSel = [dictTrans[userKey]['frames'] for userKey in dictTrans if dictTrans[userKey]['frames'] > 5]
+seqSel.sort()
+hmean = np.mean(seqSel)
+hstd = np.std(seqSel)
+pdf = stats.norm.pdf(seqSel, hmean, hstd)
+plt.plot(seqSel, pdf)
+plt.show()
+
+
+
 
 # pca = PCA(n_components=2)
 # pca.fit(frame_clean.drop('serial'))
