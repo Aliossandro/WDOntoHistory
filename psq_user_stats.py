@@ -242,6 +242,7 @@ def fileLoader(path):
     # colZ = ['noEdits', 'noOntoEdits', 'noPropEdits', 'noCommEdits', 'userAge',  'timeframe']
     # frame_norm = frame[colZ].groupby('timeframe').transform(zscore)
     frame_norm = frame_norm.loc[frame_norm['timeframe'] >= '2013-03-01',]
+    frame_norm.drop_duplicates(subset=['username', 'timeframe'], keep='first', inplace=True)
     frame_clean = frame_norm[frame_norm.notnull()]
     frame_clean = frame_clean.replace([np.inf, -np.inf], np.nan)
     frame_clean = frame_clean.fillna(0)
@@ -406,7 +407,7 @@ def fileLoader(path):
     ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 5,],
              frame_pcts['noEdits'].loc[frame_pcts['labels'] == 5,], '-', marker='^', markevery=0.05)
     ax5.grid(color='gray', linestyle='--', linewidth=.5)
-    ax5.legend(['Role 1', 'Role 2', 'Role 3', 'Role 4', 'Anonymous users', 'Bots'], loc='center left')
+    ax5.legend(['Role 1', 'Role 2', 'Role 3', 'Rolefile 4', 'Anonymous users', 'Bots'], loc='center left')
     ax5.set_ylabel('User activity along time (in%)')
 
     ax5.xaxis.set_major_locator(mdates.MonthLocator(interval=3))  # to get a tick every 15 minutes

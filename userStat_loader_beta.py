@@ -514,7 +514,7 @@ for name, group in frame_groups:
 
 
 for key in dictTrans:
-    if int(dictTrans[key]['frames']) > 50:
+    if int(dictTrans[key]['frames']) > 100:
         print(key, dictTrans[key]['frames'])
 
 
@@ -527,13 +527,16 @@ seqCount = [(len([x for x in allSeq if x == j]), j) for j in seqTypes]
 
 seqLen = [dictTrans[userKey]['frames'] for userKey in dictTrans]
 
+plt.hist(seqLen)
 
+plt.hist(seqLen, bins=10)
 seqLen.sort()
 hmean = np.mean(seqLen)
 hstd = np.std(seqLen)
 pdf = stats.norm.pdf(seqLen, hmean, hstd)
 plt.plot(seqLen, pdf)
 plt.show()
+
 
 seqSel = [dictTrans[userKey]['frames'] for userKey in dictTrans if dictTrans[userKey]['frames'] > 5]
 seqSel.sort()
