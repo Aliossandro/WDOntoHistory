@@ -294,7 +294,7 @@ def fileLoader(path):
     # ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 5,],
     #          frame_pcts['noEdits'].loc[frame_pcts['labels'] == 5,], '-', marker='^', markevery=0.05)
     ax5.grid(color='gray', linestyle='--', linewidth=.5)
-    ax5.legend(['Core editors', 'Occasional editors', 'Anonymous users', 'Bots'], loc='center left')
+    ax5.legend(['Role 1', 'Role 2', 'Anonymous users', 'Bots'], loc='center left')
     ax5.set_ylabel('User activity along time (in%)')
 
     ax5.xaxis.set_major_locator(mdates.MonthLocator(interval=3))  # to get a tick every 15 minutes
@@ -350,7 +350,7 @@ def fileLoader(path):
     ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 4,],
              frame_pcts['noEdits'].loc[frame_pcts['labels'] == 4,], '-', marker='x', markevery=0.05)
     ax5.grid(color='gray', linestyle='--', linewidth=.5)
-    ax5.legend(['Core editors', 'cluster 2', 'cluster 3', 'Anonymous users', 'Bots'], loc='center left')
+    ax5.legend(['Role 1', 'Role 2', 'Role 3', 'Anonymous users', 'Bots'], loc='center left')
     ax5.set_ylabel('User activity along time (in%)')
 
     ax5.xaxis.set_major_locator(mdates.MonthLocator(interval=3))  # to get a tick every 15 minutes
@@ -406,7 +406,7 @@ def fileLoader(path):
     ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 5,],
              frame_pcts['noEdits'].loc[frame_pcts['labels'] == 5,], '-', marker='^', markevery=0.05)
     ax5.grid(color='gray', linestyle='--', linewidth=.5)
-    ax5.legend(['Core editors', 'cluster 2', 'cluster 3', 'cluster 4', 'Anonymous users', 'Bots'], loc='center left')
+    ax5.legend(['Role 1', 'Role 2', 'Role 3', 'Role 4', 'Anonymous users', 'Bots'], loc='center left')
     ax5.set_ylabel('User activity along time (in%)')
 
     ax5.xaxis.set_major_locator(mdates.MonthLocator(interval=3))  # to get a tick every 15 minutes
