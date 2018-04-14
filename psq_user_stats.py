@@ -271,7 +271,7 @@ def fileLoader(path):
     frame_pcts['timeframe'] = pd.to_datetime(frame_pcts['timeframe'])
     frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] >= '2013-03-01',]
     frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] <= '2017-11-01',]
-    frame_pcts.to_csv('framePcts_new.csv', index=False)
+    frame_pcts.to_csv('framePcts_new2.csv', index=False)
     frame_all.to_csv('frameAll_new_2.csv', index=False)
     print('k=2')
 
@@ -305,6 +305,61 @@ def fileLoader(path):
     plt.savefig('clusterUsers_2.eps', format='eps', transparent=True)
     print('also the graph')
 
+    kmeans = KMeans(n_clusters=3, n_init=50, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
+    labels = kmeans.labels_
+    frame_clean['labels'] = labels
+    frame_all = pd.concat([frame_anon, frame_bots, frame_clean])
+    frame_all['normAll'] = frame_all['noEdits']
+    colZ = ['normAll', 'timeframe']
+    frame_norm_all = frame_all[colZ].groupby('timeframe').transform(normaliser)
+    frame_all['normAll'] = frame_norm_all['normAll']
+
+    frame_all['labels'].loc[frame_all['username'].str.match(
+        r'([0-9]{1,3}[.]){3}[0-9]{1,3}|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])[.]){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))',
+        case=False),] = 3
+    frame_all['labels'].loc[frame_all['username'].isin(bot_list['bot_name']),] = 4
+    frame_patterns = frame_all[['timeframe', 'labels', 'noEdits']]
+    frame_patterns = frame_patterns.groupby(['timeframe', 'labels']).agg({'noEdits': 'sum'})
+    frame_pcts = frame_patterns.groupby(level=0).apply(lambda x: 100 * x / float(x.sum()))
+    frame_pcts.reset_index(inplace=True)
+    frame_pcts['timeframe'] = pd.to_datetime(frame_pcts['timeframe'])
+    frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] >= '2013-03-01',]
+    frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] <= '2017-11-01',]
+    frame_pcts.to_csv('framePcts_new3.csv', index=False)
+    frame_all.to_csv('frameAll_new_3.csv', index=False)
+
+    print('k=3')
+
+    ###graph
+    plt.ioff()
+    f3 = plt.figure(figsize=(10, 6))
+    font = {'size': 12}
+
+    matplotlib.rc('font', **font)
+
+    ax5 = plt.subplot(111)
+    ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 0,],
+             frame_pcts['noEdits'].loc[frame_pcts['labels'] == 0,], '--')
+    ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 1,],
+             frame_pcts['noEdits'].loc[frame_pcts['labels'] == 1,], '-.')
+    ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 2,],
+             frame_pcts['noEdits'].loc[frame_pcts['labels'] == 2,], ':')
+    ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 3,],
+             frame_pcts['noEdits'].loc[frame_pcts['labels'] == 3,], '-')
+    ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 4,],
+             frame_pcts['noEdits'].loc[frame_pcts['labels'] == 4,], '-', marker='x', markevery=0.05)
+    ax5.grid(color='gray', linestyle='--', linewidth=.5)
+    ax5.legend(['Core editors', 'cluster 2', 'cluster 3', 'Anonymous users', 'Bots'], loc='center left')
+    ax5.set_ylabel('User activity along time (in%)')
+
+    ax5.xaxis.set_major_locator(mdates.MonthLocator(interval=3))  # to get a tick every 15 minutes
+    ax5.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))  # optional formatting
+
+    f3.autofmt_xdate()
+    plt.tight_layout()
+    # plt.show()
+    plt.savefig('clusterUsers_3.eps', format='eps', transparent=True)
+
     kmeans = KMeans(n_clusters=4, n_init=50, n_jobs=-1).fit(frame_clean.drop(colDropped, axis=1))
     labels = kmeans.labels_
     frame_clean['labels'] = labels
@@ -325,7 +380,7 @@ def fileLoader(path):
     frame_pcts['timeframe'] = pd.to_datetime(frame_pcts['timeframe'])
     frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] >= '2013-03-01',]
     frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] <= '2017-11-01',]
-    frame_pcts.to_csv('framePcts_new.csv', index=False)
+    frame_pcts.to_csv('framePcts_new4.csv', index=False)
     frame_all.to_csv('frameAll_new_4.csv', index=False)
 
     print('k=4')
@@ -359,7 +414,7 @@ def fileLoader(path):
     f3.autofmt_xdate()
     plt.tight_layout()
     # plt.show()
-    plt.savefig('clusterUsers_2.eps', format='eps', transparent=True)
+    plt.savefig('clusterUsers_4.eps', format='eps', transparent=True)
     print('also the graph')
 
 
