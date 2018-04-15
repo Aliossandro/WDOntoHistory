@@ -308,7 +308,7 @@ def fileLoader(path):
              frame_pcts['noEdits'].loc[frame_pcts['labels'] == 3,], '-')
 
     ax5.grid(color='gray', linestyle='--', linewidth=.5)
-    ax5.legend(['Role 1', 'Role 2',  'Anonymous users', 'Bots'], loc='center left')
+    ax5.legend(['Contributors', 'Leaders',  'Anonymous users', 'Bots'], loc='center left')
     ax5.set_ylabel('Activity of user type per month (in % of no. of edits)')
 
     ax6 = plt.subplot(122)
@@ -330,7 +330,7 @@ def fileLoader(path):
     ax6.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))  # optional formatting
 
     f3.autofmt_xdate()
-    # plt.tight_layout()
+    plt.tight_layout()
     # plt.show()
     plt.savefig('clusterUsers_2.eps', format='eps', transparent=True)
     print('also the graph')
@@ -390,7 +390,7 @@ def fileLoader(path):
     ax5.plot(frame_pcts['timeframe'].loc[frame_pcts['labels'] == 4,],
              frame_pcts['noEdits'].loc[frame_pcts['labels'] == 4,], '-', marker='x', markevery=0.05)
     ax5.grid(color='gray', linestyle='--', linewidth=.5)
-    ax5.legend(['Role 1', 'Role 2', 'Role 3', 'Anonymous users', 'Bots'], loc='center left')
+    ax5.legend(['Contributors', 'Collaborators', 'Leaders', 'Anonymous users', 'Bots'], loc='center left')
     ax5.set_ylabel('Activity of user type per month (in % of no. of edits)')
 
     ax6 = plt.subplot(122)
@@ -414,7 +414,7 @@ def fileLoader(path):
     ax6.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))  # optional formatting
 
     f3.autofmt_xdate()
-    # plt.tight_layout()
+    plt.tight_layout()
     # plt.show()
     plt.savefig('clusterUsers_3.eps', format='eps', transparent=True)
 

@@ -75,6 +75,10 @@ wdStats_4['month'] = wdStats_4['timeframe'].apply(lambda x: x.strftime('%B %Y'))
 wdStats['noInstances'] = wdStats['avgPop'] * wdStats['noClasses']
 wdStats['trueRichness'] = wdStats['classesWInstances']/wdStats['noClasses']
 
+wdStats.timeframe = wdStats.timeframe - pd.DateOffset(months=1)
+wdStats_4.timeframe = wdStats_4.timeframe - pd.DateOffset(months=1)
+wdStats_3.timeframe = wdStats_3.timeframe - pd.DateOffset(months=1)
+
 wdStats = wdStats.loc[wdStats['timeframe'] > '2013-02-01', ]
 wdStats_3 = wdStats_3.loc[wdStats_3['timeframe'] > '2013-02-01', ]
 wdStats_4 = wdStats_4.loc[wdStats_4['timeframe'] > '2013-02-01', ]

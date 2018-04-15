@@ -495,6 +495,42 @@ for col in frame_all3.drop(['normAll', 'username', 'timeframe', 'serial'], axis=
     print(mc.groupsunique)
 
 
+###timeframe per user
+timeframeUser = frame_norm.groupby('username')['timeframe'].nunique()
+avgTimeframe = timeframeUser.mean()
+quantileTimeframe = timeframeUser.quantile([.25, .5, .75])
+morethanfive = timeframeUser.loc[timeframeUser > 5]
+morethanfive.shape[0]
+
+morethanten = timeframeUser.loc[timeframeUser > 10]
+morethanten.shape[0]
+
+timeframeUser = timeframeUser.to_frame()
+timeframeUser.reset_index(inplace=True)
+
+###users with roles 1, 2, 3
+userRoles = frame_norm.groupby('username')['labels'].unique()
+userRoles = userRoles.to_frame()
+userRoles.reset_index(inplace=True)
+userRoles['R1'] = userRoles['labels'].apply(lambda x: True if 1 in x.flatten() else False)
+userRoles['R2'] = userRoles['labels'].apply(lambda x: True if 2 in x.flatten() else False)
+userRoles['multi'] = False
+userRoles['multi'].loc[(userRoles['R1'] == True) & (userRoles['R2'] == True)] = True
+userRoles = userRoles.merge(timeframeUser, on='username')
+userRoles.loc[userRoles['multi'] == True]['timeframe'].quantile([.25, .5, .75])
+userRoles.loc[userRoles['R1'] == True]['timeframe'].quantile([.25, .5, .75])
+userRoles.loc[userRoles['R2'] == True]['timeframe'].quantile([.25, .5, .75])
+
+userRoles.loc[userRoles['multi'] == True]['timeframe'].mean()
+userRoles.loc[userRoles['R1'] == True]['timeframe'].mean()
+userRoles.loc[userRoles['R2'] == True]['timeframe'].mean()
+
+from scipy import stats
+stats.kruskal(userRoles.loc[userRoles['multi'] == True]['timeframe'], userRoles.loc[userRoles['R1'] == True]['timeframe'], userRoles.loc[userRoles['R2'] == True]['timeframe'])
+
+
+
+
 ####transitions
 dictTrans = {}
 frame_groups = frame_norm.groupby('username')
@@ -546,7 +582,34 @@ pdf = stats.norm.pdf(seqSel, hmean, hstd)
 plt.plot(seqSel, pdf)
 plt.show()
 
+###no users with
 
+
+###regression
+frame_regr = frame_pcts.pivot(index='timeframe', columns='labels', values='noEdits')
+frame_regr.reset_index(inplace=True)
+frame_rich = frame_regr.merge(wdStats_4[['timeframe', 'relRichness']], how='inner', on='timeframe')
+frame_rich = frame_rich.merge(wdStats_3[['timeframe', 'avgDepth', 'maxDepth']], how='inner', on='timeframe')
+frame_rich = frame_rich.merge(wdStats[['timeframe', 'trueRichness', 'iRichness', 'avgPop', 'medianPop', 'noRoot', 'classesWInstances', 'noLeaf', 'noClasses']], how='inner', on='timeframe')
+frame_rich_row = frame_rich.iloc[[0]]
+frame_rich[['trueRichness', 'iRichness', 'avgPop', 'medianPop', 'noRoot', 'classesWInstances', 'noLeaf', 'noClasses', 'relRichness', 'avgDepth', 'maxDepth']] = frame_rich[['trueRichness', 'iRichness', 'avgPop', 'medianPop', 'noRoot', 'classesWInstances', 'noLeaf', 'noClasses', 'relRichness', 'avgDepth', 'maxDepth']].diff()
+frame_rich.iloc[[0]] = frame_rich_row.iloc[[0]]
+
+from sklearn import linear_model
+import statsmodels.api as sm
+from scipy import stats
+
+X = frame_rich[[0,1,2,3,4]]
+X = sm.add_constant(frame_rich[[0,1,2,3,4]])
+y = frame_rich['noClasses']
+est = sm.OLS(y,X)
+est2 = est.fit()
+print(est2.summary())
+
+clf = linear_model.LinearRegression(fit_intercept=True, n_jobs=1, normalize=False)
+clf.fit(frame_rich[[0,1,2,3,4]], frame_rich['avgPop'])
+clf.coef_
+print(clf.summary())
 
 
 # pca = PCA(n_components=2)
