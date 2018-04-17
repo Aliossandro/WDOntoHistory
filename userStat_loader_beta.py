@@ -423,9 +423,38 @@ for key in resultiAvg.keys():
     prev = resultiAvg[key][0]
 
 
+###mann-whitney
+mannWhitneyDict = {}
+from scipy import stats
+
+for col in frame_norm.drop([ 'username', 'timeframe', 'serial'], axis= 1).columns:
+    F, p = stats.mannwhitneyu(frame_norm.drop(['username', 'timeframe', 'serial'], axis= 1).loc[frame_norm['labels'] == 0,][col],
+                          frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == 1,][col])
+    mannWhitneyDict[col] = {}
+    mannWhitneyDict[col]['F'] = F
+    mannWhitneyDict[col]['p'] = p
+    for value in frame_norm['labels'].unique():
+        mannWhitneyDict[col][str(value)] = {}
+        mannWhitneyDict[col][str(value)]['mean'] = frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == value,][col].mean()
+        mannWhitneyDict[col][str(value)]['quantiles'] = \
+        frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == value,][
+            col].quantile([.25, .5, .75])
+
+        mannWhitneyDict[col][str(value)]['max'] = \
+        frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == value,][
+            col].max()
+        mannWhitneyDict[col][str(value)]['min'] = \
+        frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == value,][
+            col].min()
+
+
+
+
+
+
 anovaDict ={}
 for col in frame_norm.drop([ 'username', 'timeframe', 'serial'], axis= 1).columns:
-    F, p = stats.f_oneway(frame_norm.drop(['username', 'timeframe', 'serial'], axis= 1).loc[frame_norm['labels'] == 0,][col],
+    F, p = stats.ttest_ind(frame_norm.drop(['username', 'timeframe', 'serial'], axis= 1).loc[frame_norm['labels'] == 0,][col],
                           frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == 1,][col])
     anovaDict[col] = {}
     anovaDict[col]['F'] = F
@@ -443,27 +472,6 @@ for col in frame_norm.drop([ 'username', 'timeframe', 'serial'], axis= 1).column
         anovaDict[col][str(value)]['min'] = \
         frame_norm.drop([ 'username', 'timeframe', 'serial'], axis=1).loc[frame_norm['labels'] == value,][
             col].min()
-
-
-###sscores avg
-sscoreAvg = {}
-for key in sscores:
-    sscoreAvg[key] = np.mean(sscores[key])
-
-sscoreStd = {}
-for key in sscores:
-    sscoreStd[key] = np.std(sscores[key])
-
-#vi scores
-viscoreAvg = {}
-for key,enum in viscores:
-    viscoreAvg[str(key)] = np.mean(key)
-
-sscoreStd = {}
-for key in sscores:
-    sscoreStd[key] = np.std(sscores[key])
-
-
 
 
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
@@ -513,20 +521,44 @@ userRoles = frame_norm.groupby('username')['labels'].unique()
 userRoles = userRoles.to_frame()
 userRoles.reset_index(inplace=True)
 userRoles['R1'] = userRoles['labels'].apply(lambda x: True if 1 in x.flatten() else False)
-userRoles['R2'] = userRoles['labels'].apply(lambda x: True if 2 in x.flatten() else False)
-userRoles['multi'] = False
-userRoles['multi'].loc[(userRoles['R1'] == True) & (userRoles['R2'] == True)] = True
+# userRoles['R2'] = userRoles['labels'].apply(lambda x: True if 2 in x.flatten() else False)
+# userRoles['multi'] = False
+# userRoles['multi'].loc[(userRoles['R1'] == True) & (userRoles['R2'] == True)] = True
 userRoles = userRoles.merge(timeframeUser, on='username')
-userRoles.loc[userRoles['multi'] == True]['timeframe'].quantile([.25, .5, .75])
+# userRoles.loc[userRoles['multi'] == True]['timeframe'].quantile([.25, .5, .75])
 userRoles.loc[userRoles['R1'] == True]['timeframe'].quantile([.25, .5, .75])
-userRoles.loc[userRoles['R2'] == True]['timeframe'].quantile([.25, .5, .75])
+userRoles.loc[userRoles['R1'] == False]['timeframe'].quantile([.25, .5, .75])
+# userRoles.loc[userRoles['R2'] == True]['timeframe'].quantile([.25, .5, .75])
 
-userRoles.loc[userRoles['multi'] == True]['timeframe'].mean()
+# userRoles.loc[userRoles['multi'] == True]['timeframe'].mean()
 userRoles.loc[userRoles['R1'] == True]['timeframe'].mean()
-userRoles.loc[userRoles['R2'] == True]['timeframe'].mean()
+userRoles.loc[userRoles['R1'] == False]['timeframe'].mean()
+# userRoles.loc[userRoles['R2'] == True]['timeframe'].mean()
 
-from scipy import stats
-stats.kruskal(userRoles.loc[userRoles['multi'] == True]['timeframe'], userRoles.loc[userRoles['R1'] == True]['timeframe'], userRoles.loc[userRoles['R2'] == True]['timeframe'])
+stats.mannwhitneyu(userRoles.loc[userRoles['R1'] == True]['timeframe'], userRoles.loc[userRoles['R1'] == False]['timeframe'])
+# stats.kruskal(userRoles.loc[userRoles['R1'] == True]['timeframe'], userRoles.loc[userRoles['R2'] == True]['timeframe'])
+
+
+leaders = userRoles.loc[userRoles['R1'] == True]['username']
+leaders = list(leaders)
+frame_all['userType'] = frame_all['username'].apply(lambda x: 1 if x in leaders else 0)
+contributors = userRoles.loc[userRoles['R1'] == False]['username']
+contributors = list(contributors)
+frame_all['otherHuman'] = 0
+frame_all['otherHuman'].loc[frame_all['username'].isin(contributors)] = 1
+frame_all['userType'].loc[frame_all['otherHuman'] == 1] = 2
+
+# all_users = frame_all['username'].unique()
+# all_users = set(all_users)
+# coolUsers = all_users.intersection(set(leaders))
+
+frame_patterns_type = frame_all[['timeframe', 'userType', 'noEdits']]
+frame_patterns_type = frame_patterns_type.groupby(['timeframe', 'userType']).agg({'noEdits': 'sum'})
+frame_pcts_type = frame_patterns_type.groupby(level=0).apply(lambda x: 100 * x / float(x.sum()))
+frame_pcts_type.reset_index(inplace=True)
+frame_pcts_type['timeframe'] = pd.to_datetime(frame_pcts_type['timeframe'])
+frame_pcts_type = frame_pcts_type.loc[frame_pcts_type['timeframe'] >= '2013-03-01',]
+frame_pcts_type = frame_pcts_type.loc[frame_pcts_type['timeframe'] < '2017-11-01',]
 
 
 
@@ -588,6 +620,13 @@ plt.show()
 ###regression
 frame_regr = frame_pcts.pivot(index='timeframe', columns='labels', values='noEdits')
 frame_regr.reset_index(inplace=True)
+frame_regr_type = frame_pcts_type.pivot(index='timeframe', columns='userType', values='noEdits')
+frame_regr_type.reset_index(inplace=True)
+frame_regr_type.columns = ['timeframe', 'allusers', 'coolusers', 'otherHuman']
+frame_regr_type.drop(['allusers'], axis=1, inplace=True)
+
+frame_regr = frame_regr.merge(frame_regr_type, on='timeframe')
+
 frame_rich = frame_regr.merge(wdStats_4[['timeframe', 'relRichness']], how='inner', on='timeframe')
 frame_rich = frame_rich.merge(wdStats_3[['timeframe', 'avgDepth', 'maxDepth']], how='inner', on='timeframe')
 frame_rich = frame_rich.merge(wdStats[['timeframe', 'trueRichness', 'iRichness', 'avgPop', 'medianPop', 'noRoot', 'classesWInstances', 'noLeaf', 'noClasses']], how='inner', on='timeframe')
@@ -599,9 +638,9 @@ from sklearn import linear_model
 import statsmodels.api as sm
 from scipy import stats
 
-X = frame_rich[[0,1,2,3,4]]
-X = sm.add_constant(frame_rich[[0,1,2,3,4]])
-y = frame_rich['noClasses']
+X = frame_rich[['otherHuman','coolusers',  2, 3]]
+X = sm.add_constant(frame_rich[[ 'otherHuman','coolusers', 2, 3]])
+y = frame_rich['noRoot']
 est = sm.OLS(y,X)
 est2 = est.fit()
 print(est2.summary())
@@ -617,6 +656,24 @@ print(clf.summary())
 # frame_pca = pca.fit_transform(frame_clean.drop('serial'))
 # kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_pca)
 # print(pca.explained_variance_ratio_)
+
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.cluster import SpectralClustering
+
+fileAll = path + '/frameAll_new_2.csv'
+frame_all = pd.read_csv(fileAll)
+frame_norm = frame_all.loc[frame_all['labels'] < 2,]
+
+frame_sample = frame_norm.sample(frac=0.05)
+aggrClust = AgglomerativeClustering(n_clusters=3, affinity='euclidean')
+aggrClust.fit(frame_sample.drop(['serial', 'labels', 'timeframe', 'username', 'normAll'], axis = 1))
+frame_sample['labels_aggr'] = aggrClust.labels_
+
+
+frame_sample = frame_norm.sample(frac=0.05)
+speClust = SpectralClustering(n_clusters=3, eigen_solver=None, random_state=None, n_init=10, gamma=1.0, affinity='rbf', n_neighbors=10, eigen_tol=0.0, assign_labels='kmeans', degree=3, coef0=1, kernel_params=None, n_jobs=-1)
+speClust.fit(frame_sample.drop(['serial', 'labels', 'timeframe', 'username', 'normAll'], axis = 1))
+frame_sample['labels_aggr'] = speClust.labels_
 
 def main():
     # create_table()

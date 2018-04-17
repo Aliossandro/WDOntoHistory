@@ -272,7 +272,7 @@ def fileLoader(path):
     frame_pcts.reset_index(inplace=True)
     frame_pcts['timeframe'] = pd.to_datetime(frame_pcts['timeframe'])
     frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] >= '2013-03-01',]
-    frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] < '2017-11-01',]
+    frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] < '2017-10-01',]
 
     frame_freq = frame_all[['timeframe', 'labels', 'noEdits']]
     frame_freq = frame_freq.groupby('timeframe')['labels'].value_counts()
@@ -282,7 +282,7 @@ def fileLoader(path):
     frame_freq.reset_index(inplace=True)
     frame_freq['timeframe'] = pd.to_datetime(frame_freq['timeframe'])
     frame_freq = frame_freq.loc[frame_freq['timeframe'] >= '2013-03-01',]
-    frame_freq = frame_freq.loc[frame_freq['timeframe'] < '2017-11-01',]
+    frame_freq = frame_freq.loc[frame_freq['timeframe'] < '2017-10-01',]
 
     frame_pcts.to_csv('framePcts_new2.csv', index=False)
     frame_all.to_csv('frameAll_new_2.csv', index=False)
@@ -324,9 +324,9 @@ def fileLoader(path):
     # ax6.legend(['Role 1', 'Role 2', 'Role 3', 'Anonymous users', 'Bots'], loc='center left')
     ax6.set_ylabel('% of users in each role per month')
 
-    ax5.xaxis.set_major_locator(mdates.MonthLocator(interval=6))  # to get a tick every 15 minutes
+    ax5.xaxis.set_major_locator(mdates.MonthLocator(bymonth=[6,12]))  # to get a tick every 15 minutes
     ax5.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))  # optional formatting
-    ax6.xaxis.set_major_locator(mdates.MonthLocator(interval=6))  # to get a tick every 15 minutes
+    ax6.xaxis.set_major_locator(mdates.MonthLocator(bymonth=[6,12]))  # to get a tick every 15 minutes
     ax6.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))  # optional formatting
 
     f3.autofmt_xdate()
@@ -354,7 +354,7 @@ def fileLoader(path):
     frame_pcts.reset_index(inplace=True)
     frame_pcts['timeframe'] = pd.to_datetime(frame_pcts['timeframe'])
     frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] >= '2013-03-01',]
-    frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] < '2017-11-01',]
+    frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] < '2017-10-01',]
 
     frame_freq = frame_all[['timeframe', 'labels', 'noEdits']]
     frame_freq = frame_freq.groupby('timeframe')['labels'].value_counts()
@@ -364,7 +364,7 @@ def fileLoader(path):
     frame_freq.reset_index(inplace=True)
     frame_freq['timeframe'] = pd.to_datetime(frame_freq['timeframe'])
     frame_freq = frame_freq.loc[frame_freq['timeframe'] >= '2013-03-01',]
-    frame_freq = frame_freq.loc[frame_freq['timeframe'] < '2017-11-01',]
+    frame_freq = frame_freq.loc[frame_freq['timeframe'] < '2017-10-01',]
 
     frame_pcts.to_csv('framePcts_new3.csv', index=False)
     frame_all.to_csv('frameAll_new_3.csv', index=False)
@@ -408,9 +408,9 @@ def fileLoader(path):
     # ax6.legend(['Role 1', 'Role 2', 'Role 3', 'Anonymous users', 'Bots'], loc='center left')
     ax6.set_ylabel('% of users in each role per month')
 
-    ax5.xaxis.set_major_locator(mdates.MonthLocator(interval=6))  # to get a tick every 15 minutes
+    ax5.xaxis.set_major_locator(mdates.MonthLocator(bymonth=[6,12]))  # to get a tick every 15 minutes
     ax5.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))  # optional formatting
-    ax6.xaxis.set_major_locator(mdates.MonthLocator(interval=6))  # to get a tick every 15 minutes
+    ax6.xaxis.set_major_locator(mdates.MonthLocator(bymonth=[6,12]))  # to get a tick every 15 minutes
     ax6.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))  # optional formatting
 
     f3.autofmt_xdate()
@@ -437,7 +437,7 @@ def fileLoader(path):
     frame_pcts.reset_index(inplace=True)
     frame_pcts['timeframe'] = pd.to_datetime(frame_pcts['timeframe'])
     frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] >= '2013-03-01',]
-    frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] < '2017-11-01',]
+    frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] < '2017-10-01',]
 
     frame_freq = frame_all[['timeframe', 'labels', 'noEdits']]
     frame_freq = frame_freq.groupby('timeframe')['labels'].value_counts()
@@ -447,7 +447,7 @@ def fileLoader(path):
     frame_freq.reset_index(inplace=True)
     frame_freq['timeframe'] = pd.to_datetime(frame_freq['timeframe'])
     frame_freq = frame_freq.loc[frame_freq['timeframe'] >= '2013-03-01',]
-    frame_freq = frame_freq.loc[frame_freq['timeframe'] < '2017-11-01',]
+    frame_freq = frame_freq.loc[frame_freq['timeframe'] < '2017-10-01',]
 
     frame_pcts.to_csv('framePcts_new4.csv', index=False)
     frame_all.to_csv('frameAll_new_4.csv', index=False)
@@ -495,9 +495,9 @@ def fileLoader(path):
     # ax6.legend(['Role 1', 'Role 2', 'Role 3', 'Anonymous users', 'Bots'], loc='center left')
     ax6.set_ylabel('% of users in each role per month')
 
-    ax5.xaxis.set_major_locator(mdates.MonthLocator(interval=6))  # to get a tick every 15 minutes
+    ax5.xaxis.set_major_locator(mdates.MonthLocator(bymonth=[6,12]))  # to get a tick every 15 minutes
     ax5.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))  # optional formatting
-    ax6.xaxis.set_major_locator(mdates.MonthLocator(interval=6))  # to get a tick every 15 minutes
+    ax6.xaxis.set_major_locator(mdates.MonthLocator(bymonth=[6,12]))  # to get a tick every 15 minutes
     ax6.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))  # optional formatting
 
     f3.autofmt_xdate()
@@ -525,7 +525,7 @@ def fileLoader(path):
     frame_pcts.reset_index(inplace=True)
     frame_pcts['timeframe'] = pd.to_datetime(frame_pcts['timeframe'])
     frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] >= '2013-03-01',]
-    frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] < '2017-11-01',]
+    frame_pcts = frame_pcts.loc[frame_pcts['timeframe'] < '2017-10-01',]
 
     frame_freq = frame_all[['timeframe', 'labels', 'noEdits']]
     frame_freq = frame_freq.groupby('timeframe')['labels'].value_counts()
@@ -535,7 +535,7 @@ def fileLoader(path):
     frame_freq.reset_index(inplace=True)
     frame_freq['timeframe'] = pd.to_datetime(frame_freq['timeframe'])
     frame_freq = frame_freq.loc[frame_freq['timeframe'] >= '2013-03-01',]
-    frame_freq = frame_freq.loc[frame_freq['timeframe'] < '2017-11-01',]
+    frame_freq = frame_freq.loc[frame_freq['timeframe'] < '2017-10-01',]
 
     frame_pcts.to_csv('framePcts_new5.csv', index=False)
     frame_all.to_csv('frameAll_new_5.csv', index=False)
@@ -587,9 +587,9 @@ def fileLoader(path):
     # ax6.legend(['Role 1', 'Role 2', 'Role 3', 'Anonymous users', 'Bots'], loc='center left')
     ax6.set_ylabel('% of users in each role per month')
 
-    ax5.xaxis.set_major_locator(mdates.MonthLocator(interval=6))  # to get a tick every 15 minutes
+    ax5.xaxis.set_major_locator(mdates.MonthLocator(bymonth=[6,12]))  # to get a tick every 15 minutes
     ax5.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))  # optional formatting
-    ax6.xaxis.set_major_locator(mdates.MonthLocator(interval=6))  # to get a tick every 15 minutes
+    ax6.xaxis.set_major_locator(mdates.MonthLocator(bymonth=[6,12]))  # to get a tick every 15 minutes
     ax6.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))  # optional formatting
 
     f3.autofmt_xdate()

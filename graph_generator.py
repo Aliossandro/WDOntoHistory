@@ -75,9 +75,9 @@ wdStats_4['month'] = wdStats_4['timeframe'].apply(lambda x: x.strftime('%B %Y'))
 wdStats['noInstances'] = wdStats['avgPop'] * wdStats['noClasses']
 wdStats['trueRichness'] = wdStats['classesWInstances']/wdStats['noClasses']
 
-wdStats.timeframe = wdStats.timeframe - pd.DateOffset(months=1)
-wdStats_4.timeframe = wdStats_4.timeframe - pd.DateOffset(months=1)
-wdStats_3.timeframe = wdStats_3.timeframe - pd.DateOffset(months=1)
+# wdStats.timeframe = wdStats.timeframe - pd.DateOffset(months=1)
+# wdStats_4.timeframe = wdStats_4.timeframe - pd.DateOffset(months=1)
+# wdStats_3.timeframe = wdStats_3.timeframe - pd.DateOffset(months=1)
 
 wdStats = wdStats.loc[wdStats['timeframe'] > '2013-02-01', ]
 wdStats_3 = wdStats_3.loc[wdStats_3['timeframe'] > '2013-02-01', ]
@@ -215,11 +215,11 @@ ax3.grid(color='gray', linestyle='--', linewidth=.5)
 ax3.yaxis.set_major_formatter(ticker.FuncFormatter(myticks_prop))
 ax3.set_ylabel(r'Properties ($nop*10^2$)')
 
-ax1.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
+ax1.xaxis.set_major_locator(mdates.MonthLocator(interval=6))   #to get a tick every 15 minutes
 ax1.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
-ax2.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
+ax2.xaxis.set_major_locator(mdates.MonthLocator(interval=6))   #to get a tick every 15 minutes
 ax2.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
-ax3.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
+ax3.xaxis.set_major_locator(mdates.MonthLocator(interval=6))   #to get a tick every 15 minutes
 ax3.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
 
 f2.autofmt_xdate()
@@ -245,7 +245,7 @@ ax1 = plt.subplot(221)
 ax1.plot(wdStats['timeframe'],wdStats['avgPop'],  marker='.', markevery=0.05)
 ax1.plot(wdStats['timeframe'],wdStats['medianPop'], marker='x', markevery=0.05)
 ax1.grid(color='gray', linestyle='--', linewidth=.5)
-ax1.legend([r'Avg. population ($ap$)', 'Median population'])
+ax1.legend([r'Avg. population ($ap$)', r'Median population ($mp$)'])
 ax1.set_ylabel('Population')
 # ax1.yaxis.set_label_position('top')
 
@@ -258,7 +258,7 @@ ax3 = plt.subplot(223)
 ax3.plot(wdStats['timeframe'],wdStats['iRichness'],  marker='.', markevery=0.05)
 ax3.plot(wdStats['timeframe'],wdStats['medianInheritance'],  marker='x', markevery=0.05)
 ax3.grid(color='gray', linestyle='--', linewidth=.5)
-ax3.legend([r'Inheritance richness ($ir$)', 'Median inheritance'])
+ax3.legend([r'Inheritance richness ($ir$)', r'Median inheritance ($mir$)'])
 ax3.set_ylabel('Inheritance values')
 
 ax4 = plt.subplot(224)
@@ -267,13 +267,13 @@ ax4.grid(color='gray', linestyle='--', linewidth=.5)
 ax4.set_ylabel(r'Relationship richness ($rr$)')
 
 
-ax1.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
+ax1.xaxis.set_major_locator(mdates.MonthLocator(interval=6))   #to get a tick every 15 minutes
 ax1.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
-ax2.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
+ax2.xaxis.set_major_locator(mdates.MonthLocator(interval=6))   #to get a tick every 15 minutes
 ax2.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
-ax3.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
+ax3.xaxis.set_major_locator(mdates.MonthLocator(interval=6))   #to get a tick every 15 minutes
 ax3.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
-ax4.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
+ax4.xaxis.set_major_locator(mdates.MonthLocator(interval=6))   #to get a tick every 15 minutes
 ax4.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
 
 
@@ -289,18 +289,22 @@ font = {'size': 12}
 matplotlib.rc('font', **font)
 
 ax5 = plt.subplot(111)
+ax5.plot(wdStats_3['timeframe'],wdStats_3['maxDepth'], marker='^', markevery=0.05)
 ax5.plot(wdStats_3['timeframe'],wdStats_3['avgDepth'],  marker='.', markevery=0.05)
 ax5.plot(wdStats_3['timeframe'],wdStats_3['medianDepth'], marker='x', markevery=0.05)
-ax5.plot(wdStats_3['timeframe'],wdStats_3['maxDepth'], marker='^', markevery=0.05)
 ax5.grid(color='gray', linestyle='--', linewidth=.5)
-ax5.legend(['Avg. depth', 'Median depth', r'Max depth ($dosh$)'])
+ax5.legend([r'Max depth ($Mdosh$)', r'Avg. depth ($adosh$)', r'Median depth ($mdosh$)'])
 ax5.set_ylabel('Ontology depth')
 
+# minlocator = matdates.MinuteLocator(byminute=range(60))  # range(60) is the default
 
-ax5.xaxis.set_major_locator(mdates.MonthLocator(interval=8))   #to get a tick every 15 minutes
+# seclocator.MAXTICKS  = 40000
+# minlocator.MAXTICKS  = 40000
+ax5.xaxis.set_major_locator(mdates.MonthLocator(bymonth=[6,12]))   #to get a tick every 15 minutes
 ax5.xaxis.set_major_formatter(mdates.DateFormatter('%m-%Y'))     #optional formatting
 
 f3.autofmt_xdate()
+
 plt.tight_layout()
 plt.show()
 plt.savefig('ontodepth.eps', format='eps', transparent=True)

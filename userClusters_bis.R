@@ -2,12 +2,14 @@ library(clValid)
 library(diceR)
 library(cluster)
 library(factoextra)
+library(clv)
 # library(NbClust)
 setwd('~/Documents/PhD/userstats/')
 
 
 userdata <- read.csv('frameClean.csv', stringsAsFactors = F)
-userdata <- userdata[,-1]
+# userdata <- userdata[,-1]
+# userdata <- userdata[which(userdata$labels < 2),]
 userdata$admin[which(userdata$admin == 'True')] = 0
 userdata$admin[which(userdata$admin == 'False')] = 1
 userdata$admin <- as.numeric(userdata$admin)
@@ -21,17 +23,55 @@ userdata$lowAdmin <- as.numeric(userdata$lowAdmin)
 # userdata <- userdata[,-(11:14)]
 userdata <- subset(userdata, select = -noEdits)
 # userdata <- subset(userdata, select = -normAll)
-# userdata <- subset(userdata, select = -username)
+userdata <- subset(userdata, select = -username)
 userdata <- subset(userdata, select = -timeframe)
 userdata <- subset(userdata, select = -serial)
 # userdata <- subset(userdata, select = -labels)
 
 userdata[is.na(userdata)] <-0
 
+wss_value <- list()
+conn_value <- list()
+for (j in 1:8) {
+userdata_sample <- userdata[sample(nrow(userdata), 626883), ]
+fit <-  kmeans(userdata, 1, iter.max = 20, nstart = 16,
+       algorithm = c("Hartigan-Wong"), trace=FALSE)
+
+###wss
+wss <- (nrow(userdata)-1)*sum(apply(userdata,2,var))
+conn <- clv::connectivity(userdata, fit$cluster, 10)
+# comp <-  compactness(userdata_sample, kmeans(userdata_sample, 1, iter.max = 20, nstart = 16,
+#                                              algorithm = c("Hartigan-Wong"), trace=FALSE)$cluster)
+for (i in 2:8) wss[i] <- sum(kmeans(userdata,centers=i)$withinss)
+for (i in 2:8) conn[i] <-clv::connectivity(userdata, kmeans(userdata, i, iter.max = 20, nstart = 16,algorithm = c("Hartigan-Wong"), trace=FALSE)$cluster, 10)
+wss_value[[j]] <- wss
+conn_value[[j]] <- conn
+}
+
+connVector <- lapply(conn_value,function(x) as.vector(x))
+connDf <- as.data.frame(do.call(rbind, connVector))
+connDf <-  apply(connDf, 2, function(x) mean(x))
+
+wssVector <- lapply(wss_value,function(x) as.vector(x))
+wssDf <- as.data.frame(do.call(rbind, wssVector))
+wssDf <-  apply(wssDf, 2, function(x) mean(x))
+
+plot(connDf, wssDf, type="b")
+plot(conn, wss, type="b")
+
+
+# for (i in 2:9) comp[i] <- compactness(userdata_sample, kmeans(userdata_sample, i, iter.max = 20, nstart = 16,
+#                                                               algorithm = c("Hartigan-Wong"), trace=FALSE)$cluster)
+resulti <- as.data.frame(wss,conn)
+
+
+plot(1:9, wss, type="b", xlab="Number of Clusters",
+     ylab="Within groups sum of squares")
+
 
 
 # K-Means Clustering with 5 clusters
-fit <- kmeans(userdata, 2)
+fit <- kmeans(userdata, 4)
 
 # Cluster Plot against 1st 2 principal components
 
@@ -50,7 +90,7 @@ gskmn2 <- clusGap(userdata, FUN = kmeans, nstart = 10, K.max = 8, B = 60, spaceH
 fviz_gap_stat(gskmn2, 
               maxSE = list(method = "Tibs2001SEmax"))
 
-cosi <- kmeans(userdata, 2, iter.max = 10, nstart = 6, trace=FALSE)
+cosi <- kmeans(userdata, 4, iter.max = 10, nstart = 6, trace=FALSE)
 userdata$clusters <-  cosi$cluster
 userdata
 

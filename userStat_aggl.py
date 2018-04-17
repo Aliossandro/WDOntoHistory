@@ -17,7 +17,6 @@ import os
 import sys
 import copy
 import time
-from sklearn.cluster import AgglomerativeClustering
 
 # Variation of information (VI)
 #
@@ -44,9 +43,6 @@ def variation_of_information(X, Y):
 
 # VI = 3.322 (maximum VI is log(N) = log(10) = 3.322)
 
-aggrClust = AgglomerativeClustering(n_clusters=2, affinity='euclidean')
-aggrClust.fit(frame_norm.drop(['serial', 'timeframe', 'username', 'normAll', 'labels'], axis = 1))
-frame_sample = frame_norm.sample(frac=0.2)
 
 
 
@@ -65,7 +61,7 @@ def fileLoader(path, wait):
         resultsAll = []
         for num in range(1, 10):
             labelSample = []
-            frame_sample = frame_clean.sample(frac=0.2)
+            frame_sample = frame_clean.sample(frac=0.8)
             kmeans = KMeans(n_clusters=n, n_init=10, n_jobs=-1).fit(frame_sample.drop(colDropped, axis=1))
             labels = kmeans.labels_
             frame_sample['labels'] = labels
